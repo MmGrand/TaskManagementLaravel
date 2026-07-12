@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Permission;
+use App\Enums\RoleSlug;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -31,6 +33,35 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function hasRole(RoleSlug $role): bool
+    {
+        return $this->role?->slug === $role->value;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(RoleSlug::Admin);
+    }
+
+    public function isManager(): bool
+    {
+        return $this->hasRole(RoleSlug::Manager);
+    }
+
+    public function hasPermission(Permission $permission): bool
+    {
+        $role = $this->role;
+
+        if (! $role || ! $role->is_active) {
+            return false;
+        }
+
+        $permissions = $role->permissions ?? [];
+
+        return in_array('*', $permissions, true)
+            || in_array($permission->value, $permissions, true);
     }
 
     public function role(): BelongsTo
