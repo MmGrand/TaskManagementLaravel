@@ -11,6 +11,8 @@ class UserController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', User::class);
+
         $users = User::with('role')->get();
 
         return response()->json($users);
@@ -18,14 +20,14 @@ class UserController extends Controller
 
     public function show(User $user)
     {
+        $this->authorize('view', $user);
+
         return response()->json($user);
     }
 
     public function update(Request $request, User $user)
     {
-        if ($request->user()->id !== $user->id) {
-            abort(403);
-        }
+        $this->authorize('update', $user);
 
         $validated = $request->validate([
             'first_name' => 'required|string|max:255',
