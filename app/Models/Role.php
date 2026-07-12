@@ -7,11 +7,19 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['slug', 'name', 'is_active'])]
+#[Fillable(['slug', 'name', 'permissions', 'is_active'])]
 class Role extends Model
 {
     /** @use HasFactory<RoleFactory> */
     use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'permissions' => 'array',
+            'is_active' => 'boolean',
+        ];
+    }
 
     public function users()
     {
