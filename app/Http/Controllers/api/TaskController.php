@@ -10,7 +10,7 @@ class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = Task::all();
+        $tasks = Task::with(['project', 'assignedUser', 'createdBy'])->get();
 
         return response()->json($tasks);
     }
@@ -24,17 +24,18 @@ class TaskController extends Controller
             'priority' => 'required|in:low,medium,high',
             'project_id' => 'required|exists:projects,id',
             'assigned_to' => 'required|exists:users,id',
-            'created_by' => 'required|exists:users,id',
             'due_date' => 'nullable|date',
         ]);
 
-        $task = Task::create($validated);
+        $task = $request->user()->createdTasks()->create($validated);
 
         return response()->json($task, 201);
     }
 
     public function show(Task $task)
     {
+        $task->load(['project', 'assignedUser', 'createdBy']);
+
         return response()->json($task);
     }
 
@@ -47,7 +48,6 @@ class TaskController extends Controller
             'priority' => 'required|in:low,medium,high',
             'project_id' => 'required|exists:projects,id',
             'assigned_to' => 'required|exists:users,id',
-            'created_by' => 'required|exists:users,id',
             'due_date' => 'nullable|date',
         ]);
 
