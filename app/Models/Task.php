@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Filterable;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
-    use HasFactory;
+    use Filterable, HasFactory;
 
     public function project(): BelongsTo
     {
