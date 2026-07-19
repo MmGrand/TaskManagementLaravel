@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Enums\RoleSlug;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -21,12 +24,14 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
+        $validated['role_id'] = Role::where('slug', RoleSlug::User->value)->value('id');
+
         $user = User::create($validated);
 
         $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => UserResource::make($user->load('role')),
             'token' => $token,
         ], 201);
     }
@@ -49,7 +54,7 @@ class AuthController extends Controller
         $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([
-            'user' => $user,
+            'user' => UserResource::make($user->load('role')),
             'token' => $token,
         ]);
     }
