@@ -6,17 +6,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Support\Facades\Storage;
+use App\Services\UserService;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly UserService $users) {}
+
     public function index()
     {
         $this->authorize('viewAny', User::class);
 
-        $users = User::with('role')->paginate(15);
-
-        return UserResource::collection($users);
+        return UserResource::collection($this->users->list());
     }
 
     public function show(User $user)
@@ -28,17 +28,7 @@ class UserController extends Controller
 
     public function update(UpdateRequest $request, User $user)
     {
-        $validated = $request->validated();
-
-        if ($request->hasFile('avatar')) {
-            if ($user->avatar) {
-                Storage::disk('public')->delete($user->avatar);
-            }
-
-            $validated['avatar'] = $request->file('avatar')->store('avatars', 'public');
-        }
-
-        $user->update($validated);
+        $user = $this->users->update($user, $request->validated(), $request->file('avatar'));
 
         return UserResource::make($user->load('role'));
     }

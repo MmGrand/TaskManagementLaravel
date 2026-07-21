@@ -9,25 +9,22 @@ use App\Http\Requests\Task\StoreRequest;
 use App\Http\Requests\Task\UpdateRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
+use App\Services\TaskService;
 
 class TaskController extends Controller
 {
+    public function __construct(private readonly TaskService $tasks) {}
+
     public function index(IndexRequest $request, TaskFilter $filter)
     {
         $this->authorize('viewAny', Task::class);
 
-        $tasks = Task::query()
-            ->with(['project', 'assignedUser', 'createdBy'])
-            ->filter($filter)
-            ->paginate(15)
-            ->withQueryString();
-
-        return TaskResource::collection($tasks);
+        return TaskResource::collection($this->tasks->list($filter));
     }
 
     public function store(StoreRequest $request)
     {
-        $task = $request->user()->createdTasks()->create($request->validated());
+        $task = $this->tasks->create($request->user(), $request->validated());
 
         return TaskResource::make($task->load(['project', 'assignedUser', 'createdBy']))
             ->response()
@@ -45,7 +42,7 @@ class TaskController extends Controller
 
     public function update(UpdateRequest $request, Task $task)
     {
-        $task->update($request->validated());
+        $task = $this->tasks->update($task, $request->validated());
 
         return TaskResource::make($task->load(['project', 'assignedUser', 'createdBy']));
     }
@@ -54,7 +51,7 @@ class TaskController extends Controller
     {
         $this->authorize('delete', $task);
 
-        $task->delete();
+        $this->tasks->delete($task);
 
         return response()->json(null, 204);
     }

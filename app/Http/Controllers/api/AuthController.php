@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers\api;
 
-use App\Enums\RoleSlug;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\Role;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    public function __construct(private readonly AuthService $auth) {}
+
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -24,11 +22,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $validated['role_id'] = Role::where('slug', RoleSlug::User->value)->value('id');
-
-        $user = User::create($validated);
-
-        $token = $user->createToken('api')->plainTextToken;
+        ['user' => $user, 'token' => $token] = $this->auth->register($validated);
 
         return response()->json([
             'user' => UserResource::make($user->load('role')),
@@ -43,15 +37,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (! Auth::attempt($credentials)) {
-            throw ValidationException::withMessages([
-                'email' => ['Email or password is incorrect.'],
-            ]);
-        }
-
-        $user = $request->user();
-
-        $token = $user->createToken('api')->plainTextToken;
+        ['user' => $user, 'token' => $token] = $this->auth->login($credentials);
 
         return response()->json([
             'user' => UserResource::make($user->load('role')),
@@ -61,7 +47,7 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        $this->auth->logout($request->user());
 
         return response()->json(null, 204);
     }

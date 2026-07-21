@@ -9,24 +9,20 @@ use App\Http\Requests\Project\StoreRequest;
 use App\Http\Requests\Project\UpdateRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
+use App\Services\ProjectService;
 
 class ProjectController extends Controller
 {
+    public function __construct(private readonly ProjectService $projects) {}
+
     public function index(IndexRequest $request, ProjectFilter $filter)
     {
-        $projects = Project::query()
-            ->with('creator')
-            ->filter($filter)
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
-
-        return ProjectResource::collection($projects);
+        return ProjectResource::collection($this->projects->list($filter));
     }
 
     public function store(StoreRequest $request)
     {
-        $project = $request->user()->projects()->create($request->validated());
+        $project = $this->projects->create($request->user(), $request->validated());
 
         return ProjectResource::make($project->load('creator'))
             ->response()
@@ -42,7 +38,7 @@ class ProjectController extends Controller
 
     public function update(UpdateRequest $request, Project $project)
     {
-        $project->update($request->validated());
+        $project = $this->projects->update($project, $request->validated());
 
         return ProjectResource::make($project->load('creator'));
     }
@@ -51,7 +47,7 @@ class ProjectController extends Controller
     {
         $this->authorize('delete', $project);
 
-        $project->delete();
+        $this->projects->delete($project);
 
         return response()->json(null, 204);
     }
