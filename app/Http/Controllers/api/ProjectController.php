@@ -4,14 +4,15 @@ namespace App\Http\Controllers\api;
 
 use App\Filters\ProjectFilter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\IndexProjectRequest;
+use App\Http\Requests\Project\IndexRequest;
+use App\Http\Requests\Project\StoreRequest;
+use App\Http\Requests\Project\UpdateRequest;
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
-use Illuminate\Http\Request;
 
 class ProjectController extends Controller
 {
-    public function index(IndexProjectRequest $request, ProjectFilter $filter)
+    public function index(IndexRequest $request, ProjectFilter $filter)
     {
         $projects = Project::query()
             ->with('creator')
@@ -23,17 +24,9 @@ class ProjectController extends Controller
         return ProjectResource::collection($projects);
     }
 
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $this->authorize('create', Project::class);
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:active,completed,archived',
-        ]);
-
-        $project = $request->user()->projects()->create($validated);
+        $project = $request->user()->projects()->create($request->validated());
 
         return ProjectResource::make($project->load('creator'))
             ->response()
@@ -47,17 +40,9 @@ class ProjectController extends Controller
         return ProjectResource::make($project->load('creator'));
     }
 
-    public function update(Request $request, Project $project)
+    public function update(UpdateRequest $request, Project $project)
     {
-        $this->authorize('update', $project);
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:active,completed,archived',
-        ]);
-
-        $project->update($validated);
+        $project->update($request->validated());
 
         return ProjectResource::make($project->load('creator'));
     }

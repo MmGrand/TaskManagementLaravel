@@ -4,15 +4,15 @@ namespace App\Http\Controllers\api;
 
 use App\Filters\TaskFilter;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\IndexTaskRequest;
+use App\Http\Requests\Task\IndexRequest;
+use App\Http\Requests\Task\StoreRequest;
+use App\Http\Requests\Task\UpdateRequest;
 use App\Http\Resources\TaskResource;
 use App\Models\Task;
-use App\Models\User;
-use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    public function index(IndexTaskRequest $request, TaskFilter $filter)
+    public function index(IndexRequest $request, TaskFilter $filter)
     {
         $this->authorize('viewAny', Task::class);
 
@@ -25,21 +25,9 @@ class TaskController extends Controller
         return TaskResource::collection($tasks);
     }
 
-    public function store(Request $request)
+    public function store(StoreRequest $request)
     {
-        $this->authorize('create', Task::class);
-
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pending,in_progress,completed',
-            'priority' => 'required|in:low,medium,high',
-            'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'required|exists:users,id',
-            'due_date' => 'nullable|date',
-        ]);
-
-        $task = $request->user()->createdTasks()->create($validated);
+        $task = $request->user()->createdTasks()->create($request->validated());
 
         return TaskResource::make($task->load(['project', 'assignedUser', 'createdBy']))
             ->response()
@@ -55,27 +43,9 @@ class TaskController extends Controller
         return TaskResource::make($task);
     }
 
-    public function update(Request $request, Task $task)
+    public function update(UpdateRequest $request, Task $task)
     {
-        $this->authorize('update', $task);
-
-        if ($this->canManageTask($request->user(), $task)) {
-            $validated = $request->validate([
-                'title' => 'required|string|max:255',
-                'description' => 'nullable|string',
-                'status' => 'required|in:pending,in_progress,completed',
-                'priority' => 'required|in:low,medium,high',
-                'project_id' => 'required|exists:projects,id',
-                'assigned_to' => 'required|exists:users,id',
-                'due_date' => 'nullable|date',
-            ]);
-        } else {
-            $validated = $request->validate([
-                'status' => 'required|in:pending,in_progress,completed',
-            ]);
-        }
-
-        $task->update($validated);
+        $task->update($request->validated());
 
         return TaskResource::make($task->load(['project', 'assignedUser', 'createdBy']));
     }
@@ -87,12 +57,5 @@ class TaskController extends Controller
         $task->delete();
 
         return response()->json(null, 204);
-    }
-
-    private function canManageTask(User $user, Task $task): bool
-    {
-        return $user->isAdmin()
-            || $user->isManager()
-            || $task->created_by === $user->id;
     }
 }

@@ -15,6 +15,13 @@ class Task extends Model
     /** @use HasFactory<TaskFactory> */
     use Filterable, HasFactory;
 
+    public function isManageableBy(User $user): bool
+    {
+        return $user->isAdmin()
+            || $user->isManager()
+            || $this->created_by === $user->id;
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

@@ -3,11 +3,10 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\User\UpdateRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -27,17 +26,9 @@ class UserController extends Controller
         return UserResource::make($user->load('role'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateRequest $request, User $user)
     {
-        $this->authorize('update', $user);
-
-        $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
-            'avatar' => 'nullable|image|max:2048',
-            'phone_number' => 'required|string|max:20',
-        ]);
+        $validated = $request->validated();
 
         if ($request->hasFile('avatar')) {
             if ($user->avatar) {
