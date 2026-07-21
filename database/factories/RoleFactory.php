@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\RoleSlug;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Str;
@@ -25,5 +26,33 @@ class RoleFactory extends Factory
             'name' => $name,
             'is_active' => fake()->boolean(),
         ];
+    }
+
+    /**
+     * Configure the role for one of the application's predefined slugs.
+     */
+    public function forSlug(RoleSlug $slug): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'slug' => $slug->value,
+            'name' => $slug->label(),
+            'permissions' => $slug->defaultPermissions(),
+            'is_active' => true,
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->forSlug(RoleSlug::Admin);
+    }
+
+    public function manager(): static
+    {
+        return $this->forSlug(RoleSlug::Manager);
+    }
+
+    public function user(): static
+    {
+        return $this->forSlug(RoleSlug::User);
     }
 }

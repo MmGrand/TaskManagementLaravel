@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\RoleSlug;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -45,5 +47,32 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    /**
+     * Assign one of the application's predefined roles to the user,
+     * reusing an existing role with that slug when available.
+     */
+    public function withRole(RoleSlug $slug): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'role_id' => Role::where('slug', $slug->value)->first()
+                ?? Role::factory()->forSlug($slug),
+        ]);
+    }
+
+    public function admin(): static
+    {
+        return $this->withRole(RoleSlug::Admin);
+    }
+
+    public function manager(): static
+    {
+        return $this->withRole(RoleSlug::Manager);
+    }
+
+    public function user(): static
+    {
+        return $this->withRole(RoleSlug::User);
     }
 }
