@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface UserRepository
@@ -18,4 +19,9 @@ interface UserRepository
      * @param  array<string, mixed>  $attributes
      */
     public function update(User $user, array $attributes): User;
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function topActiveCreators(int $limit = 5): Collection;
 }

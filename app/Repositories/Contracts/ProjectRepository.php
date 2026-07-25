@@ -21,4 +21,6 @@ interface ProjectRepository
     public function update(Project $project, array $attributes): Project;
 
     public function delete(Project $project): void;
+
+    public function count(): int;
 }

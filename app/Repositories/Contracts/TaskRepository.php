@@ -21,4 +21,13 @@ interface TaskRepository
     public function update(Task $task, array $attributes): Task;
 
     public function delete(Task $task): void;
+
+    public function count(): int;
+
+    /**
+     * @return array<string, int>
+     */
+    public function countByStatus(): array;
+
+    public function countOverdue(): int;
 }

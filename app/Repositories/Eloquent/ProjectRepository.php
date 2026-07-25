@@ -35,4 +35,9 @@ class ProjectRepository implements ProjectRepositoryContract
     {
         $project->delete();
     }
+
+    public function count(): int
+    {
+        return Project::count();
+    }
 }

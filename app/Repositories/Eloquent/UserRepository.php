@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepository as UserRepositoryContract;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class UserRepository implements UserRepositoryContract
@@ -23,5 +24,14 @@ class UserRepository implements UserRepositoryContract
         $user->update($attributes);
 
         return $user;
+    }
+
+    public function topActiveCreators(int $limit = 5): Collection
+    {
+        return User::query()
+            ->withCount('createdTasks')
+            ->orderByDesc('created_tasks_count')
+            ->limit($limit)
+            ->get();
     }
 }

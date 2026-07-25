@@ -34,4 +34,29 @@ class TaskRepository implements TaskRepositoryContract
     {
         $task->delete();
     }
+
+    public function count(): int
+    {
+        return Task::count();
+    }
+
+    public function countByStatus(): array
+    {
+        $counts = Task::query()
+            ->selectRaw('status, count(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        return collect(['pending', 'in_progress', 'completed'])
+            ->mapWithKeys(fn (string $status) => [$status => (int) ($counts[$status] ?? 0)])
+            ->all();
+    }
+
+    public function countOverdue(): int
+    {
+        return Task::query()
+            ->whereDate('due_date', '<', today())
+            ->where('status', '!=', 'completed')
+            ->count();
+    }
 }
