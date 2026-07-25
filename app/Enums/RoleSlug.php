@@ -39,6 +39,7 @@ enum RoleSlug: string
                 Permission::TasksDelete,
                 Permission::UsersViewAny,
                 Permission::UsersView,
+                Permission::StatisticsView,
             ]),
             self::User => $toValues([
                 Permission::ProjectsViewAny,
