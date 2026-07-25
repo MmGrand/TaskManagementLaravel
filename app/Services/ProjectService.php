@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Filters\ProjectFilter;
+use App\Jobs\Notifications\ProjectStatusChanged;
 use App\Models\Project;
 use App\Models\User;
 use App\Repositories\Contracts\ProjectRepository;
@@ -30,7 +31,15 @@ class ProjectService
      */
     public function update(Project $project, array $attributes): Project
     {
-        return $this->projects->update($project, $attributes);
+        $originalStatus = $project->status;
+
+        $project = $this->projects->update($project, $attributes);
+
+        if ($project->status !== $originalStatus) {
+            ProjectStatusChanged::dispatch($project, $originalStatus);
+        }
+
+        return $project;
     }
 
     public function delete(Project $project): void
