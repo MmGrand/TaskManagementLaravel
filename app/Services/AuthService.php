@@ -3,11 +3,13 @@
 namespace App\Services;
 
 use App\Enums\RoleSlug;
+use App\Enums\UserStatus;
 use App\Models\Role;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class AuthService
 {
@@ -19,9 +21,17 @@ class AuthService
      */
     public function register(array $attributes): array
     {
-        $attributes['role_id'] = Role::where('slug', RoleSlug::User->value)->value('id');
+        $roleId = Role::where('slug', RoleSlug::User->value)->value('id');
 
-        $user = $this->users->create($attributes);
+        if ($roleId === null) {
+            throw new RuntimeException('Роль не найдена. Пожалуйста, создайте роль с slug "user".');
+        }
+
+        $user = $this->users->create([
+            ...$attributes,
+            'role_id' => $roleId,
+            'status' => UserStatus::Active,
+        ]);
 
         return [
             'user' => $user,
@@ -42,6 +52,12 @@ class AuthService
         }
 
         $user = Auth::user();
+
+        if (! $user->status->allowsAccess()) {
+            throw ValidationException::withMessages([
+                'email' => ["Аккаунт недоступен: {$user->status->label()}."],
+            ]);
+        }
 
         return [
             'user' => $user,

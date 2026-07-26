@@ -18,16 +18,19 @@ class TaskSeeder extends Seeder
     public function run(): void
     {
         $projects = Project::all();
-        $assignees = User::all();
-        $creators = User::whereHas('role', fn ($query) => $query->whereIn('slug', ['admin', 'manager']))->get();
+        $assignees = User::whereHas('role', fn ($query) => $query->where('slug', 'user'))->get();
 
         Task::factory()
             ->count(20)
-            ->state(fn () => [
-                'project_id' => $projects->random()->id,
-                'assigned_to' => $assignees->random()->id,
-                'created_by' => $creators->random()->id,
-            ])
+            ->state(function () use ($projects, $assignees): array {
+                $project = $projects->random();
+
+                return [
+                    'project_id' => $project->id,
+                    'assigned_to' => $assignees->random()->id,
+                    'created_by' => $project->created_by,
+                ];
+            })
             ->create();
     }
 }
