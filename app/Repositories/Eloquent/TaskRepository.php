@@ -4,15 +4,17 @@ namespace App\Repositories\Eloquent;
 
 use App\Filters\TaskFilter;
 use App\Models\Task;
+use App\Models\User;
 use App\Repositories\Contracts\TaskRepository as TaskRepositoryContract;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskRepository implements TaskRepositoryContract
 {
-    public function paginate(TaskFilter $filter, int $perPage = 15): LengthAwarePaginator
+    public function paginate(TaskFilter $filter, User $viewer, int $perPage = 15): LengthAwarePaginator
     {
         return Task::query()
             ->with(['project', 'assignedUser', 'createdBy'])
+            ->visibleTo($viewer)
             ->filter($filter)
             ->paginate($perPage)
             ->withQueryString();

@@ -17,7 +17,9 @@ class ProjectController extends Controller
 
     public function index(IndexRequest $request, ProjectFilter $filter)
     {
-        return ProjectResource::collection($this->projects->list($filter));
+        $this->authorize('viewAny', Project::class);
+
+        return ProjectResource::collection($this->projects->list($filter, $request->user()));
     }
 
     public function store(StoreRequest $request)

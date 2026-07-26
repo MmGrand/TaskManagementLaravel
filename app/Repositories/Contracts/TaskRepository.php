@@ -4,11 +4,12 @@ namespace App\Repositories\Contracts;
 
 use App\Filters\TaskFilter;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface TaskRepository
 {
-    public function paginate(TaskFilter $filter, int $perPage = 15): LengthAwarePaginator;
+    public function paginate(TaskFilter $filter, User $viewer, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * @param  array<string, mixed>  $attributes

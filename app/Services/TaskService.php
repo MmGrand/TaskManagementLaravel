@@ -14,9 +14,9 @@ class TaskService
 {
     public function __construct(private readonly TaskRepository $tasks) {}
 
-    public function list(TaskFilter $filter): LengthAwarePaginator
+    public function list(TaskFilter $filter, User $viewer): LengthAwarePaginator
     {
-        return $this->tasks->paginate($filter);
+        return $this->tasks->paginate($filter, $viewer);
     }
 
     /**

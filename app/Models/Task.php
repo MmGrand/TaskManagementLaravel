@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Models\Concerns\Filterable;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,8 +20,28 @@ class Task extends Model
     public function isManageableBy(User $user): bool
     {
         return $user->isAdmin()
-            || $user->isManager()
-            || $this->created_by === $user->id;
+            || $this->created_by === $user->id
+            || ($user->isManager() && $this->project->created_by === $user->id);
+    }
+
+    #[Scope]
+    protected function visibleTo(Builder $query, User $user): Builder
+    {
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
+        return $query->where(function (Builder $query) use ($user): void {
+            $query->where('assigned_to', $user->id)
+                ->orWhere('created_by', $user->id);
+
+            if ($user->isManager()) {
+                $query->orWhereHas(
+                    'project',
+                    fn (Builder $project) => $project->where('created_by', $user->id),
+                );
+            }
+        });
     }
 
     public function project(): BelongsTo

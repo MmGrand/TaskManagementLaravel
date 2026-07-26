@@ -4,11 +4,12 @@ namespace App\Repositories\Contracts;
 
 use App\Filters\ProjectFilter;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 interface ProjectRepository
 {
-    public function paginate(ProjectFilter $filter, int $perPage = 15): LengthAwarePaginator;
+    public function paginate(ProjectFilter $filter, User $viewer, int $perPage = 15): LengthAwarePaginator;
 
     /**
      * @param  array<string, mixed>  $attributes

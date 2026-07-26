@@ -19,7 +19,7 @@ class TaskController extends Controller
     {
         $this->authorize('viewAny', Task::class);
 
-        return TaskResource::collection($this->tasks->list($filter));
+        return TaskResource::collection($this->tasks->list($filter, $request->user()));
     }
 
     public function store(StoreRequest $request)

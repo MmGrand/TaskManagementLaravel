@@ -4,15 +4,17 @@ namespace App\Repositories\Eloquent;
 
 use App\Filters\ProjectFilter;
 use App\Models\Project;
+use App\Models\User;
 use App\Repositories\Contracts\ProjectRepository as ProjectRepositoryContract;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProjectRepository implements ProjectRepositoryContract
 {
-    public function paginate(ProjectFilter $filter, int $perPage = 15): LengthAwarePaginator
+    public function paginate(ProjectFilter $filter, User $viewer, int $perPage = 15): LengthAwarePaginator
     {
         return Project::query()
             ->with('creator')
+            ->visibleTo($viewer)
             ->filter($filter)
             ->latest()
             ->paginate($perPage)

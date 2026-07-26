@@ -13,9 +13,9 @@ class ProjectService
 {
     public function __construct(private readonly ProjectRepository $projects) {}
 
-    public function list(ProjectFilter $filter): LengthAwarePaginator
+    public function list(ProjectFilter $filter, User $viewer): LengthAwarePaginator
     {
-        return $this->projects->paginate($filter);
+        return $this->projects->paginate($filter, $viewer);
     }
 
     /**
