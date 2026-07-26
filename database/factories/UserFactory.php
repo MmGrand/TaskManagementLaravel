@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\RoleSlug;
+use App\Enums\UserStatus;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -31,8 +32,8 @@ class UserFactory extends Factory
             'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'avatar' => fake()->imageUrl(640, 480, 'people'),
-            'status' => fake()->randomElement(['active', 'inactive', 'blocked']),
-            'phone_number' => fake()->phoneNumber(),
+            'status' => UserStatus::Active,
+            'phone' => fake()->phoneNumber(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
@@ -47,6 +48,23 @@ class UserFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
+    }
+
+    public function withStatus(UserStatus $status): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => $status,
+        ]);
+    }
+
+    public function inactive(): static
+    {
+        return $this->withStatus(UserStatus::Inactive);
+    }
+
+    public function blocked(): static
+    {
+        return $this->withStatus(UserStatus::Blocked);
     }
 
     /**

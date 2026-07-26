@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('last_name')->after('first_name');
             $table->enum('status', ['active', 'inactive', 'blocked'])->default('active')->after('email');
             $table->string('avatar')->nullable()->after('status');
-            $table->string('phone_number')->after('avatar');
+            $table->string('phone')->after('avatar');
         });
     }
 
@@ -28,7 +28,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->renameColumn('first_name', 'name');
-            $table->dropColumn(['last_name', 'status', 'avatar', 'phone_number']);
+            $table->dropColumn(['last_name', 'status', 'avatar', 'phone']);
         });
     }
 };
