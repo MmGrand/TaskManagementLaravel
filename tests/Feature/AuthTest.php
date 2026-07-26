@@ -1,19 +1,26 @@
 <?php
 
+use App\Enums\RoleSlug;
+use App\Enums\UserStatus;
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 
-test('a user can register', function () {
+test('a user can register and receives the user role', function () {
+    $this->seed(RoleSeeder::class);
+
     $response = $this->postJson('/api/register', [
         'first_name' => 'Ivan',
         'last_name' => 'Petrov',
         'email' => 'ivan@example.com',
-        'phone_number' => '+79991234567',
+        'phone' => '+79991234567',
         'password' => 'password',
         'password_confirmation' => 'password',
     ]);
 
     $response->assertCreated()
         ->assertJsonPath('user.email', 'ivan@example.com')
+        ->assertJsonPath('user.role.slug', RoleSlug::User->value)
+        ->assertJsonPath('user.status', UserStatus::Active->value)
         ->assertJsonStructure(['user', 'token']);
 
     $this->assertDatabaseHas('users', ['email' => 'ivan@example.com']);
@@ -23,7 +30,7 @@ test('registration fails validation with missing fields', function () {
     $response = $this->postJson('/api/register', []);
 
     $response->assertUnprocessable()
-        ->assertJsonValidationErrors(['first_name', 'last_name', 'email', 'phone_number', 'password']);
+        ->assertJsonValidationErrors(['first_name', 'last_name', 'email', 'phone', 'password']);
 });
 
 test('a user can login with correct credentials', function () {
@@ -46,6 +53,39 @@ test('login fails with incorrect credentials', function () {
     ]);
 
     $response->assertUnprocessable();
+});
+
+test('a blocked user cannot login', function () {
+    $user = User::factory()->user()->blocked()->create();
+
+    $response = $this->postJson('/api/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
+});
+
+test('an inactive user cannot login', function () {
+    $user = User::factory()->user()->inactive()->create();
+
+    $response = $this->postJson('/api/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
+});
+
+test('blocking a user invalidates their existing token', function () {
+    $user = User::factory()->user()->create();
+    $token = $user->createToken('api')->plainTextToken;
+
+    $user->update(['status' => UserStatus::Blocked]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")->getJson('/api/tasks');
+
+    $response->assertForbidden();
 });
 
 test('a user can logout', function () {
