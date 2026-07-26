@@ -1,3 +1,19 @@
+x-service-env: &service-env
+  DB_CONNECTION: mysql
+  DB_HOST: mysql
+  DB_PORT: 3306
+  DB_DATABASE: task_management
+  DB_USERNAME: task_management
+  DB_PASSWORD: secret
+  CACHE_STORE: redis
+  REDIS_HOST: redis
+
+x-depends-on: &depends-on
+  mysql:
+    condition: service_healthy
+  redis:
+    condition: service_started
+
 services:
   app:
     build: .
@@ -8,10 +24,8 @@ services:
       - vendor:/var/www/html/vendor
     env_file:
       - .env
-    environment:
-      - REDIS_HOST=redis
-    depends_on:
-      - redis
+    environment: *service-env
+    depends_on: *depends-on
 
   queue:
     build: .
@@ -21,10 +35,25 @@ services:
       - vendor:/var/www/html/vendor
     env_file:
       - .env
+    environment: *service-env
+    depends_on: *depends-on
+
+  mysql:
+    image: mysql:8
+    ports:
+      - "3306:3306"
     environment:
-      - REDIS_HOST=redis
-    depends_on:
-      - redis
+      MYSQL_DATABASE: task_management
+      MYSQL_USER: task_management
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    volumes:
+      - mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psecret"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   redis:
     image: redis:7-alpine
@@ -33,3 +62,4 @@ services:
 
 volumes:
   vendor:
+  mysql:

@@ -20,7 +20,7 @@ class StatisticsService
      */
     public function summary(): array
     {
-        return Cache::store('redis')->flexible('statistics.summary', [50, 60], function () {
+        return Cache::flexible('statistics.summary', [50, 60], function () {
             return [
                 'projects_count' => $this->projects->count(),
                 'tasks_count' => $this->tasks->count(),
