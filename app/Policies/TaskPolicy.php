@@ -22,7 +22,7 @@ class TaskPolicy
     public function view(User $user, Task $task): bool
     {
         return $user->hasPermission(Permission::TasksView)
-            && ($task->created_by === $user->id || $task->assigned_to === $user->id);
+            && $this->isRelatedTo($user, $task);
     }
 
     /**
@@ -39,7 +39,7 @@ class TaskPolicy
     public function update(User $user, Task $task): bool
     {
         return $user->hasPermission(Permission::TasksUpdate)
-            && ($task->created_by === $user->id || $task->assigned_to === $user->id);
+            && $this->isRelatedTo($user, $task);
     }
 
     /**
@@ -65,5 +65,12 @@ class TaskPolicy
     public function forceDelete(User $user, Task $task): bool
     {
         return false;
+    }
+
+    private function isRelatedTo(User $user, Task $task): bool
+    {
+        return $task->created_by === $user->id
+            || $task->assigned_to === $user->id
+            || ($user->isManager() && $task->project->created_by === $user->id);
     }
 }

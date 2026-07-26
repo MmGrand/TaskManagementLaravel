@@ -2,18 +2,22 @@
 
 namespace App\Http\Requests\Task;
 
+use App\Http\Requests\Concerns\AuthorizesTaskProject;
 use App\Models\Task;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
 {
+    use AuthorizesTaskProject;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('create', Task::class);
+        return $this->user()->can('create', Task::class)
+            && $this->mayUseSubmittedProject();
     }
 
     /**

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\User;
 
+use App\Enums\Permission;
+use App\Enums\UserStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,7 +30,10 @@ class UpdateRequest extends FormRequest
             'last_name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user')->id)],
             'avatar' => 'nullable|image|max:2048',
-            'phone_number' => 'required|string|max:20',
+            'phone' => 'required|string|max:20',
+            'status' => $this->user()->hasPermission(Permission::UsersUpdate)
+                ? ['sometimes', Rule::enum(UserStatus::class)]
+                : ['prohibited'],
         ];
     }
 }

@@ -2,17 +2,25 @@
 
 namespace App\Http\Requests\Task;
 
+use App\Http\Requests\Concerns\AuthorizesTaskProject;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateRequest extends FormRequest
 {
+    use AuthorizesTaskProject;
+
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update', $this->route('task'));
+        if (! $this->user()->can('update', $this->route('task'))) {
+            return false;
+        }
+
+        return ! $this->route('task')->isManageableBy($this->user())
+            || $this->mayUseSubmittedProject();
     }
 
     /**

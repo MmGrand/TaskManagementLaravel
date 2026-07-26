@@ -5,6 +5,7 @@ namespace App\Policies;
 use App\Enums\Permission;
 use App\Models\Project;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 
 class ProjectPolicy
 {
@@ -21,7 +22,19 @@ class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        return $user->hasPermission(Permission::ProjectsView);
+        if (! $user->hasPermission(Permission::ProjectsView)) {
+            return false;
+        }
+
+        if ($user->isManager()) {
+            return $project->created_by === $user->id;
+        }
+
+        return $project->tasks()
+            ->where(fn (Builder $tasks) => $tasks
+                ->where('assigned_to', $user->id)
+                ->orWhere('created_by', $user->id))
+            ->exists();
     }
 
     /**
@@ -47,6 +60,12 @@ class ProjectPolicy
     public function delete(User $user, Project $project): bool
     {
         return $user->hasPermission(Permission::ProjectsDelete)
+            && $project->created_by === $user->id;
+    }
+
+    public function addTask(User $user, Project $project): bool
+    {
+        return $user->hasPermission(Permission::TasksCreate)
             && $project->created_by === $user->id;
     }
 
