@@ -3,13 +3,14 @@
 namespace App\Http\Requests\Task;
 
 use App\Http\Requests\Concerns\AuthorizesTaskProject;
+use App\Http\Requests\Concerns\ProvidesTaskRules;
 use App\Models\Task;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRequest extends FormRequest
 {
-    use AuthorizesTaskProject;
+    use AuthorizesTaskProject, ProvidesTaskRules;
 
     /**
      * Determine if the user is authorized to make this request.
@@ -27,14 +28,6 @@ class StoreRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'status' => 'required|in:pending,in_progress,completed',
-            'priority' => 'required|in:low,medium,high',
-            'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'required|exists:users,id',
-            'due_date' => 'nullable|date',
-        ];
+        return $this->manageableTaskRules();
     }
 }

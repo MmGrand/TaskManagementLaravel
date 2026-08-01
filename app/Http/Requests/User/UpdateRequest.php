@@ -25,14 +25,19 @@ class UpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+        $managesUsers = $this->user()->hasPermission(Permission::UsersUpdate);
+
         return [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user')->id)],
             'avatar' => 'nullable|image|max:2048',
             'phone' => 'required|string|max:20',
-            'status' => $this->user()->hasPermission(Permission::UsersUpdate)
+            'status' => $managesUsers
                 ? ['sometimes', Rule::enum(UserStatus::class)]
+                : ['prohibited'],
+            'role_id' => $managesUsers
+                ? ['sometimes', 'integer', 'exists:roles,id']
                 : ['prohibited'],
         ];
     }
