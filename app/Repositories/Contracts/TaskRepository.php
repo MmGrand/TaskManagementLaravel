@@ -23,12 +23,12 @@ interface TaskRepository
 
     public function delete(Task $task): void;
 
-    public function count(): int;
+    public function countVisibleTo(User $viewer): int;
 
     /**
      * @return array<string, int>
      */
-    public function countByStatus(): array;
+    public function countByStatusVisibleTo(User $viewer): array;
 
-    public function countOverdue(): int;
+    public function countOverdueVisibleTo(User $viewer): int;
 }

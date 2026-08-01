@@ -23,5 +23,5 @@ interface ProjectRepository
 
     public function delete(Project $project): void;
 
-    public function count(): int;
+    public function countVisibleTo(User $viewer): int;
 }

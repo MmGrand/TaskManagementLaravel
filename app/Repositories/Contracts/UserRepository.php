@@ -23,5 +23,5 @@ interface UserRepository
     /**
      * @return Collection<int, User>
      */
-    public function topActiveCreators(int $limit = 5): Collection;
+    public function topActiveCreators(User $viewer, int $limit = 5): Collection;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\User;
 use App\Repositories\Contracts\ProjectRepository;
 use App\Repositories\Contracts\TaskRepository;
 use App\Repositories\Contracts\UserRepository;
@@ -18,16 +19,16 @@ class StatisticsService
     /**
      * @return array<string, mixed>
      */
-    public function summary(): array
+    public function summary(User $viewer): array
     {
-        return Cache::flexible('statistics.summary', [50, 60], function () {
+        return Cache::flexible($this->cacheKey($viewer), [50, 60], function () use ($viewer) {
             return [
-                'projects_count' => $this->projects->count(),
-                'tasks_count' => $this->tasks->count(),
-                'tasks_by_status' => $this->tasks->countByStatus(),
-                'overdue_tasks_count' => $this->tasks->countOverdue(),
-                'top_active_users' => $this->users->topActiveCreators()
-                    ->map(fn ($user) => [
+                'projects_count' => $this->projects->countVisibleTo($viewer),
+                'tasks_count' => $this->tasks->countVisibleTo($viewer),
+                'tasks_by_status' => $this->tasks->countByStatusVisibleTo($viewer),
+                'overdue_tasks_count' => $this->tasks->countOverdueVisibleTo($viewer),
+                'top_active_users' => $this->users->topActiveCreators($viewer)
+                    ->map(fn (User $user): array => [
                         'id' => $user->id,
                         'first_name' => $user->first_name,
                         'last_name' => $user->last_name,
@@ -38,5 +39,12 @@ class StatisticsService
                     ->all(),
             ];
         });
+    }
+
+    private function cacheKey(User $viewer): string
+    {
+        return $viewer->isAdmin()
+            ? 'statistics.summary.global'
+            : "statistics.summary.user.{$viewer->id}";
     }
 }

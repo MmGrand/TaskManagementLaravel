@@ -38,8 +38,8 @@ class ProjectRepository implements ProjectRepositoryContract
         $project->delete();
     }
 
-    public function count(): int
+    public function countVisibleTo(User $viewer): int
     {
-        return Project::count();
+        return Project::query()->visibleTo($viewer)->count();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Enums\TaskStatus;
 use App\Filters\TaskFilter;
 use App\Models\Task;
 use App\Models\User;
@@ -37,28 +38,32 @@ class TaskRepository implements TaskRepositoryContract
         $task->delete();
     }
 
-    public function count(): int
+    public function countVisibleTo(User $viewer): int
     {
-        return Task::count();
+        return Task::query()->visibleTo($viewer)->count();
     }
 
-    public function countByStatus(): array
+    public function countByStatusVisibleTo(User $viewer): array
     {
         $counts = Task::query()
+            ->visibleTo($viewer)
             ->selectRaw('status, count(*) as count')
             ->groupBy('status')
             ->pluck('count', 'status');
 
-        return collect(['pending', 'in_progress', 'completed'])
-            ->mapWithKeys(fn (string $status) => [$status => (int) ($counts[$status] ?? 0)])
+        return collect(TaskStatus::cases())
+            ->mapWithKeys(fn (TaskStatus $status) => [
+                $status->value => (int) ($counts[$status->value] ?? 0),
+            ])
             ->all();
     }
 
-    public function countOverdue(): int
+    public function countOverdueVisibleTo(User $viewer): int
     {
         return Task::query()
+            ->visibleTo($viewer)
             ->whereDate('due_date', '<', today())
-            ->where('status', '!=', 'completed')
+            ->whereNot('status', TaskStatus::Completed)
             ->count();
     }
 }

@@ -68,20 +68,4 @@ class ProjectPolicy
         return $user->hasPermission(Permission::TasksCreate)
             && $project->created_by === $user->id;
     }
-
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Project $project): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Project $project): bool
-    {
-        return false;
-    }
 }

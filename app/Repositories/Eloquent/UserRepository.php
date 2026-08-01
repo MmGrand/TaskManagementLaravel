@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepository as UserRepositoryContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -26,10 +27,13 @@ class UserRepository implements UserRepositoryContract
         return $user;
     }
 
-    public function topActiveCreators(int $limit = 5): Collection
+    public function topActiveCreators(User $viewer, int $limit = 5): Collection
     {
+        $visibleTasks = fn (Builder $tasks): Builder => $tasks->visibleTo($viewer);
+
         return User::query()
-            ->withCount('createdTasks')
+            ->withCount(['createdTasks' => $visibleTasks])
+            ->whereHas('createdTasks', $visibleTasks)
             ->orderByDesc('created_tasks_count')
             ->limit($limit)
             ->get();

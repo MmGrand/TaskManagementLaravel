@@ -51,22 +51,6 @@ class TaskPolicy
             && $task->created_by === $user->id;
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, Task $task): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, Task $task): bool
-    {
-        return false;
-    }
-
     private function isRelatedTo(User $user, Task $task): bool
     {
         return $task->created_by === $user->id
