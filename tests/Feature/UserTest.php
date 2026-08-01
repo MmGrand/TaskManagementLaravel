@@ -1,7 +1,11 @@
 <?php
 
+use App\Enums\RoleSlug;
 use App\Enums\UserStatus;
+use App\Models\Role;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 test('an admin can block a user', function () {
     $admin = User::factory()->admin()->create();
@@ -76,6 +80,97 @@ test('a plain user cannot update someone else\'s profile', function () {
     ]);
 
     $response->assertForbidden();
+});
+
+test('a user can upload an avatar over a multipart post', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->user()->create(['avatar' => null]);
+
+    $response = $this->actingAs($user)->post("/api/users/{$user->id}", [
+        '_method' => 'PUT',
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'avatar' => UploadedFile::fake()->image('avatar.jpg'),
+    ]);
+
+    $response->assertOk();
+
+    $storedPath = $user->fresh()->avatar;
+
+    expect($storedPath)->toStartWith('avatars/');
+    Storage::disk('public')->assertExists($storedPath);
+
+    $response->assertJsonPath('data.avatar', Storage::disk('public')->url($storedPath));
+});
+
+test('uploading a new avatar removes the previous file', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->user()->create([
+        'avatar' => UploadedFile::fake()->image('old.jpg')->store('avatars', 'public'),
+    ]);
+    $oldPath = $user->avatar;
+
+    $this->actingAs($user)->post("/api/users/{$user->id}", [
+        '_method' => 'PUT',
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'avatar' => UploadedFile::fake()->image('new.jpg'),
+    ])->assertOk();
+
+    Storage::disk('public')->assertMissing($oldPath);
+    Storage::disk('public')->assertExists($user->fresh()->avatar);
+});
+
+test('a non-image avatar is rejected', function () {
+    Storage::fake('public');
+
+    $user = User::factory()->user()->create();
+
+    $this->actingAs($user)->post("/api/users/{$user->id}", [
+        '_method' => 'PUT',
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'avatar' => UploadedFile::fake()->create('resume.pdf', 100, 'application/pdf'),
+    ])->assertUnprocessable()->assertJsonValidationErrors(['avatar']);
+});
+
+test('an admin can change the role of a user', function () {
+    $admin = User::factory()->admin()->create();
+    $user = User::factory()->user()->create();
+    $managerRole = Role::where('slug', RoleSlug::Manager->value)->firstOr(
+        fn () => Role::factory()->manager()->create(),
+    );
+
+    $this->actingAs($admin)->putJson("/api/users/{$user->id}", [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'role_id' => $managerRole->id,
+    ])->assertOk()->assertJsonPath('data.role_id', $managerRole->id);
+
+    expect($user->fresh()->isManager())->toBeTrue();
+});
+
+test('a plain user cannot change their own role', function () {
+    $user = User::factory()->user()->create();
+    $adminRole = Role::factory()->admin()->create();
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}", [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+        'role_id' => $adminRole->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['role_id']);
 });
 
 test('updating a profile fails validation with an invalid email', function () {

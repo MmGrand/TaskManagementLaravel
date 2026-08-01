@@ -99,6 +99,45 @@ test('tasks are sorted by newest first by default', function () {
         ->assertJsonPath('data.1.id', $older->id);
 });
 
+test('tasks can be filtered by a deadline window', function () {
+    taskFor(['due_date' => '2026-01-10']);
+    taskFor(['due_date' => '2026-02-10']);
+    taskFor(['due_date' => '2026-03-10']);
+
+    $response = $this->actingAs($this->admin)
+        ->getJson('/api/tasks?due_date_from=2026-02-01&due_date_to=2026-02-28');
+
+    $response->assertOk()->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.due_date', '2026-02-10');
+});
+
+test('tasks can be filtered by an open ended deadline', function () {
+    taskFor(['due_date' => '2026-01-10']);
+    taskFor(['due_date' => '2026-02-10']);
+    taskFor(['due_date' => '2026-03-10']);
+
+    $this->actingAs($this->admin)->getJson('/api/tasks?due_date_from=2026-02-01')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+});
+
+test('tasks can be filtered by creation date', function () {
+    taskFor(['created_at' => now()->subDays(10)]);
+    taskFor(['created_at' => now()->subDay()]);
+
+    $this->actingAs($this->admin)
+        ->getJson('/api/tasks?created_from='.now()->subDays(3)->toDateString())
+        ->assertOk()
+        ->assertJsonCount(1, 'data');
+});
+
+test('a reversed date window is rejected', function () {
+    $this->actingAs($this->admin)
+        ->getJson('/api/tasks?due_date_from=2026-03-01&due_date_to=2026-01-01')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['due_date_to']);
+});
+
 test('an unknown filter value is rejected', function () {
     $this->actingAs($this->admin)->getJson('/api/tasks?status=nope')
         ->assertUnprocessable()
