@@ -35,6 +35,26 @@ class TaskFilter extends QueryFilter
         $this->builder->where('assigned_to', $value);
     }
 
+    public function dueDateFrom(string $value): void
+    {
+        $this->builder->whereDate('due_date', '>=', $value);
+    }
+
+    public function dueDateTo(string $value): void
+    {
+        $this->builder->whereDate('due_date', '<=', $value);
+    }
+
+    public function createdFrom(string $value): void
+    {
+        $this->builder->whereDate('created_at', '>=', $value);
+    }
+
+    public function createdTo(string $value): void
+    {
+        $this->builder->whereDate('created_at', '<=', $value);
+    }
+
     protected function applySorting(): void
     {
         $this->builder->orderBy(
