@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Enums\TaskStatus;
 use App\Models\Task;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -15,7 +16,7 @@ class TaskStatusChangedMail extends Mailable
 
     public function __construct(
         public Task $task,
-        public string $previousStatus,
+        public TaskStatus $previousStatus,
     ) {}
 
     public function envelope(): Envelope

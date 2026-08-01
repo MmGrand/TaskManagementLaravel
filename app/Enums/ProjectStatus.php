@@ -2,24 +2,19 @@
 
 namespace App\Enums;
 
-enum UserStatus: string
+enum ProjectStatus: string
 {
     case Active = 'active';
-    case Inactive = 'inactive';
-    case Blocked = 'blocked';
+    case Completed = 'completed';
+    case Archived = 'archived';
 
     public function label(): string
     {
         return match ($this) {
             self::Active => 'Активен',
-            self::Inactive => 'Неактивен',
-            self::Blocked => 'Заблокирован',
+            self::Completed => 'Завершён',
+            self::Archived => 'В архиве',
         };
-    }
-
-    public function allowsAccess(): bool
-    {
-        return $this === self::Active;
     }
 
     /**

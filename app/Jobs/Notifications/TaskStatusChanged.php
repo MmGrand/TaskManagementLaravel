@@ -2,6 +2,7 @@
 
 namespace App\Jobs\Notifications;
 
+use App\Enums\TaskStatus;
 use App\Mail\TaskStatusChangedMail;
 use App\Models\Task;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,7 +15,7 @@ class TaskStatusChanged implements ShouldQueue
 
     public function __construct(
         public Task $task,
-        public string $previousStatus,
+        public TaskStatus $previousStatus,
     ) {}
 
     public function handle(): void

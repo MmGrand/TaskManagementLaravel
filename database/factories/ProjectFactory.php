@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,8 +22,15 @@ class ProjectFactory extends Factory
         return [
             'name' => fake()->sentence(3),
             'description' => fake()->paragraph(),
-            'status' => fake()->randomElement(['active', 'completed', 'archived']),
+            'status' => fake()->randomElement(ProjectStatus::cases()),
             'created_by' => User::factory(),
         ];
+    }
+
+    public function withStatus(ProjectStatus $status): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => $status,
+        ]);
     }
 }

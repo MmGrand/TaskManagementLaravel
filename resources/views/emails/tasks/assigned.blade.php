@@ -19,12 +19,12 @@
         </tr>
         <tr>
             <td><strong>Приоритет:</strong></td>
-            <td>{{ $task->priority }}</td>
+            <td>{{ $task->priority->label() }}</td>
         </tr>
         @if ($task->due_date)
             <tr>
                 <td><strong>Срок:</strong></td>
-                <td>{{ \Illuminate\Support\Carbon::parse($task->due_date)->format('d.m.Y') }}</td>
+                <td>{{ $task->due_date->format('d.m.Y') }}</td>
             </tr>
         @endif
     </table>

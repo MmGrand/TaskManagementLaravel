@@ -6,7 +6,7 @@
 <body style="font-family: sans-serif; color: #1f2937;">
     <p>Здравствуйте!</p>
 
-    <p>Статус вашего проекта изменился:</p>
+    <p>Статус проекта изменился:</p>
 
     <table cellpadding="4" style="border-collapse: collapse;">
         <tr>
@@ -15,11 +15,11 @@
         </tr>
         <tr>
             <td><strong>Было:</strong></td>
-            <td>{{ $previousStatus }}</td>
+            <td>{{ $previousStatus->label() }}</td>
         </tr>
         <tr>
             <td><strong>Стало:</strong></td>
-            <td>{{ $project->status }}</td>
+            <td>{{ $project->status->label() }}</td>
         </tr>
     </table>
 </body>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProjectStatus;
 use App\Models\Concerns\Filterable;
 use Database\Factories\ProjectFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -17,6 +18,18 @@ class Project extends Model
 {
     /** @use HasFactory<ProjectFactory> */
     use Filterable, HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => ProjectStatus::class,
+        ];
+    }
 
     #[Scope]
     protected function visibleTo(Builder $query, User $user): Builder

@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests\Project;
 
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -26,7 +28,7 @@ class StoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => 'nullable|in:active,completed,archived',
+            'status' => ['nullable', Rule::enum(ProjectStatus::class)],
         ];
     }
 }

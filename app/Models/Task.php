@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use App\Models\Concerns\Filterable;
 use Database\Factories\TaskFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,6 +18,20 @@ class Task extends Model
 {
     /** @use HasFactory<TaskFactory> */
     use Filterable, HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'status' => TaskStatus::class,
+            'priority' => TaskPriority::class,
+            'due_date' => 'date:Y-m-d',
+        ];
+    }
 
     public function isManageableBy(User $user): bool
     {

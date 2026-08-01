@@ -19,11 +19,11 @@
         </tr>
         <tr>
             <td><strong>Было:</strong></td>
-            <td>{{ $previousStatus }}</td>
+            <td>{{ $previousStatus->label() }}</td>
         </tr>
         <tr>
             <td><strong>Стало:</strong></td>
-            <td>{{ $task->status }}</td>
+            <td>{{ $task->status->label() }}</td>
         </tr>
     </table>
 </body>

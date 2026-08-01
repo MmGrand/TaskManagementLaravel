@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Enums\TaskPriority;
+use App\Enums\TaskStatus;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
@@ -22,12 +24,30 @@ class TaskFactory extends Factory
         return [
             'title' => fake()->sentence(3),
             'description' => fake()->paragraph(),
-            'status' => fake()->randomElement(['pending', 'in_progress', 'completed']),
-            'priority' => fake()->randomElement(['low', 'medium', 'high']),
+            'status' => fake()->randomElement(TaskStatus::cases()),
+            'priority' => fake()->randomElement(TaskPriority::cases()),
             'project_id' => Project::factory(),
             'assigned_to' => User::factory(),
             'created_by' => User::factory(),
             'due_date' => fake()->dateTimeBetween('now', '+1 year'),
         ];
+    }
+
+    public function withStatus(TaskStatus $status): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => $status,
+        ]);
+    }
+
+    /**
+     * A task whose deadline has already passed and that is still not finished.
+     */
+    public function overdue(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'status' => fake()->randomElement([TaskStatus::Pending, TaskStatus::InProgress]),
+            'due_date' => fake()->dateTimeBetween('-1 year', '-1 day'),
+        ]);
     }
 }

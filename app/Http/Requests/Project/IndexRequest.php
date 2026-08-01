@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Project;
 
+use App\Enums\ProjectStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IndexRequest extends FormRequest
 {
@@ -23,7 +25,7 @@ class IndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'nullable|in:active,completed,archived',
+            'status' => ['nullable', Rule::enum(ProjectStatus::class)],
         ];
     }
 }

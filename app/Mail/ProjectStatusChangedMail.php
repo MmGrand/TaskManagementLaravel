@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Enums\ProjectStatus;
 use App\Models\Project;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -15,7 +16,7 @@ class ProjectStatusChangedMail extends Mailable
 
     public function __construct(
         public Project $project,
-        public string $previousStatus,
+        public ProjectStatus $previousStatus,
     ) {}
 
     public function envelope(): Envelope
