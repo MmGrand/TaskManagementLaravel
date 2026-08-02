@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\ProjectController;
+use App\Http\Controllers\api\RoleController;
 use App\Http\Controllers\api\StatisticsController;
 use App\Http\Controllers\api\TaskController;
 use App\Http\Controllers\api\UserController;
@@ -24,6 +25,8 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
     Route::get('/users/{user}', [UserController::class, 'show']);
 
     Route::match(['put', 'post'], '/users/{user}', [UserController::class, 'update']);
+
+    Route::get('/roles', [RoleController::class, 'index']);
 
     Route::get('/projects', [ProjectController::class, 'index']);
     Route::post('/projects', [ProjectController::class, 'store']);
