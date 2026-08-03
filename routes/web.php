@@ -2,6 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+/**
+ * Обработка всех маршрутов, кроме api, up и storage, для SPA приложения
+ */
+Route::get('/{any?}', function () {
+    return view('app');
+})->where('any', '^(?!api|up|storage).*$');

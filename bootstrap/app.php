@@ -22,6 +22,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
         ]);
+
+        /**
+         * Guests hitting a protected route without asking for JSON are sent to the
+         * SPA login screen. Without this the framework looks for a route named
+         * "login", which this application does not define.
+         */
+        $middleware->redirectGuestsTo('/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
