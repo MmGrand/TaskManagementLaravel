@@ -1,0 +1,225 @@
+import type { MessageSchema } from '@/i18n/messages/ru';
+
+/**
+ * Аннотация типа, а не `satisfies`: она даёт автодополнение прямо при наборе,
+ * и vue-tsc падает на забытом или лишнем ключе.
+ */
+const en: MessageSchema = {
+    common: {
+        save: 'Save',
+        cancel: 'Cancel',
+        edit: 'Edit',
+        delete: 'Delete',
+        apply: 'Apply',
+        reset: 'Reset',
+        close: 'Close',
+        retry: 'Try again',
+        refresh: 'Refresh',
+        loading: 'Loading',
+        all: 'All',
+        actions: 'Actions',
+        name: 'Name',
+        status: 'Status',
+        description: 'Description',
+        email: 'Email',
+        phone: 'Phone',
+        creator: 'Created by',
+        createdAt: 'Created',
+        noDescription: 'No description provided.',
+        backToHome: 'Back to home',
+    },
+
+    locale: {
+        label: 'Language',
+    },
+
+    nav: {
+        label: 'Main navigation',
+        dashboard: 'Home',
+        projects: 'Projects',
+        tasks: 'Tasks',
+        users: 'Users',
+    },
+
+    routes: {
+        login: 'Sign in',
+        register: 'Sign up',
+        dashboard: 'Home',
+        projects: 'Projects',
+        project: 'Project',
+        tasks: 'Tasks',
+        task: 'Task',
+        users: 'Users',
+        profile: 'Profile',
+        forbidden: 'Access denied',
+        notFound: 'Page not found',
+    },
+
+    auth: {
+        loginTitle: 'Sign in',
+        registerTitle: 'Create an account',
+        firstName: 'First name',
+        lastName: 'Last name',
+        password: 'Password',
+        passwordConfirmation: 'Confirm password',
+        passwordHint: 'At least 8 characters',
+        signIn: 'Sign in',
+        signUp: 'Sign up',
+        noAccount: 'No account yet?',
+        haveAccount: 'Already have an account?',
+        logout: 'Sign out',
+        noRole: 'No role',
+    },
+
+    dashboard: {
+        greeting: 'Hello, {name}',
+        projectsCount: 'Projects',
+        tasksCount: 'Tasks',
+        overdueCount: 'Overdue',
+        myTasksCount: 'My tasks',
+        myTasks: 'My tasks',
+        allMyTasks: 'All my tasks',
+        noTasksAssigned: 'Nothing has been assigned to you yet',
+    },
+
+    tasks: {
+        title: 'Tasks',
+        create: 'New task',
+        task: 'Task',
+        project: 'Project',
+        priority: 'Priority',
+        assignee: 'Assignee',
+        dueDate: 'Due date',
+        author: 'Author',
+        createdAt: 'Created',
+        overdue: 'Overdue',
+        emptyTitle: 'No tasks found',
+        emptyDescription: 'Change the filters or create a new task.',
+        editTitle: 'Edit task',
+        newTitle: 'New task',
+        deleteTitle: 'Delete task',
+        deleteMessage: 'Task "{title}" will be deleted permanently.',
+        created: 'Task created.',
+        updated: 'Task updated.',
+        deleted: 'Task deleted.',
+        dueFrom: 'Due from',
+        dueTo: 'Due until',
+        sort: 'Sort by',
+        direction: 'Direction',
+        sortByCreatedAt: 'Creation date',
+        sortByDueDate: 'Due date',
+        directionDesc: 'Descending',
+        directionAsc: 'Ascending',
+        projectPlaceholder: 'Select a project',
+        assigneePlaceholder: 'Select an assignee',
+        projectsTruncated: 'Showing the first 75 projects.',
+        assigneesTruncated: 'Showing the first 75 users.',
+        statusOnlyNotice:
+            'You can only change the status of this task — the remaining fields are available to its author and the project lead.',
+    },
+
+    projects: {
+        title: 'Projects',
+        create: 'New project',
+        emptyTitle: 'No projects yet',
+        emptyDescription: 'Projects you have access to will show up here.',
+        editTitle: 'Edit project',
+        newTitle: 'New project',
+        deleteTitle: 'Delete project',
+        deleteMessage: 'Project "{name}" and all of its tasks will be deleted permanently.',
+        created: 'Project created.',
+        updated: 'Project updated.',
+        deleted: 'Project deleted.',
+        tasksLink: 'Project tasks',
+    },
+
+    users: {
+        title: 'Users',
+        emptyTitle: 'No users found',
+        user: 'User',
+        role: 'Role',
+        avatar: 'Avatar',
+        avatarHint: 'JPG or PNG, up to 2 MB.',
+        avatarPreview: 'Avatar preview',
+        avatarChoose: 'Choose file',
+        avatarNoFile: 'No file chosen',
+        rolesUnavailable: 'The list of roles is unavailable.',
+        rolePlaceholder: 'No role',
+    },
+
+    profile: {
+        mine: 'My profile',
+        other: 'User',
+        saved: 'Changes saved.',
+    },
+
+    statistics: {
+        topUsers: 'Most active users',
+        noData: 'No data yet',
+        tasksCreated: 'Tasks created',
+        byStatus: 'Tasks by status',
+    },
+
+    pagination: {
+        label: 'Pagination',
+        range: '{from}–{to} of {total}',
+        empty: 'Nothing found',
+        previous: 'Previous',
+        next: 'Next',
+    },
+
+    errors: {
+        unauthenticated: 'Not authenticated.',
+        forbidden: 'This action is not allowed.',
+        notFound: 'The requested resource was not found.',
+        validation: 'Please check the form for errors.',
+        throttled: 'Too many requests. Please try again later.',
+        server: 'Internal server error. Please try again later.',
+        network: 'The server is unreachable. Check your connection.',
+        unknown: 'An unexpected error occurred.',
+        checkConnection: 'Check your connection and try again.',
+        forbiddenTitle: 'Access denied',
+        forbiddenText: 'Your role has no access to this section. If this is a mistake, contact an administrator.',
+        notFoundTitle: 'Page not found',
+        notFoundText: 'Check the address — there is no such page in the application.',
+    },
+
+    throttle: {
+        retryIn: 'Too many attempts. Try again in {n} second. | Too many attempts. Try again in {n} seconds.',
+    },
+
+    validation: {
+        avatarImage: 'The avatar must be an image.',
+        avatarSize: 'The avatar must not exceed 2 MB.',
+    },
+
+    enums: {
+        taskStatus: {
+            pending: 'Pending',
+            in_progress: 'In progress',
+            completed: 'Completed',
+        },
+        taskPriority: {
+            low: 'Low',
+            medium: 'Medium',
+            high: 'High',
+        },
+        projectStatus: {
+            active: 'Active',
+            completed: 'Completed',
+            archived: 'Archived',
+        },
+        userStatus: {
+            active: 'Active',
+            inactive: 'Inactive',
+            blocked: 'Blocked',
+        },
+        role: {
+            admin: 'Administrator',
+            manager: 'Manager',
+            user: 'User',
+        },
+    },
+};
+
+export default en;
