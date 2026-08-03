@@ -10,6 +10,8 @@
         "typecheck": "vue-tsc --noEmit"
     },
     "devDependencies": {
+        "@emnapi/core": "^1.11.3",
+        "@emnapi/runtime": "^1.11.3",
         "@pinia/testing": "^2.0.1",
         "@tailwindcss/vite": "^4.0.0",
         "@types/node": "^26.1.2",
