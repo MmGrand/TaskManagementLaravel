@@ -9,6 +9,7 @@ import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue';
 import AppDateInput from '@/components/ui/AppDateInput.vue';
 import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppEmptyState from '@/components/ui/AppEmptyState.vue';
+import AppField from '@/components/ui/AppField.vue';
 import AppModal from '@/components/ui/AppModal.vue';
 import AppPagination from '@/components/ui/AppPagination.vue';
 import AppSegmented from '@/components/ui/AppSegmented.vue';
@@ -357,44 +358,48 @@ async function onDelete(): Promise<void> {
         </header>
 
         <div class="grid gap-3 rounded-lg bg-white p-4 ring-1 ring-gray-200 sm:grid-cols-2 lg:grid-cols-4">
-            <label v-show="!isBoard || groupBy !== 'status'" class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('common.status') }}</span>
-                <AppSelect v-model="query.filters.status" :options="statusOptions" :placeholder="t('common.all')" />
-            </label>
-
-            <label v-show="!isBoard || groupBy !== 'priority'" class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('tasks.priority') }}</span>
-                <AppSelect v-model="query.filters.priority" :options="priorityOptions" :placeholder="t('common.all')" />
-            </label>
-
-            <label class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('tasks.dueFrom') }}</span>
-                <AppDateInput v-model="query.filters.due_date_from" />
-            </label>
-
-            <label class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('tasks.dueTo') }}</span>
-                <AppDateInput v-model="query.filters.due_date_to" />
-            </label>
-
-            <label v-show="!isBoard" class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('tasks.sort') }}</span>
-                <AppSelect v-model="query.filters.sort_by" :options="sortOptions" />
-            </label>
-
-            <label v-show="!isBoard" class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('tasks.direction') }}</span>
-                <AppSelect v-model="query.filters.sort_direction" :options="directionOptions" />
-            </label>
-
-            <label v-if="isBoard" class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('tasks.board.groupBy') }}</span>
+            <AppField v-show="!isBoard || groupBy !== 'status'" v-slot="field" :label="t('common.status')">
                 <AppSelect
+                    v-bind="field"
+                    v-model="query.filters.status"
+                    :options="statusOptions"
+                    :placeholder="t('common.all')"
+                />
+            </AppField>
+
+            <AppField v-show="!isBoard || groupBy !== 'priority'" v-slot="field" :label="t('tasks.priority')">
+                <AppSelect
+                    v-bind="field"
+                    v-model="query.filters.priority"
+                    :options="priorityOptions"
+                    :placeholder="t('common.all')"
+                />
+            </AppField>
+
+            <AppField v-slot="field" :label="t('tasks.dueFrom')">
+                <AppDateInput v-bind="field" v-model="query.filters.due_date_from" />
+            </AppField>
+
+            <AppField v-slot="field" :label="t('tasks.dueTo')">
+                <AppDateInput v-bind="field" v-model="query.filters.due_date_to" />
+            </AppField>
+
+            <AppField v-show="!isBoard" v-slot="field" :label="t('tasks.sort')">
+                <AppSelect v-bind="field" v-model="query.filters.sort_by" :options="sortOptions" />
+            </AppField>
+
+            <AppField v-show="!isBoard" v-slot="field" :label="t('tasks.direction')">
+                <AppSelect v-bind="field" v-model="query.filters.sort_direction" :options="directionOptions" />
+            </AppField>
+
+            <AppField v-if="isBoard" v-slot="field" :label="t('tasks.board.groupBy')">
+                <AppSelect
+                    v-bind="field"
                     :model-value="groupBy"
                     :options="groupByOptions"
                     @update:model-value="setGroupBy"
                 />
-            </label>
+            </AppField>
 
             <div class="flex items-end gap-2">
                 <AppButton @click="query.applyFilters">{{ t('common.apply') }}</AppButton>

@@ -6,6 +6,7 @@ import AppButton from '@/components/ui/AppButton.vue';
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue';
 import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppEmptyState from '@/components/ui/AppEmptyState.vue';
+import AppField from '@/components/ui/AppField.vue';
 import AppModal from '@/components/ui/AppModal.vue';
 import AppPagination from '@/components/ui/AppPagination.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
@@ -123,15 +124,15 @@ async function onDelete(): Promise<void> {
         </header>
 
         <div class="flex flex-wrap items-end gap-3">
-            <label class="flex flex-col gap-1">
-                <span class="text-sm font-medium text-gray-900">{{ t('common.status') }}</span>
+            <AppField v-slot="field" :label="t('common.status')">
                 <AppSelect
+                    v-bind="field"
                     v-model="query.filters.status"
                     :options="statusOptions"
                     :placeholder="t('common.all')"
                     @update:model-value="query.applyFilters"
                 />
-            </label>
+            </AppField>
         </div>
 
         <AppErrorState v-if="loadError" :error="loadError" @retry="load" />
