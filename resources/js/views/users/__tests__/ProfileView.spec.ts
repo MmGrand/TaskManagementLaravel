@@ -5,6 +5,7 @@ import * as usersApi from '@/api/users';
 import * as rolesApi from '@/api/roles';
 import ProfileView from '@/views/users/ProfileView.vue';
 import { useAuthStore } from '@/stores/auth';
+import { comboboxes } from '@/tests/ui';
 import { makeRole, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
@@ -15,7 +16,7 @@ vi.mock('vue-router', () => ({
     useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/users');
@@ -66,7 +67,7 @@ describe('a plain user editing themselves', () => {
 
         expect(wrapper.text()).not.toContain('Статус');
         expect(wrapper.text()).not.toContain('Роль');
-        expect(wrapper.findAll('select')).toHaveLength(0);
+        expect(comboboxes(wrapper)).toHaveLength(0);
     });
 
     it('never requests the roles list', async () => {

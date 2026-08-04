@@ -14,6 +14,8 @@ const MAX_VISIBLE = 4;
 
 export const useUiStore = defineStore('ui', () => {
     const toasts = ref<Toast[]>([]);
+
+    const wideContent = ref(false);
     const timers = new Map<number, ReturnType<typeof setTimeout>>();
     let nextId = 1;
 
@@ -49,5 +51,5 @@ export const useUiStore = defineStore('ui', () => {
     const success = (message: string): number => push(message, 'success');
     const error = (message: string): number => push(message, 'error');
 
-    return { toasts, push, success, error, dismiss };
+    return { toasts, wideContent, push, success, error, dismiss };
 });

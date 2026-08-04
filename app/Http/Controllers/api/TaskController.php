@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Filters\TaskFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Task\IndexRequest;
+use App\Http\Requests\Task\MoveRequest;
 use App\Http\Requests\Task\StoreRequest;
 use App\Http\Requests\Task\UpdateRequest;
 use App\Http\Resources\TaskResource;
@@ -19,7 +20,9 @@ class TaskController extends Controller
     {
         $this->authorize('viewAny', Task::class);
 
-        return TaskResource::collection($this->tasks->list($filter, $request->user()));
+        return TaskResource::collection(
+            $this->tasks->list($filter, $request->user(), $request->integer('per_page') ?: null),
+        );
     }
 
     public function store(StoreRequest $request)
@@ -43,6 +46,13 @@ class TaskController extends Controller
     public function update(UpdateRequest $request, Task $task)
     {
         $task = $this->tasks->update($task, $request->validated());
+
+        return TaskResource::make($task->load(['project', 'assignedUser', 'createdBy']));
+    }
+
+    public function move(MoveRequest $request, Task $task)
+    {
+        $task = $this->tasks->move($task, $request->user(), $request->validated());
 
         return TaskResource::make($task->load(['project', 'assignedUser', 'createdBy']));
     }

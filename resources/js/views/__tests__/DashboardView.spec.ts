@@ -10,7 +10,7 @@ import type { RoleSlug } from '@/types/enums';
 import type { Statistics } from '@/types/models';
 
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/statistics');
@@ -104,20 +104,29 @@ describe('with statistics.view', () => {
         expect(wrapper.text()).not.toContain('undefined');
     });
 
-    it('refetches exactly once when refreshed', async () => {
-        const wrapper = await mountAs('admin');
+    it('fetches the summary exactly once', async () => {
+        await mountAs('admin');
+
         expect(statisticsApi.summary).toHaveBeenCalledTimes(1);
-
-        await wrapper.find('button').trigger('click');
-        await flushPromises();
-
-        expect(statisticsApi.summary).toHaveBeenCalledTimes(2);
     });
 
     it('surfaces a load failure', async () => {
         vi.mocked(statisticsApi).summary.mockRejectedValue({ message: 'Действие запрещено.', isForbidden: true });
 
         expect((await mountAs('manager')).text()).toContain('Действие запрещено.');
+    });
+
+    it('retries the summary from the error state', async () => {
+        vi.mocked(statisticsApi).summary.mockRejectedValue({ message: 'Сервис недоступен.' });
+
+        const wrapper = await mountAs('admin');
+
+        vi.mocked(statisticsApi).summary.mockResolvedValue(makeStatistics());
+        await wrapper.find('button').trigger('click');
+        await flushPromises();
+
+        expect(statisticsApi.summary).toHaveBeenCalledTimes(2);
+        expect(wrapper.text()).toContain('Проектов');
     });
 });
 
@@ -139,15 +148,18 @@ describe('without statistics.view', () => {
         expect((await mountAs('user')).text()).toContain('Вам пока не назначено ни одной задачи');
     });
 
-    it('refetches my tasks when refreshed', async () => {
-        const wrapper = await mountAs('user');
-        expect(tasksApi.list).toHaveBeenCalledTimes(1);
+    it('retries my tasks from the error state', async () => {
+        vi.mocked(tasksApi).list.mockRejectedValue({ message: 'Сервис недоступен.' });
 
+        const wrapper = await mountAs('user');
+
+        vi.mocked(tasksApi).list.mockResolvedValue(makePage([makeTask({ id: 1, title: 'Моя задача' })]));
         await wrapper.find('button').trigger('click');
         await flushPromises();
 
         expect(tasksApi.list).toHaveBeenCalledTimes(2);
         expect(statisticsApi.summary).not.toHaveBeenCalled();
+        expect(wrapper.text()).toContain('Моя задача');
     });
 });
 

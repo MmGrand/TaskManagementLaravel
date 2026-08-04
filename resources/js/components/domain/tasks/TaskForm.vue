@@ -6,6 +6,7 @@ import * as usersApi from '@/api/users';
 import AppAlert from '@/components/ui/AppAlert.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import AppField from '@/components/ui/AppField.vue';
+import AppDateInput from '@/components/ui/AppDateInput.vue';
 import AppInput from '@/components/ui/AppInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AppTextarea from '@/components/ui/AppTextarea.vue';
@@ -133,7 +134,7 @@ function onSubmit(): void {
         </div>
 
         <AppField v-slot="field" :label="t('tasks.dueDate')" :error="fieldError('due_date')">
-            <AppInput v-bind="field" v-model="form.due_date" type="date" />
+            <AppDateInput v-bind="field" v-model="form.due_date" />
         </AppField>
 
         <div class="flex justify-end gap-2">

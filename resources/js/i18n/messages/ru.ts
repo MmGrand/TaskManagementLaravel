@@ -40,6 +40,15 @@ const ru = {
         label: 'Язык',
     },
 
+    datePicker: {
+        open: 'Открыть календарь',
+        previousMonth: 'Предыдущий месяц',
+        nextMonth: 'Следующий месяц',
+        dayMask: 'дд',
+        monthMask: 'мм',
+        yearMask: 'гггг',
+    },
+
     nav: {
         label: 'Основная навигация',
         dashboard: 'Главная',
@@ -123,6 +132,20 @@ const ru = {
         assigneesTruncated: 'Показаны первые 75 пользователей.',
         statusOnlyNotice:
             'Вы можете изменить только статус этой задачи — остальные поля доступны автору и руководителю проекта.',
+        board: {
+            viewLabel: 'Вид',
+            viewBoard: 'Доска',
+            viewTable: 'Таблица',
+            groupBy: 'Группировка',
+            groupByStatus: 'По статусу',
+            groupByPriority: 'По приоритету',
+            groupByAssignee: 'По исполнителю',
+            loadMore: 'Показать ещё',
+            quickAdd: 'Добавить задачу',
+            quickAddPlaceholder: 'Название задачи',
+            columnsTruncated: 'Показаны не все исполнители. Выберите проект, чтобы сузить доску.',
+            detailsTitle: 'Детали задачи',
+        },
     },
 
     projects: {

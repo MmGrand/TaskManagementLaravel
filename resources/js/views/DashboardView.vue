@@ -3,9 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import * as statisticsApi from '@/api/statistics';
 import * as tasksApi from '@/api/tasks';
-import AppAlert from '@/components/ui/AppAlert.vue';
 import AppBadge from '@/components/ui/AppBadge.vue';
-import AppButton from '@/components/ui/AppButton.vue';
 import AppEmptyState from '@/components/ui/AppEmptyState.vue';
 import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
@@ -72,7 +70,6 @@ async function loadMyTasks(): Promise<void> {
 }
 
 onMounted(() => {
-    // У обычного пользователя нет statistics.view — запрос вернул бы только 403.
     if (can('statistics.view')) {
         void load();
     } else {
@@ -87,21 +84,10 @@ onMounted(() => {
             <h1 class="text-xl font-semibold text-gray-900">
                 {{ t('dashboard.greeting', { name: fullName(auth.user) }) }}
             </h1>
-            <AppButton
-                v-if="can('statistics.view')"
-                variant="secondary"
-                :loading="loading"
-                @click="load"
-            >
-                {{ t('common.refresh') }}
-            </AppButton>
-            <AppButton v-else variant="secondary" :loading="myTasksLoading" @click="loadMyTasks">
-                {{ t('common.refresh') }}
-            </AppButton>
         </header>
 
         <template v-if="can('statistics.view')">
-            <AppAlert v-if="loadError">{{ loadError.message }}</AppAlert>
+            <AppErrorState v-if="loadError" :error="loadError" @retry="load" />
             <AppSpinner v-else-if="loading && statistics === null" />
 
             <template v-else-if="statistics">

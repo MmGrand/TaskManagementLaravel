@@ -46,3 +46,14 @@ describe('toasts', () => {
         expect(ui.toasts[3]!.message).toBe('Сообщение 6');
     });
 });
+
+describe('wide content', () => {
+    it('starts narrow and can be widened for the board', () => {
+        const ui = useUiStore();
+
+        expect(ui.wideContent).toBe(false);
+
+        ui.wideContent = true;
+        expect(ui.wideContent).toBe(true);
+    });
+});

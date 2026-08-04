@@ -96,6 +96,7 @@ export function makeTask(overrides: Partial<Task> = {}): Task {
         assigned_to: 1,
         created_by: 1,
         due_date: null,
+        position: 1000,
         project: makeProject(),
         created_at: '2026-01-01T00:00:00.000000Z',
         updated_at: '2026-01-01T00:00:00.000000Z',

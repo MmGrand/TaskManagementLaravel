@@ -11,7 +11,7 @@ import { makeRole, makeUser } from '@/tests/fixtures';
 import { writeToken, writeUser } from '@/utils/tokenStorage';
 
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/auth');

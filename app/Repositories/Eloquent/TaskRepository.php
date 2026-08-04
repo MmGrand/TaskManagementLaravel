@@ -38,6 +38,23 @@ class TaskRepository implements TaskRepositoryContract
         $task->delete();
     }
 
+    public function maxPosition(): int
+    {
+        return (int) Task::query()->max('position');
+    }
+
+    public function shiftPositionsFrom(int $position, int $step): void
+    {
+        Task::withoutTimestamps(fn () => Task::query()
+            ->where('position', '>=', $position)
+            ->increment('position', $step));
+    }
+
+    public function findVisibleTo(User $viewer, int $id): ?Task
+    {
+        return Task::query()->visibleTo($viewer)->find($id);
+    }
+
     public function countVisibleTo(User $viewer): int
     {
         return Task::query()->visibleTo($viewer)->count();

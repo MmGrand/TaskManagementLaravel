@@ -59,6 +59,7 @@ export interface Task {
     created_by: number;
     /** Только дата, "YYYY-MM-DD". */
     due_date: string | null;
+    position: number;
     project?: Project;
     assigned_user?: User;
     created_by_user?: User;

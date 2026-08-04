@@ -7,6 +7,7 @@ import * as usersApi from '@/api/users';
 import TasksListView from '@/views/tasks/TasksListView.vue';
 import TaskForm from '@/components/domain/tasks/TaskForm.vue';
 import TaskStatusOnlyForm from '@/components/domain/tasks/TaskStatusOnlyForm.vue';
+import { chooseOption, comboboxes } from '@/tests/ui';
 import { makePage, makeProject, makeRole, makeTask, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
@@ -18,12 +19,21 @@ vi.mock('vue-router', () => ({
     useRouter: () => ({ push }),
 }));
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/tasks');
 vi.mock('@/api/projects');
 vi.mock('@/api/users');
+
+vi.mock('vue-draggable-plus', () => ({
+    VueDraggable: {
+        name: 'VueDraggable',
+        props: { modelValue: { type: Array, default: () => [] } },
+        emits: ['update:modelValue', 'start', 'end'],
+        template: '<div class="vue-draggable-stub"><slot /></div>',
+    },
+}));
 
 async function mountAs(slug: RoleSlug, userId = 1) {
     const wrapper = mount(TasksListView, {
@@ -44,6 +54,12 @@ async function mountAs(slug: RoleSlug, userId = 1) {
     await flushPromises();
 
     return wrapper;
+}
+
+async function groupByOptions(wrapper: Awaited<ReturnType<typeof mountAs>>): Promise<string[]> {
+    await comboboxes(wrapper).at(-1)!.trigger('click');
+
+    return wrapper.findAll('[role="option"]').map((option) => option.text());
 }
 
 beforeEach(() => {
@@ -104,7 +120,7 @@ describe('listing', () => {
     it('pushes a changed filter into the URL only after applying it', async () => {
         const wrapper = await mountAs('admin');
 
-        await wrapper.findAll('select')[0]!.setValue('completed');
+        await chooseOption(wrapper, 0, 'Завершена');
         await flushPromises();
 
         expect(push).not.toHaveBeenCalled();
@@ -113,6 +129,90 @@ describe('listing', () => {
         await flushPromises();
 
         expect(push).toHaveBeenCalledWith({ query: { status: 'completed' } });
+    });
+});
+
+describe('the board view', () => {
+    it('renders columns instead of the table', async () => {
+        routeQuery.view = 'board';
+
+        const wrapper = await mountAs('admin');
+
+        expect(wrapper.find('table').exists()).toBe(false);
+        expect(wrapper.text()).toContain('Ожидает');
+        expect(wrapper.text()).toContain('В работе');
+        expect(wrapper.text()).toContain('Завершена');
+    });
+
+    it('fetches one ranked page per status column', async () => {
+        routeQuery.view = 'board';
+
+        await mountAs('admin');
+
+        const statuses = vi
+            .mocked(tasksApi)
+            .list.mock.calls.map(([filters]) => filters?.status);
+
+        expect(statuses).toEqual(['pending', 'in_progress', 'completed']);
+        expect(vi.mocked(tasksApi).list).toHaveBeenCalledWith(
+            expect.objectContaining({ sort_by: 'position', sort_direction: 'asc', per_page: 50 }),
+        );
+    });
+
+    it('puts the view in the URL when the toggle is used', async () => {
+        const wrapper = await mountAs('admin');
+
+        await wrapper.findAll('button').find((button) => button.text() === 'Доска')!.trigger('click');
+        await flushPromises();
+
+        expect(push).toHaveBeenCalledWith({ query: { view: 'board' } });
+    });
+
+    it('shows the column counters from the server total', async () => {
+        routeQuery.view = 'board';
+        vi.mocked(tasksApi).list.mockResolvedValue(makePage([makeTask({ id: 1 })], { total: 42 }));
+
+        expect((await mountAs('admin')).text()).toContain('42');
+    });
+
+    it('hides grouping by assignee without users.viewAny', async () => {
+        routeQuery.view = 'board';
+
+        expect(await groupByOptions(await mountAs('user'))).not.toContain('По исполнителю');
+        expect(await groupByOptions(await mountAs('manager'))).toContain('По исполнителю');
+    });
+
+    it('falls back to status when the URL asks for a grouping the role cannot use', async () => {
+        routeQuery.view = 'board';
+        routeQuery.group_by = 'assigned_to';
+
+        await mountAs('user');
+
+        const statuses = vi
+            .mocked(tasksApi)
+            .list.mock.calls.map(([filters]) => filters?.status);
+
+        expect(statuses).toEqual(['pending', 'in_progress', 'completed']);
+        expect(vi.mocked(usersApi).list).not.toHaveBeenCalled();
+    });
+
+    it('lets the column own the grouped dimension instead of the filter', async () => {
+        routeQuery.view = 'board';
+        routeQuery.group_by = 'priority';
+        routeQuery.priority = 'high';
+
+        await mountAs('admin');
+
+        const sent = vi.mocked(tasksApi).list.mock.calls.map(([filters]) => filters);
+
+        expect(sent.map((filters) => filters?.priority)).toEqual(['low', 'medium', 'high']);
+    });
+
+    it('offers quick add per column only with tasks.create', async () => {
+        routeQuery.view = 'board';
+
+        expect((await mountAs('manager')).text()).toContain('Добавить задачу');
+        expect((await mountAs('user')).text()).not.toContain('Добавить задачу');
     });
 });
 
@@ -198,7 +298,7 @@ describe('the dynamic edit form', () => {
         await flushPromises();
 
         const statusForm = wrapper.findComponent(TaskStatusOnlyForm);
-        await statusForm.find('select').setValue('in_progress');
+        await chooseOption(statusForm, 0, 'В работе');
         await statusForm.find('form').trigger('submit');
         await flushPromises();
 

@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import AppDropdown from '@/components/ui/AppDropdown.vue';
+import AppMenuItem from '@/components/ui/AppMenuItem.vue';
 import { useEnumLabel } from '@/composables/useEnumLabel';
 import { fullName, initials } from '@/utils/format';
 import { useAuthStore } from '@/stores/auth';
@@ -47,23 +48,9 @@ async function onLogout(): Promise<void> {
                 <p class="truncate text-xs text-gray-500">{{ roleName }}</p>
             </div>
 
-            <RouterLink
-                :to="{ name: 'profile' }"
-                role="menuitem"
-                class="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                @click="close"
-            >
-                {{ t('routes.profile') }}
-            </RouterLink>
+            <AppMenuItem :to="{ name: 'profile' }" @click="close">{{ t('routes.profile') }}</AppMenuItem>
 
-            <button
-                type="button"
-                role="menuitem"
-                class="block w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50"
-                @click="onLogout"
-            >
-                {{ t('auth.logout') }}
-            </button>
+            <AppMenuItem @click="onLogout">{{ t('auth.logout') }}</AppMenuItem>
         </template>
     </AppDropdown>
 </template>

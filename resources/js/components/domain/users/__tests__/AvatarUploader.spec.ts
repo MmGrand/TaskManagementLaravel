@@ -57,11 +57,12 @@ describe('AvatarUploader', () => {
     it('labels the picker itself instead of leaning on the browser chrome', () => {
         const wrapper = mountUploader();
 
-        // Нативный виджет рисует свою надпись по локали ОС, поэтому кнопкой
-        // служит <label>, а сам input визуально скрыт, но остаётся фокусируемым.
-        expect(wrapper.find('label[for="avatar-input"]').text()).toBe('Выбрать файл');
+        // Нативный виджет рисует свою надпись по локали ОС, поэтому кнопку и
+        // текст рисует AppFileInput, а сам input скрыт и выключен из обхода Tab.
+        expect(wrapper.find('button').text()).toBe('Выбрать файл');
         expect(wrapper.text()).toContain('Файл не выбран');
         expect(wrapper.find('input[type="file"]').classes()).toContain('sr-only');
+        expect(wrapper.find('input[type="file"]').attributes('tabindex')).toBe('-1');
     });
 
     it('shows the chosen file name once a valid image is picked', async () => {

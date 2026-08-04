@@ -6,7 +6,7 @@ import { makeRole, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 

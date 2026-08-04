@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
 import ProjectForm from '@/components/domain/projects/ProjectForm.vue';
+import AppButton from '@/components/ui/AppButton.vue';
+import { chooseOption, comboboxes } from '@/tests/ui';
 import { makeProject } from '@/tests/fixtures';
 import type { ApiError } from '@/types/api';
 
@@ -25,7 +27,7 @@ describe('ProjectForm', () => {
         const wrapper = mount(ProjectForm);
 
         expect((wrapper.find('input').element as HTMLInputElement).value).toBe('');
-        expect((wrapper.find('select').element as HTMLSelectElement).value).toBe('active');
+        expect(comboboxes(wrapper)[0]!.text()).toContain('Активен');
     });
 
     it('prefills from the project when editing', () => {
@@ -35,7 +37,7 @@ describe('ProjectForm', () => {
 
         expect((wrapper.find('input').element as HTMLInputElement).value).toBe('Редакция');
         expect((wrapper.find('textarea').element as HTMLTextAreaElement).value).toBe('Текст');
-        expect((wrapper.find('select').element as HTMLSelectElement).value).toBe('archived');
+        expect(comboboxes(wrapper)[0]!.text()).toContain('В архиве');
     });
 
     it('emits the full payload even when only the status changed', async () => {
@@ -43,7 +45,7 @@ describe('ProjectForm', () => {
             props: { project: makeProject({ name: 'Проект', description: 'Описание', status: 'active' }) },
         });
 
-        await wrapper.find('select').setValue('completed');
+        await chooseOption(wrapper, 0, 'Завершён');
         await wrapper.find('form').trigger('submit');
 
         expect(wrapper.emitted('submit')![0]![0]).toEqual({
@@ -87,8 +89,8 @@ describe('ProjectForm', () => {
     it('disables the actions while a submit is in flight', () => {
         const wrapper = mount(ProjectForm, { props: { pending: true } });
 
-        for (const button of wrapper.findAll('button')) {
-            expect(button.attributes('disabled')).toBeDefined();
+        for (const action of wrapper.findAllComponents(AppButton)) {
+            expect(action.attributes('disabled')).toBeDefined();
         }
     });
 });
