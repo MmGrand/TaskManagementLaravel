@@ -33,6 +33,15 @@ const en: MessageSchema = {
         label: 'Language',
     },
 
+    datePicker: {
+        open: 'Open calendar',
+        previousMonth: 'Previous month',
+        nextMonth: 'Next month',
+        dayMask: 'dd',
+        monthMask: 'mm',
+        yearMask: 'yyyy',
+    },
+
     nav: {
         label: 'Main navigation',
         dashboard: 'Home',

@@ -40,6 +40,15 @@ const ru = {
         label: 'Язык',
     },
 
+    datePicker: {
+        open: 'Открыть календарь',
+        previousMonth: 'Предыдущий месяц',
+        nextMonth: 'Следующий месяц',
+        dayMask: 'дд',
+        monthMask: 'мм',
+        yearMask: 'гггг',
+    },
+
     nav: {
         label: 'Основная навигация',
         dashboard: 'Главная',
