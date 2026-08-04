@@ -125,6 +125,19 @@ const en: MessageSchema = {
         assigneesTruncated: 'Showing the first 75 users.',
         statusOnlyNotice:
             'You can only change the status of this task — the remaining fields are available to its author and the project lead.',
+        board: {
+            viewBoard: 'Board',
+            viewTable: 'Table',
+            groupBy: 'Group by',
+            groupByStatus: 'Status',
+            groupByPriority: 'Priority',
+            groupByAssignee: 'Assignee',
+            loadMore: 'Load more',
+            quickAdd: 'Add a task',
+            quickAddPlaceholder: 'Task title',
+            columnsTruncated: 'Not every assignee is shown. Pick a project to narrow the board down.',
+            detailsTitle: 'Task details',
+        },
     },
 
     projects: {
