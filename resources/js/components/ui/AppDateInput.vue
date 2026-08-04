@@ -2,9 +2,12 @@
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
+    caretAfterDigits,
+    countDigits,
     dateFieldFormat,
     formatDateField,
     fromIsoDate,
+    maskDateField,
     monthGrid,
     monthLabel,
     parseDateField,
@@ -53,8 +56,20 @@ watch(
     { immediate: true },
 );
 
-function onInput(): void {
-    model.value = parseDateField(text.value, format.value) ?? '';
+function onInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const caret = input.selectionStart ?? input.value.length;
+    const digitsBeforeCaret = countDigits(input.value.slice(0, caret));
+    const masked = maskDateField(input.value, format.value);
+
+    text.value = masked;
+    model.value = parseDateField(masked, format.value) ?? '';
+
+    void nextTick(() => {
+        const position = caretAfterDigits(masked, digitsBeforeCaret);
+
+        input.setSelectionRange(position, position);
+    });
 }
 
 function onBlur(): void {

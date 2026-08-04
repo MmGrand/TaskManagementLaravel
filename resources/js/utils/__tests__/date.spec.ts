@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { setLocale } from '@/i18n';
 import {
+    caretAfterDigits,
+    countDigits,
     dateFieldFormat,
     formatDateField,
     fromIsoDate,
+    maskDateField,
     monthGrid,
     monthLabel,
     parseDateField,
@@ -65,6 +68,65 @@ describe('parseDateField', () => {
         await setLocale('en');
 
         expect(parseDateField('15/07/2026', dateFieldFormat())).toBe('2026-07-15');
+    });
+});
+
+describe('maskDateField', () => {
+    it('turns a run of digits into a date instead of a number', () => {
+        expect(maskDateField('15072026', dateFieldFormat())).toBe('15.07.2026');
+    });
+
+    it('inserts the separators while the date is still being typed', () => {
+        const format = dateFieldFormat();
+
+        expect(maskDateField('1', format)).toBe('1');
+        expect(maskDateField('15', format)).toBe('15');
+        expect(maskDateField('150', format)).toBe('15.0');
+        expect(maskDateField('1507', format)).toBe('15.07');
+        expect(maskDateField('150720', format)).toBe('15.07.20');
+    });
+
+    it('pads a day or a month that cannot grow into two digits', () => {
+        const format = dateFieldFormat();
+
+        expect(maskDateField('4', format)).toBe('04');
+        expect(maskDateField('45', format)).toBe('04.05');
+        expect(maskDateField('152', format)).toBe('15.02');
+    });
+
+    it('keeps an out of range day or month inside the calendar', () => {
+        const format = dateFieldFormat();
+
+        expect(maskDateField('39', format)).toBe('31');
+        expect(maskDateField('1519', format)).toBe('15.12');
+        expect(maskDateField('0000', format)).toBe('01.01');
+    });
+
+    it('ignores whatever separators were typed and never overruns the year', () => {
+        const format = dateFieldFormat();
+
+        expect(maskDateField('15/7-2026', format)).toBe('15.07.2026');
+        expect(maskDateField('150720261', format)).toBe('15.07.2026');
+    });
+
+    it('follows the locale order and separator', async () => {
+        await setLocale('en');
+
+        expect(maskDateField('15072026', dateFieldFormat())).toBe('15/07/2026');
+    });
+});
+
+describe('caret helpers', () => {
+    it('counts the digits the caret has already passed', () => {
+        expect(countDigits('15.07')).toBe(4);
+        expect(countDigits('')).toBe(0);
+    });
+
+    it('puts the caret back after the same digit once separators shift', () => {
+        expect(caretAfterDigits('15.07.2026', 0)).toBe(0);
+        expect(caretAfterDigits('15.07.2026', 2)).toBe(2);
+        expect(caretAfterDigits('15.07.2026', 3)).toBe(4);
+        expect(caretAfterDigits('15.07.2026', 99)).toBe(10);
     });
 });
 

@@ -34,6 +34,29 @@ describe('AppDateInput', () => {
         expect(emittedModel(wrapper)).toBe('2026-07-15');
     });
 
+    it('builds a date out of the digits as they are typed', async () => {
+        const wrapper = mountInput();
+        const input = wrapper.find('input');
+
+        await input.setValue('15');
+
+        expect(input.element.value).toBe('15');
+
+        await input.setValue('15072026');
+
+        expect(input.element.value).toBe('15.07.2026');
+        expect(emittedModel(wrapper)).toBe('2026-07-15');
+    });
+
+    it('pads a day that cannot grow and moves on to the month', async () => {
+        const wrapper = mountInput();
+        const input = wrapper.find('input');
+
+        await input.setValue('4');
+
+        expect(input.element.value).toBe('04');
+    });
+
     it('applies nothing while the typed date is incomplete', async () => {
         const wrapper = mountInput('2026-07-15');
 

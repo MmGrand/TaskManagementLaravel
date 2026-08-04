@@ -15,6 +15,10 @@ const ISO_PATTERN = /^(\d{4})-(\d{2})-(\d{2})$/;
 
 const GRID_LENGTH = 42;
 
+const PART_WIDTH: Record<DatePart, number> = { day: 2, month: 2, year: 4 };
+
+const PART_MAX: Record<DatePart, number> = { day: 31, month: 12, year: 9999 };
+
 function isDatePart(type: string): type is DatePart {
     return type === 'day' || type === 'month' || type === 'year';
 }
@@ -87,6 +91,74 @@ export function parseDateField(text: string, format: DateFieldFormat): string | 
     const iso = `${values.year}-${values.month.padStart(2, '0')}-${values.day.padStart(2, '0')}`;
 
     return fromIsoDate(iso) === null ? null : iso;
+}
+
+function maskDatePart(digits: string, part: DatePart): { text: string; consumed: number } {
+    const width = PART_WIDTH[part];
+    const max = PART_MAX[part];
+
+    if (part === 'year') {
+        return { text: digits.slice(0, width), consumed: Math.min(digits.length, width) };
+    }
+
+    if (Number(digits[0]) * 10 > max) {
+        return { text: `0${digits[0]}`, consumed: 1 };
+    }
+
+    if (digits.length === 1) {
+        return { text: digits, consumed: 1 };
+    }
+
+    const value = Math.min(Math.max(Number(digits.slice(0, width)), 1), max);
+
+    return { text: String(value).padStart(width, '0'), consumed: width };
+}
+
+/**
+ * Собирает набранные цифры в дату локального формата: раскладывает их по дню,
+ * месяцу и году, сам расставляет разделители и дополняет нулём часть, которая
+ * уже не может стать двузначной, — иначе в поле остаётся числовая строка.
+ */
+export function maskDateField(text: string, format: DateFieldFormat): string {
+    let digits = text.replace(/\D/g, '');
+    const chunks: string[] = [];
+
+    for (const part of format.parts) {
+        if (digits === '') {
+            break;
+        }
+
+        const masked = maskDatePart(digits, part);
+
+        chunks.push(masked.text);
+        digits = digits.slice(masked.consumed);
+    }
+
+    return chunks.join(format.separator);
+}
+
+export function countDigits(text: string): number {
+    return text.replace(/\D/g, '').length;
+}
+
+export function caretAfterDigits(text: string, count: number): number {
+    if (count === 0) {
+        return 0;
+    }
+
+    let seen = 0;
+
+    for (let index = 0; index < text.length; index += 1) {
+        if (/\d/.test(text[index]!)) {
+            seen += 1;
+
+            if (seen === count) {
+                return index + 1;
+            }
+        }
+    }
+
+    return text.length;
 }
 
 export function monthGrid(year: number, month: number): Date[] {
