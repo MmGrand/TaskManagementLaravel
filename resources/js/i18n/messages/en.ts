@@ -126,6 +126,7 @@ const en: MessageSchema = {
         statusOnlyNotice:
             'You can only change the status of this task — the remaining fields are available to its author and the project lead.',
         board: {
+            viewLabel: 'View',
             viewBoard: 'Board',
             viewTable: 'Table',
             groupBy: 'Group by',

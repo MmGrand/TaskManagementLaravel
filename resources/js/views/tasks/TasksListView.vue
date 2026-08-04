@@ -11,6 +11,7 @@ import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppEmptyState from '@/components/ui/AppEmptyState.vue';
 import AppModal from '@/components/ui/AppModal.vue';
 import AppPagination from '@/components/ui/AppPagination.vue';
+import AppSegmented from '@/components/ui/AppSegmented.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import TaskBoard from '@/components/domain/tasks/board/TaskBoard.vue';
@@ -68,6 +69,11 @@ const sortOptions = computed(() => [
 const directionOptions = computed(() => [
     { value: 'desc', label: t('tasks.directionDesc') },
     { value: 'asc', label: t('tasks.directionAsc') },
+]);
+
+const viewOptions = computed(() => [
+    { value: 'table', label: t('tasks.board.viewTable') },
+    { value: 'board', label: t('tasks.board.viewBoard') },
 ]);
 
 const canGroupByAssignee = computed(() => permissions.can('users.viewAny'));
@@ -337,26 +343,12 @@ async function onDelete(): Promise<void> {
             <h1 class="text-xl font-semibold text-gray-900">{{ t('tasks.title') }}</h1>
 
             <div class="flex items-center gap-2">
-                <div class="flex rounded-md ring-1 ring-gray-300" role="group">
-                    <button
-                        type="button"
-                        class="rounded-l-md px-3 py-1.5 text-sm font-medium"
-                        :class="isBoard ? 'text-gray-600 hover:bg-gray-50' : 'bg-gray-100 text-gray-900'"
-                        :aria-pressed="!isBoard"
-                        @click="setView('table')"
-                    >
-                        {{ t('tasks.board.viewTable') }}
-                    </button>
-                    <button
-                        type="button"
-                        class="rounded-r-md px-3 py-1.5 text-sm font-medium"
-                        :class="isBoard ? 'bg-gray-100 text-gray-900' : 'text-gray-600 hover:bg-gray-50'"
-                        :aria-pressed="isBoard"
-                        @click="setView('board')"
-                    >
-                        {{ t('tasks.board.viewBoard') }}
-                    </button>
-                </div>
+                <AppSegmented
+                    :model-value="query.filters.view"
+                    :options="viewOptions"
+                    :label="t('tasks.board.viewLabel')"
+                    @update:model-value="setView"
+                />
 
                 <AppButton v-if="permissions.can('tasks.create')" @click="openCreate">
                     {{ t('tasks.create') }}
