@@ -70,35 +70,55 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div
-        v-if="open"
-        class="fixed inset-0 z-50 flex justify-end bg-gray-900/40"
-        @click.self="emit('close')"
-        @keydown="onKeydown"
+    <Transition
+        enter-active-class="transition-opacity duration-200 ease-out motion-reduce:transition-none"
+        enter-from-class="opacity-0"
+        leave-active-class="transition-opacity duration-150 ease-in motion-reduce:transition-none"
+        leave-to-class="opacity-0"
     >
         <div
-            ref="panel"
-            role="dialog"
-            aria-modal="true"
-            :aria-labelledby="titleId"
-            tabindex="-1"
-            class="flex h-full w-full max-w-md flex-col overflow-y-auto bg-white shadow-xl outline-none"
+            v-if="open"
+            class="fixed inset-0 z-50 flex justify-end overflow-hidden bg-gray-900/40"
+            @click.self="emit('close')"
+            @keydown="onKeydown"
         >
-            <div class="flex items-start justify-between gap-4 border-b border-gray-200 px-5 py-4">
-                <h2 :id="titleId" class="text-lg font-semibold text-gray-900">{{ title }}</h2>
-                <button
-                    type="button"
-                    class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                    :aria-label="t('common.close')"
-                    @click="emit('close')"
+            <Transition
+                appear
+                enter-active-class="transition-transform duration-200 ease-out motion-reduce:transition-none"
+                enter-from-class="translate-x-full"
+                leave-active-class="transition-transform duration-150 ease-in motion-reduce:transition-none"
+                leave-to-class="translate-x-full"
+            >
+                <div
+                    v-if="open"
+                    ref="panel"
+                    role="dialog"
+                    aria-modal="true"
+                    :aria-labelledby="titleId"
+                    tabindex="-1"
+                    class="flex h-full w-full max-w-md flex-col overflow-y-auto bg-white shadow-xl outline-none"
                 >
-                    &times;
-                </button>
-            </div>
+                    <div
+                        class="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4"
+                    >
+                        <h2 :id="titleId" class="text-lg font-semibold text-gray-900">{{ title }}</h2>
+                        <button
+                            type="button"
+                            class="-mr-2 flex size-9 shrink-0 items-center justify-center rounded-md text-2xl leading-none text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                            :aria-label="t('common.close')"
+                            @click="emit('close')"
+                        >
+                            &times;
+                        </button>
+                    </div>
 
-            <div class="grow px-5 py-4"><slot /></div>
+                    <div class="grow px-5 py-4"><slot /></div>
 
-            <div v-if="$slots.footer" class="border-t border-gray-200 px-5 py-4"><slot name="footer" /></div>
+                    <div v-if="$slots.footer" class="border-t border-gray-200 px-5 py-4">
+                        <slot name="footer" />
+                    </div>
+                </div>
+            </Transition>
         </div>
-    </div>
+    </Transition>
 </template>
