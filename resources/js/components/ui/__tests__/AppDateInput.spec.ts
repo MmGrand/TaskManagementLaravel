@@ -98,13 +98,18 @@ describe('AppDateInput', () => {
         expect(wrapper.text()).toContain('Июнь 2026');
     });
 
-    it('closes on Escape', async () => {
+    it('closes on Escape without letting it reach the dialog around it', async () => {
         const wrapper = mountInput('2026-07-15');
+        const escapes: KeyboardEvent[] = [];
+        const spy = (event: KeyboardEvent): number => escapes.push(event);
+
+        document.addEventListener('keydown', spy);
 
         await wrapper.find('button[aria-expanded]').trigger('click');
-        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
-        await nextTick();
+        await wrapper.find('[data-iso="2026-07-15"]').trigger('keydown', { key: 'Escape' });
+        document.removeEventListener('keydown', spy);
 
         expect(wrapper.find('[data-iso="2026-07-15"]').exists()).toBe(false);
+        expect(escapes).toHaveLength(0);
     });
 });

@@ -127,11 +127,15 @@ function onDocumentClick(event: MouseEvent): void {
     }
 }
 
-function onDocumentKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-        open.value = false;
-        field.value?.focus();
+function onKeydown(event: KeyboardEvent): void {
+    if (event.key !== 'Escape' || !open.value) {
+        return;
     }
+
+    // Иначе тот же Escape закроет и диалог, в котором стоит поле.
+    event.stopPropagation();
+    open.value = false;
+    field.value?.focus();
 }
 
 watch(open, (isOpen) => {
@@ -139,16 +143,13 @@ watch(open, (isOpen) => {
         cursor.value = fromIsoDate(model.value) ?? new Date();
         focusDay(toIsoDate(cursor.value));
         document.addEventListener('click', onDocumentClick);
-        document.addEventListener('keydown', onDocumentKeydown);
     } else {
         document.removeEventListener('click', onDocumentClick);
-        document.removeEventListener('keydown', onDocumentKeydown);
     }
 });
 
 onBeforeUnmount(() => {
     document.removeEventListener('click', onDocumentClick);
-    document.removeEventListener('keydown', onDocumentKeydown);
 });
 
 function dayClass(date: Date): string {
@@ -167,7 +168,7 @@ function dayClass(date: Date): string {
 </script>
 
 <template>
-    <div ref="root" class="relative">
+    <div ref="root" class="relative" @keydown="onKeydown">
         <div
             class="flex items-center rounded-md bg-white shadow-sm ring-1 ring-inset focus-within:ring-2"
             :class="invalid ? 'ring-red-500 focus-within:ring-red-600' : 'ring-gray-300 focus-within:ring-indigo-600'"
