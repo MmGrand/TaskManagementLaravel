@@ -44,6 +44,8 @@ const en: MessageSchema = {
 
     nav: {
         label: 'Main navigation',
+        menu: 'Menu',
+        openMenu: 'Open menu',
         dashboard: 'Home',
         projects: 'Projects',
         tasks: 'Tasks',

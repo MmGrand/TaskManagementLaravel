@@ -51,6 +51,8 @@ const ru = {
 
     nav: {
         label: 'Основная навигация',
+        menu: 'Меню',
+        openMenu: 'Открыть меню',
         dashboard: 'Главная',
         projects: 'Проекты',
         tasks: 'Задачи',

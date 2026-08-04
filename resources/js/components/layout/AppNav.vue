@@ -10,6 +10,13 @@ interface NavItem {
     permission?: Permission;
 }
 
+withDefaults(defineProps<{ direction?: 'row' | 'column' }>(), { direction: 'row' });
+
+const DIRECTIONS = {
+    row: 'flex items-center gap-1',
+    column: 'flex flex-col gap-1',
+} as const;
+
 const { can } = usePermissions();
 const { t } = useI18n();
 
@@ -24,7 +31,7 @@ const visibleItems = computed(() => ITEMS.filter((item) => !item.permission || c
 </script>
 
 <template>
-    <nav class="flex items-center gap-1" :aria-label="t('nav.label')">
+    <nav :class="DIRECTIONS[direction]" :aria-label="t('nav.label')">
         <RouterLink
             v-for="item in visibleItems"
             :key="item.name"
