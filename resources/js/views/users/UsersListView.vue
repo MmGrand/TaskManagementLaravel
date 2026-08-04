@@ -52,7 +52,7 @@ const query = useListQuery<Record<string, string>>({}, load);
         <AppSpinner v-else-if="loading" />
         <AppEmptyState v-else-if="users.length === 0" :title="t('users.emptyTitle')" />
 
-        <div v-else class="overflow-x-auto rounded-lg ring-1 ring-gray-200">
+        <div v-else class="relative overflow-x-auto rounded-lg ring-1 ring-gray-200">
             <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
                 <thead class="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">
                     <tr>

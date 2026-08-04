@@ -143,7 +143,7 @@ async function onDelete(): Promise<void> {
             :description="t('projects.emptyDescription')"
         />
 
-        <div v-else class="overflow-x-auto rounded-lg ring-1 ring-gray-200">
+        <div v-else class="relative overflow-x-auto rounded-lg ring-1 ring-gray-200">
             <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
                 <thead class="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">
                     <tr>
