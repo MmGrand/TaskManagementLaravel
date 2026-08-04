@@ -7,6 +7,7 @@ import * as usersApi from '@/api/users';
 import TasksListView from '@/views/tasks/TasksListView.vue';
 import TaskForm from '@/components/domain/tasks/TaskForm.vue';
 import TaskStatusOnlyForm from '@/components/domain/tasks/TaskStatusOnlyForm.vue';
+import { chooseOption, comboboxes } from '@/tests/ui';
 import { makePage, makeProject, makeRole, makeTask, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
@@ -53,6 +54,12 @@ async function mountAs(slug: RoleSlug, userId = 1) {
     await flushPromises();
 
     return wrapper;
+}
+
+async function groupByOptions(wrapper: Awaited<ReturnType<typeof mountAs>>): Promise<string[]> {
+    await comboboxes(wrapper).at(-1)!.trigger('click');
+
+    return wrapper.findAll('[role="option"]').map((option) => option.text());
 }
 
 beforeEach(() => {
@@ -113,7 +120,7 @@ describe('listing', () => {
     it('pushes a changed filter into the URL only after applying it', async () => {
         const wrapper = await mountAs('admin');
 
-        await wrapper.findAll('select')[0]!.setValue('completed');
+        await chooseOption(wrapper, 0, 'Завершена');
         await flushPromises();
 
         expect(push).not.toHaveBeenCalled();
@@ -171,8 +178,8 @@ describe('the board view', () => {
     it('hides grouping by assignee without users.viewAny', async () => {
         routeQuery.view = 'board';
 
-        expect((await mountAs('user')).text()).not.toContain('По исполнителю');
-        expect((await mountAs('manager')).text()).toContain('По исполнителю');
+        expect(await groupByOptions(await mountAs('user'))).not.toContain('По исполнителю');
+        expect(await groupByOptions(await mountAs('manager'))).toContain('По исполнителю');
     });
 
     it('falls back to status when the URL asks for a grouping the role cannot use', async () => {
@@ -291,7 +298,7 @@ describe('the dynamic edit form', () => {
         await flushPromises();
 
         const statusForm = wrapper.findComponent(TaskStatusOnlyForm);
-        await statusForm.find('select').setValue('in_progress');
+        await chooseOption(statusForm, 0, 'В работе');
         await statusForm.find('form').trigger('submit');
         await flushPromises();
 

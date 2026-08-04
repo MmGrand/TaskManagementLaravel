@@ -3,6 +3,7 @@ import { RouterLinkStub, flushPromises, mount } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import * as projectsApi from '@/api/projects';
 import ProjectsListView from '@/views/projects/ProjectsListView.vue';
+import { chooseOption } from '@/tests/ui';
 import { makePage, makeProject, makeRole, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
@@ -124,7 +125,7 @@ describe('filtering', () => {
         routeQuery.page = '3';
         const wrapper = await mountAs('admin');
 
-        await wrapper.find('select').setValue('completed');
+        await chooseOption(wrapper, 0, 'Завершён');
         await flushPromises();
 
         expect(push).toHaveBeenCalledWith({ query: { status: 'completed' } });

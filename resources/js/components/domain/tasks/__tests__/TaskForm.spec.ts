@@ -4,6 +4,7 @@ import * as projectsApi from '@/api/projects';
 import * as usersApi from '@/api/users';
 import TaskForm from '@/components/domain/tasks/TaskForm.vue';
 import TaskStatusOnlyForm from '@/components/domain/tasks/TaskStatusOnlyForm.vue';
+import { chooseOption, comboboxes } from '@/tests/ui';
 import { makeMeta, makePage, makeProject, makeTask, makeUser } from '@/tests/fixtures';
 import type { ApiError } from '@/types/api';
 
@@ -49,7 +50,7 @@ describe('TaskForm (manageable caller)', () => {
             }),
         });
 
-        await wrapper.findAll('select')[0]!.setValue('completed');
+        await chooseOption(wrapper, 0, 'Завершена');
         await wrapper.find('form').trigger('submit');
 
         expect(wrapper.emitted('submit')![0]![0]).toEqual({
@@ -122,7 +123,7 @@ describe('TaskStatusOnlyForm (assignee)', () => {
             props: { task: makeTask({ status: 'pending' }) },
         });
 
-        expect(wrapper.findAll('select')).toHaveLength(1);
+        expect(comboboxes(wrapper)).toHaveLength(1);
         expect(wrapper.findAll('input')).toHaveLength(0);
         expect(wrapper.findAll('textarea')).toHaveLength(0);
     });
@@ -132,7 +133,7 @@ describe('TaskStatusOnlyForm (assignee)', () => {
             props: { task: makeTask({ status: 'pending' }) },
         });
 
-        await wrapper.find('select').setValue('in_progress');
+        await chooseOption(wrapper, 0, 'В работе');
         await wrapper.find('form').trigger('submit');
 
         expect(wrapper.emitted('submit')![0]![0]).toEqual({ status: 'in_progress' });
