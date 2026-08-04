@@ -220,6 +220,10 @@ function optionClass(index: number): string {
 
 <template>
     <div ref="root" class="relative">
+        <div class="invisible flex h-0 flex-col overflow-hidden" aria-hidden="true">
+            <span v-for="item in items" :key="item.value" class="pl-3 pr-9 text-sm">{{ item.label }}</span>
+        </div>
+
         <button
             :id="id"
             ref="trigger"

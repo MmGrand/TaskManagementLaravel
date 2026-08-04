@@ -134,6 +134,19 @@ describe('AppSelect', () => {
         expect(trigger(wrapper).attributes('disabled')).toBeDefined();
     });
 
+    it('reserves the width of the longest option, not of the current one', () => {
+        const wrapper = mountSelect({ modelValue: '', placeholder: 'Все' });
+        const sizer = wrapper.find('[aria-hidden="true"].invisible');
+
+        expect(sizer.findAll('span').map((span) => span.text())).toEqual([
+            'Все',
+            'Ожидает',
+            'В работе',
+            'Завершена',
+        ]);
+        expect(sizer.classes()).toContain('h-0');
+    });
+
     it('passes the field wiring on to assistive technology', () => {
         const wrapper = mountSelect({ id: 'status', invalid: true, describedBy: 'status-error' });
 
