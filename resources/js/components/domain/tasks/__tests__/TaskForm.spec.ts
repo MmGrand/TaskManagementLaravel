@@ -8,7 +8,7 @@ import { makeMeta, makePage, makeProject, makeTask, makeUser } from '@/tests/fix
 import type { ApiError } from '@/types/api';
 
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/projects');

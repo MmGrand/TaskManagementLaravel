@@ -4,7 +4,7 @@ import { http } from '@/api/http';
 import { makeMeta, makeTask } from '@/tests/fixtures';
 
 vi.mock('@/api/http', () => ({
-    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
+    http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
     setSessionEndedHandler: vi.fn(),
 }));
 
@@ -103,6 +103,21 @@ describe('writes', () => {
 
         await expect(tasksApi.create(payload)).resolves.toBe(task);
         expect(mockedHttp.post).toHaveBeenCalledWith('/tasks', payload);
+    });
+
+    it('moves with PATCH and names the neighbours instead of a position', async () => {
+        const task = makeTask({ id: 1, status: 'in_progress' });
+        mockedHttp.patch.mockResolvedValue({ data: { data: task } });
+
+        const payload = {
+            status: 'in_progress' as const,
+            after_task_id: 4,
+            before_task_id: null,
+        };
+
+        await expect(tasksApi.move(1, payload)).resolves.toBe(task);
+        expect(mockedHttp.patch).toHaveBeenCalledWith('/tasks/1/move', payload);
+        expect(mockedHttp.put).not.toHaveBeenCalled();
     });
 
     it('tolerates the empty 204 body on delete', async () => {

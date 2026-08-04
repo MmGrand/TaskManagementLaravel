@@ -4,7 +4,7 @@ import type { Task } from '@/types/models';
 import type { TaskPriority, TaskStatus } from '@/types/enums';
 import type { AssigneeTaskPayload, ManageableTaskPayload } from '@/utils/taskPayload';
 
-export type TaskSortField = 'created_at' | 'due_date';
+export type TaskSortField = 'created_at' | 'due_date' | 'position';
 export type SortDirection = 'asc' | 'desc';
 
 /** Отражает Task\IndexRequest — всё остальное игнорируется QueryFilter. */
@@ -19,7 +19,16 @@ export interface TaskFilters {
     created_to?: string;
     sort_by?: TaskSortField | '';
     sort_direction?: SortDirection | '';
+    per_page?: number;
     page?: number;
+}
+
+export interface TaskMovePayload {
+    status?: TaskStatus;
+    priority?: TaskPriority;
+    assigned_to?: number;
+    after_task_id: number | null;
+    before_task_id: number | null;
 }
 
 const FILTER_KEYS = [
@@ -33,6 +42,7 @@ const FILTER_KEYS = [
     'created_to',
     'sort_by',
     'sort_direction',
+    'per_page',
 ] as const;
 
 /**
@@ -81,6 +91,12 @@ export async function update(
     payload: ManageableTaskPayload | AssigneeTaskPayload,
 ): Promise<Task> {
     const { data } = await http.put<Envelope<Task>>(`/tasks/${id}`, payload);
+
+    return data.data;
+}
+
+export async function move(id: number, payload: TaskMovePayload): Promise<Task> {
+    const { data } = await http.patch<Envelope<Task>>(`/tasks/${id}/move`, payload);
 
     return data.data;
 }
