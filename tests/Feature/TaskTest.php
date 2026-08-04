@@ -4,6 +4,7 @@ use App\Jobs\Notifications\TaskAssigned;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\TaskPositionService;
 use Illuminate\Support\Facades\Queue;
 
 test('a manager can create a task and the assignee is notified', function () {
@@ -24,6 +25,27 @@ test('a manager can create a task and the assignee is notified', function () {
     $response->assertCreated()->assertJsonPath('data.title', 'New Task');
 
     Queue::assertPushed(TaskAssigned::class);
+});
+
+test('a new task is ranked after every existing one', function () {
+    $manager = User::factory()->manager()->create();
+    $assignee = User::factory()->user()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+
+    Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $manager->id,
+        'assigned_to' => $assignee->id,
+        'position' => 4000,
+    ]);
+
+    $this->actingAs($manager)->postJson('/api/tasks', [
+        'title' => 'Ranked Task',
+        'status' => 'pending',
+        'priority' => 'medium',
+        'project_id' => $project->id,
+        'assigned_to' => $assignee->id,
+    ])->assertCreated()->assertJsonPath('data.position', 4000 + TaskPositionService::STEP);
 });
 
 test('creating a task fails validation without required fields', function () {

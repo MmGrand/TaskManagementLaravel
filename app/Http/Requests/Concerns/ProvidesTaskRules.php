@@ -38,4 +38,22 @@ trait ProvidesTaskRules
             'status' => ['required', Rule::enum(TaskStatus::class)],
         ];
     }
+
+    /**
+     * Rules for moving a task.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    protected function moveTaskRules(bool $manageable, int $taskId): array
+    {
+        $neighbour = ['nullable', 'integer', 'exists:tasks,id', Rule::notIn([$taskId])];
+
+        return [
+            'status' => ['sometimes', Rule::enum(TaskStatus::class)],
+            'priority' => $manageable ? ['sometimes', Rule::enum(TaskPriority::class)] : ['prohibited'],
+            'assigned_to' => $manageable ? ['sometimes', 'integer', 'exists:users,id'] : ['prohibited'],
+            'after_task_id' => $neighbour,
+            'before_task_id' => $neighbour,
+        ];
+    }
 }

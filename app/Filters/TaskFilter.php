@@ -57,9 +57,10 @@ class TaskFilter extends QueryFilter
 
     protected function applySorting(): void
     {
-        $this->builder->orderBy(
-            $this->request->query('sort_by', 'created_at'),
-            $this->request->query('sort_direction', 'desc'),
-        );
+        $direction = $this->request->query('sort_direction', 'desc');
+
+        $this->builder
+            ->orderBy($this->request->query('sort_by', 'created_at'), $direction)
+            ->orderBy('id', $direction);
     }
 }

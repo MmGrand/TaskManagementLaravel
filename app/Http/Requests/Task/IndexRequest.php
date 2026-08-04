@@ -34,8 +34,9 @@ class IndexRequest extends FormRequest
             'due_date_to' => 'nullable|date|after_or_equal:due_date_from',
             'created_from' => 'nullable|date',
             'created_to' => 'nullable|date|after_or_equal:created_from',
-            'sort_by' => 'nullable|in:created_at,due_date',
+            'sort_by' => 'nullable|in:created_at,due_date,position',
             'sort_direction' => 'nullable|in:asc,desc',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 }

@@ -38,6 +38,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
     Route::post('/tasks', [TaskController::class, 'store']);
     Route::get('/tasks/{task}', [TaskController::class, 'show']);
     Route::put('/tasks/{task}', [TaskController::class, 'update']);
+    Route::patch('/tasks/{task}/move', [TaskController::class, 'move']);
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy']);
 
     Route::get('/statistics', [StatisticsController::class, 'index']);

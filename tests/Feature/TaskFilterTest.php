@@ -168,6 +168,37 @@ test('tasks are paginated 15 per page', function () {
         ->assertJsonCount(5, 'data');
 });
 
+test('the board can ask for a bigger page', function () {
+    Task::factory()->count(20)->create([
+        'project_id' => $this->project->id,
+        'created_by' => $this->admin->id,
+        'assigned_to' => $this->assignee->id,
+    ]);
+
+    $this->actingAs($this->admin)->getJson('/api/tasks?per_page=50')
+        ->assertOk()
+        ->assertJsonCount(20, 'data')
+        ->assertJsonPath('meta.per_page', 50);
+});
+
+test('an out of range page size is rejected', function (int $perPage) {
+    $this->actingAs($this->admin)->getJson("/api/tasks?per_page={$perPage}")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['per_page']);
+})->with([0, 101]);
+
+test('tasks can be sorted by board position', function () {
+    $last = taskFor(['position' => 3000]);
+    $first = taskFor(['position' => 1000]);
+    $middle = taskFor(['position' => 2000]);
+
+    $response = $this->actingAs($this->admin)->getJson('/api/tasks?sort_by=position&sort_direction=asc');
+
+    $response->assertOk();
+    expect(array_column($response->json('data'), 'id'))
+        ->toBe([$first->id, $middle->id, $last->id]);
+});
+
 test('projects can be filtered by status', function () {
     Project::factory()->create(['created_by' => $this->admin->id, 'status' => 'archived']);
     Project::factory()->count(2)->create(['created_by' => $this->admin->id, 'status' => 'active']);

@@ -9,14 +9,19 @@ use App\Models\Task;
 use App\Models\User;
 use App\Repositories\Contracts\TaskRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class TaskService
 {
-    public function __construct(private readonly TaskRepository $tasks) {}
+    public function __construct(
+        private readonly TaskRepository $tasks,
+        private readonly TaskPositionService $positions,
+    ) {}
 
-    public function list(TaskFilter $filter, User $viewer): LengthAwarePaginator
+    public function list(TaskFilter $filter, User $viewer, ?int $perPage = null): LengthAwarePaginator
     {
-        return $this->tasks->paginate($filter, $viewer);
+        return $this->tasks->paginate($filter, $viewer, $perPage ?? 15);
     }
 
     /**
@@ -24,7 +29,11 @@ class TaskService
      */
     public function create(User $creator, array $attributes): Task
     {
-        $task = $this->tasks->create([...$attributes, 'created_by' => $creator->id]);
+        $task = $this->tasks->create([
+            ...$attributes,
+            'created_by' => $creator->id,
+            'position' => $this->positions->next(),
+        ]);
 
         TaskAssigned::dispatch($task);
 
@@ -52,8 +61,41 @@ class TaskService
         return $task;
     }
 
+    /**
+     * @param  array<string, mixed>  $attributes
+     */
+    public function move(Task $task, User $actor, array $attributes): Task
+    {
+        return DB::transaction(function () use ($task, $actor, $attributes): Task {
+            $after = $this->neighbour($actor, $attributes['after_task_id'] ?? null);
+            $before = $this->neighbour($actor, $attributes['before_task_id'] ?? null);
+
+            $columnFields = array_intersect_key(
+                $attributes,
+                array_flip(['status', 'priority', 'assigned_to']),
+            );
+
+            return $this->update($task, [
+                ...$columnFields,
+                'position' => $this->positions->between($after, $before),
+            ]);
+        });
+    }
+
     public function delete(Task $task): void
     {
         $this->tasks->delete($task);
+    }
+
+    private function neighbour(User $actor, ?int $id): ?Task
+    {
+        if ($id === null) {
+            return null;
+        }
+
+        return $this->tasks->findVisibleTo($actor, $id)
+            ?? throw ValidationException::withMessages([
+                'after_task_id' => 'Соседняя задача недоступна.',
+            ]);
     }
 }

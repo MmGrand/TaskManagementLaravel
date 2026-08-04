@@ -23,6 +23,12 @@ interface TaskRepository
 
     public function delete(Task $task): void;
 
+    public function maxPosition(): int;
+
+    public function shiftPositionsFrom(int $position, int $step): void;
+
+    public function findVisibleTo(User $viewer, int $id): ?Task;
+
     public function countVisibleTo(User $viewer): int;
 
     /**

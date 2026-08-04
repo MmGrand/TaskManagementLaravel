@@ -7,6 +7,7 @@ use App\Enums\TaskStatus;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
+use App\Services\TaskPositionService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class TaskFactory extends Factory
 {
+    private static int $nextPosition = 0;
+
     /**
      * Define the model's default state.
      *
@@ -30,6 +33,7 @@ class TaskFactory extends Factory
             'assigned_to' => User::factory(),
             'created_by' => User::factory(),
             'due_date' => fake()->dateTimeBetween('now', '+1 year'),
+            'position' => self::$nextPosition += TaskPositionService::STEP,
         ];
     }
 
