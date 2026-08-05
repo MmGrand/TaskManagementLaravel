@@ -25,7 +25,18 @@ services:
     env_file:
       - .env
     environment: *service-env
-    depends_on: *depends-on
+    depends_on:
+      <<: *depends-on
+      assets:
+        condition: service_completed_successfully
+
+  assets:
+    image: node:22-alpine
+    working_dir: /var/www/html
+    command: sh -c "npm ci && npm run build"
+    volumes:
+      - .:/var/www/html
+      - node_modules:/var/www/html/node_modules
 
   queue:
     build: .
@@ -62,4 +73,5 @@ services:
 
 volumes:
   vendor:
+  node_modules:
   mysql:
