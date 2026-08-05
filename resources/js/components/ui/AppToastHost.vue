@@ -5,10 +5,11 @@ import { useUiStore } from '@/stores/ui';
 const ui = useUiStore();
 const { t } = useI18n();
 
+/** Нейтральный тост инвертируется: тёмная плашка сливалась бы с тёмной страницей. */
 const TONES = {
     success: 'bg-emerald-600 text-white',
     error: 'bg-red-600 text-white',
-    info: 'bg-gray-900 text-white',
+    info: 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900',
 } as const;
 </script>
 

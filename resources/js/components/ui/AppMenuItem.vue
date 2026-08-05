@@ -5,8 +5,8 @@ import type { RouteLocationRaw } from 'vue-router';
 const props = defineProps<{ to?: RouteLocationRaw; selected?: boolean }>();
 
 const itemClass = computed(() => [
-    'flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-gray-50',
-    props.selected === true ? 'font-medium text-gray-900' : 'text-gray-700',
+    'flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm hover:bg-surface-muted',
+    props.selected === true ? 'font-medium text-fg' : 'text-fg-muted',
 ]);
 
 const role = computed(() => (props.selected === undefined ? 'menuitem' : 'menuitemradio'));
@@ -19,6 +19,6 @@ const role = computed(() => (props.selected === undefined ? 'menuitem' : 'menuit
 
     <button v-else type="button" :role="role" :aria-checked="selected" :class="itemClass">
         <slot />
-        <span v-if="selected" class="text-indigo-600" aria-hidden="true">&check;</span>
+        <span v-if="selected" class="text-accent-fg" aria-hidden="true">&check;</span>
     </button>
 </template>

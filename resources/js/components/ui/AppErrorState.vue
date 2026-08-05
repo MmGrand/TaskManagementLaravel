@@ -12,10 +12,10 @@ const { t } = useI18n();
 <template>
     <div
         role="alert"
-        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-red-300 px-4 py-12 text-center"
+        class="flex flex-col items-center gap-2 rounded-lg border border-dashed border-red-300 px-4 py-12 text-center dark:border-red-500/40"
     >
-        <p class="text-sm font-medium text-red-800">{{ error.message }}</p>
-        <p v-if="error.isNetwork" class="text-sm text-gray-600">{{ t('errors.checkConnection') }}</p>
+        <p class="text-sm font-medium text-red-800 dark:text-red-300">{{ error.message }}</p>
+        <p v-if="error.isNetwork" class="text-sm text-fg-muted">{{ t('errors.checkConnection') }}</p>
 
         <AppButton v-if="!error.isForbidden" variant="secondary" class="mt-2" @click="emit('retry')">
             {{ t('common.retry') }}

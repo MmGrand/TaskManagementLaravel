@@ -156,22 +156,22 @@ function dayClass(date: Date): string {
     const iso = toIsoDate(date);
 
     if (iso === model.value) {
-        return 'bg-indigo-600 text-white';
+        return 'bg-accent text-white';
     }
 
     if (date.getMonth() !== cursor.value.getMonth()) {
-        return 'text-gray-400 hover:bg-gray-100';
+        return 'text-fg-faint hover:bg-surface-hover';
     }
 
-    return iso === today.value ? 'font-semibold text-indigo-600 hover:bg-gray-100' : 'text-gray-900 hover:bg-gray-100';
+    return iso === today.value ? 'font-semibold text-accent-fg hover:bg-surface-hover' : 'text-fg hover:bg-surface-hover';
 }
 </script>
 
 <template>
     <div ref="root" class="relative" @keydown="onKeydown">
         <div
-            class="flex items-center rounded-md bg-white shadow-sm ring-1 ring-inset focus-within:ring-2"
-            :class="invalid ? 'ring-red-500 focus-within:ring-red-600' : 'ring-gray-300 focus-within:ring-indigo-600'"
+            class="flex items-center rounded-md bg-surface shadow-sm ring-1 ring-inset focus-within:ring-2"
+            :class="invalid ? 'ring-danger' : 'ring-border-strong focus-within:ring-accent'"
         >
             <input
                 :id="id"
@@ -185,7 +185,7 @@ function dayClass(date: Date): string {
                 :disabled="disabled"
                 :aria-invalid="invalid || undefined"
                 :aria-describedby="describedBy"
-                class="block w-full rounded-md border-0 bg-transparent px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none disabled:cursor-not-allowed disabled:text-gray-500"
+                class="block w-full rounded-md border-0 bg-transparent px-3 py-2 text-sm text-fg placeholder:text-fg-faint focus:outline-none disabled:cursor-not-allowed disabled:text-fg-subtle"
                 @input="onInput"
                 @blur="onBlur"
             />
@@ -195,7 +195,7 @@ function dayClass(date: Date): string {
                 :aria-label="t('datePicker.open')"
                 :aria-expanded="open"
                 :disabled="disabled"
-                class="shrink-0 rounded-r-md px-2 py-2 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed"
+                class="shrink-0 rounded-r-md px-2 py-2 text-fg-faint hover:text-fg-muted disabled:cursor-not-allowed"
                 @click="toggle"
             >
                 <svg class="h-5 w-5" viewBox="0 0 20 20" fill="none" stroke="currentColor" aria-hidden="true">
@@ -207,29 +207,29 @@ function dayClass(date: Date): string {
 
         <div
             v-if="open"
-            class="absolute left-0 z-20 mt-1 w-72 rounded-md border border-gray-200 bg-white p-3 shadow-lg"
+            class="absolute left-0 z-20 mt-1 w-72 rounded-md border border-border bg-surface p-3 shadow-lg"
         >
             <div class="mb-2 flex items-center justify-between gap-2">
                 <button
                     type="button"
                     :aria-label="t('datePicker.previousMonth')"
-                    class="rounded px-2 py-1 text-gray-500 hover:bg-gray-100"
+                    class="rounded px-2 py-1 text-fg-subtle hover:bg-surface-hover"
                     @click="shiftMonth(-1)"
                 >
                     &#8249;
                 </button>
-                <span class="text-sm font-medium text-gray-900">{{ monthLabel(cursor) }}</span>
+                <span class="text-sm font-medium text-fg">{{ monthLabel(cursor) }}</span>
                 <button
                     type="button"
                     :aria-label="t('datePicker.nextMonth')"
-                    class="rounded px-2 py-1 text-gray-500 hover:bg-gray-100"
+                    class="rounded px-2 py-1 text-fg-subtle hover:bg-surface-hover"
                     @click="shiftMonth(1)"
                 >
                     &#8250;
                 </button>
             </div>
 
-            <div class="grid grid-cols-7 gap-0.5 text-center text-xs text-gray-500">
+            <div class="grid grid-cols-7 gap-0.5 text-center text-xs text-fg-subtle">
                 <span v-for="weekday in weekdays" :key="weekday" class="py-1">{{ weekday }}</span>
             </div>
 
