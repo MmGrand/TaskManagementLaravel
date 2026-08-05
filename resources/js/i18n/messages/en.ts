@@ -33,6 +33,13 @@ const en: MessageSchema = {
         label: 'Language',
     },
 
+    theme: {
+        label: 'Theme',
+        light: 'Light',
+        dark: 'Dark',
+        system: 'System',
+    },
+
     datePicker: {
         open: 'Open calendar',
         previousMonth: 'Previous month',

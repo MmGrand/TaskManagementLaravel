@@ -40,6 +40,13 @@ const ru = {
         label: 'Язык',
     },
 
+    theme: {
+        label: 'Тема',
+        light: 'Светлая',
+        dark: 'Тёмная',
+        system: 'Системная',
+    },
+
     datePicker: {
         open: 'Открыть календарь',
         previousMonth: 'Предыдущий месяц',
