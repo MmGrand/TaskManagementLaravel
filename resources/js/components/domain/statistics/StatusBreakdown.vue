@@ -22,17 +22,17 @@ function share(count: number): number {
 </script>
 
 <template>
-    <div class="rounded-lg bg-white p-4 ring-1 ring-gray-200">
-        <h2 class="text-sm font-semibold text-gray-900">{{ t('statistics.byStatus') }}</h2>
+    <div class="rounded-lg bg-surface p-4 ring-1 ring-border">
+        <h2 class="text-sm font-semibold text-fg">{{ t('statistics.byStatus') }}</h2>
 
         <ul class="mt-3 flex flex-col gap-3">
             <li v-for="row in rows" :key="row.status" class="flex flex-col gap-1">
                 <div class="flex items-center justify-between gap-2">
                     <TaskStatusBadge :status="row.status" />
-                    <span class="text-sm text-gray-900">{{ row.count }}</span>
+                    <span class="text-sm text-fg">{{ row.count }}</span>
                 </div>
-                <div class="h-1.5 overflow-hidden rounded-full bg-gray-100">
-                    <div class="h-full rounded-full bg-indigo-500" :style="{ width: `${share(row.count)}%` }" />
+                <div class="h-1.5 overflow-hidden rounded-full bg-surface-hover">
+                    <div class="h-full rounded-full bg-accent" :style="{ width: `${share(row.count)}%` }" />
                 </div>
             </li>
         </ul>

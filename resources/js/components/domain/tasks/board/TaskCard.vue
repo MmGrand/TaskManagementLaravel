@@ -47,16 +47,16 @@ const showsAssignee = computed(() => props.groupBy !== 'assigned_to');
         :data-movable="movable"
         role="button"
         tabindex="0"
-        class="cursor-pointer rounded-lg bg-white p-3 text-left shadow-sm ring-1 ring-gray-200 hover:ring-gray-300 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:outline-none"
+        class="cursor-pointer rounded-lg bg-surface p-3 text-left shadow-sm ring-1 ring-border hover:ring-border-strong focus-visible:ring-2 focus-visible:ring-accent focus-visible:outline-none"
         :class="{ 'active:cursor-grabbing': movable }"
         @pointerdown="onPointerDown"
         @click="onClick"
         @keydown.enter.prevent="emit('open', task)"
         @keydown.space.prevent="emit('open', task)"
     >
-        <h3 class="text-sm font-medium text-gray-900">{{ task.title }}</h3>
+        <h3 class="text-sm font-medium text-fg">{{ task.title }}</h3>
 
-        <p v-if="task.project" class="mt-1 truncate text-xs text-gray-500">{{ task.project.name }}</p>
+        <p v-if="task.project" class="mt-1 truncate text-xs text-fg-subtle">{{ task.project.name }}</p>
 
         <div class="mt-3 flex flex-wrap items-center gap-1.5">
             <TaskPriorityBadge v-if="showsPriority" :priority="task.priority" />
@@ -65,7 +65,7 @@ const showsAssignee = computed(() => props.groupBy !== 'assigned_to');
         </div>
 
         <div class="mt-3 flex items-center justify-between gap-2">
-            <span class="text-xs" :class="overdue ? 'font-medium text-red-600' : 'text-gray-500'">
+            <span class="text-xs" :class="overdue ? 'font-medium text-danger-fg' : 'text-fg-subtle'">
                 {{ formatDate(task.due_date) }}
             </span>
             <AppAvatar v-if="showsAssignee" :user="task.assigned_user" />

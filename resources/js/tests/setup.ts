@@ -1,6 +1,7 @@
 import { beforeEach } from 'vitest';
 import { config } from '@vue/test-utils';
 import { i18n, setLocaleSync } from '@/i18n';
+import { stubMatchMedia } from '@/tests/media';
 
 /**
  * Плагин ставится глобально, чтобы каждый спек не перечислял его сам.
@@ -18,4 +19,8 @@ setLocaleSync('ru');
 
 beforeEach(() => {
     setLocaleSync('ru');
+
+    // Системная тема по умолчанию светлая, класс не должен протекать между тестами.
+    stubMatchMedia(false);
+    document.documentElement.classList.remove('dark');
 });

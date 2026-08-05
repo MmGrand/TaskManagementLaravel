@@ -18,7 +18,7 @@ const label = computed(() => fullName(props.user));
 
 <template>
     <span
-        class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 font-semibold text-indigo-700 ring-1 ring-indigo-200"
+        class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-indigo-100 font-semibold text-indigo-700 ring-1 ring-indigo-200 dark:bg-indigo-500/15 dark:text-indigo-300 dark:ring-indigo-500/30"
         :class="SIZES[size]"
         :title="label"
         :aria-label="label"

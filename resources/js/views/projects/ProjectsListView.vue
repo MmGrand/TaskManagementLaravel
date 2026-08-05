@@ -117,7 +117,7 @@ async function onDelete(): Promise<void> {
 <template>
     <section class="flex flex-col gap-4">
         <header class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-xl font-semibold text-gray-900">{{ t('projects.title') }}</h1>
+            <h1 class="text-xl font-semibold text-fg">{{ t('projects.title') }}</h1>
             <AppButton v-if="permissions.can('projects.create')" @click="openCreate">
                 {{ t('projects.create') }}
             </AppButton>
@@ -143,9 +143,9 @@ async function onDelete(): Promise<void> {
             :description="t('projects.emptyDescription')"
         />
 
-        <div v-else class="relative overflow-x-auto rounded-lg ring-1 ring-gray-200">
-            <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
-                <thead class="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">
+        <div v-else class="relative overflow-x-auto rounded-lg ring-1 ring-border">
+            <table class="min-w-full divide-y divide-border bg-surface text-sm">
+                <thead class="bg-surface-muted text-left text-xs font-semibold text-fg-muted uppercase">
                     <tr>
                         <th scope="col" class="px-4 py-3">{{ t('common.name') }}</th>
                         <th scope="col" class="px-4 py-3">{{ t('common.status') }}</th>
@@ -154,19 +154,19 @@ async function onDelete(): Promise<void> {
                         <th scope="col" class="px-4 py-3"><span class="sr-only">{{ t('common.actions') }}</span></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-border">
                     <tr v-for="project in projects" :key="project.id">
                         <td class="px-4 py-3">
                             <RouterLink
                                 :to="{ name: 'project', params: { id: project.id } }"
-                                class="font-medium text-indigo-600 hover:text-indigo-500"
+                                class="font-medium text-accent-fg hover:text-accent-hover"
                             >
                                 {{ project.name }}
                             </RouterLink>
                         </td>
                         <td class="px-4 py-3"><ProjectStatusBadge :status="project.status" /></td>
-                        <td class="px-4 py-3 text-gray-600">{{ fullName(project.creator) }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ formatDate(project.created_at) }}</td>
+                        <td class="px-4 py-3 text-fg-muted">{{ fullName(project.creator) }}</td>
+                        <td class="px-4 py-3 text-fg-muted">{{ formatDate(project.created_at) }}</td>
                         <td class="px-4 py-3">
                             <div class="flex justify-end gap-2">
                                 <AppButton

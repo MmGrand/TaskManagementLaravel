@@ -28,7 +28,7 @@ const confirmText = computed(() => props.confirmLabel ?? t('common.delete'));
 
 <template>
     <AppModal :open="open" :title="title" @close="emit('cancel')">
-        <p class="text-sm text-gray-600">{{ message }}</p>
+        <p class="text-sm text-fg-muted">{{ message }}</p>
 
         <template #footer>
             <AppButton variant="secondary" :disabled="pending" @click="emit('cancel')">

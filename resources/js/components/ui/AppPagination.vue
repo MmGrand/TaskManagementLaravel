@@ -21,7 +21,7 @@ function go(page: number): void {
 
 <template>
     <nav v-if="meta.last_page > 1" class="flex items-center justify-between gap-4" :aria-label="t('pagination.label')">
-        <p class="text-sm text-gray-600">
+        <p class="text-sm text-fg-muted">
             <span v-if="meta.from !== null && meta.to !== null">
                 {{ t('pagination.range', { from: meta.from, to: meta.to, total: meta.total }) }}
             </span>
@@ -32,7 +32,7 @@ function go(page: number): void {
             <AppButton variant="secondary" :disabled="isFirst" @click="go(meta.current_page - 1)">
                 {{ t('pagination.previous') }}
             </AppButton>
-            <span class="text-sm text-gray-600">{{ meta.current_page }} / {{ meta.last_page }}</span>
+            <span class="text-sm text-fg-muted">{{ meta.current_page }} / {{ meta.last_page }}</span>
             <AppButton variant="secondary" :disabled="isLast" @click="go(meta.current_page + 1)">
                 {{ t('pagination.next') }}
             </AppButton>

@@ -341,7 +341,7 @@ async function onDelete(): Promise<void> {
 <template>
     <section class="flex flex-col gap-4">
         <header class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-xl font-semibold text-gray-900">{{ t('tasks.title') }}</h1>
+            <h1 class="text-xl font-semibold text-fg">{{ t('tasks.title') }}</h1>
 
             <div class="flex items-center gap-2">
                 <AppSegmented
@@ -357,7 +357,7 @@ async function onDelete(): Promise<void> {
             </div>
         </header>
 
-        <div class="grid gap-3 rounded-lg bg-white p-4 ring-1 ring-gray-200 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="grid gap-3 rounded-lg bg-surface p-4 ring-1 ring-border sm:grid-cols-2 lg:grid-cols-4">
             <AppField v-show="!isBoard || groupBy !== 'status'" v-slot="field" :label="t('common.status')">
                 <AppSelect
                     v-bind="field"

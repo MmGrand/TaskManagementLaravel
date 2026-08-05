@@ -73,7 +73,7 @@ onBeforeUnmount(() => {
 <template>
     <div
         v-if="open"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 p-4"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/40 dark:bg-gray-950/70 p-4"
         @click.self="emit('close')"
         @keydown="onKeydown"
     >
@@ -83,13 +83,13 @@ onBeforeUnmount(() => {
             aria-modal="true"
             :aria-labelledby="titleId"
             tabindex="-1"
-            class="w-full max-w-lg rounded-lg bg-white p-5 shadow-xl outline-none"
+            class="w-full max-w-lg rounded-lg bg-surface p-5 shadow-xl outline-none"
         >
             <div class="flex items-start justify-between gap-4">
-                <h2 :id="titleId" class="text-lg font-semibold text-gray-900">{{ title }}</h2>
+                <h2 :id="titleId" class="text-lg font-semibold text-fg">{{ title }}</h2>
                 <button
                     type="button"
-                    class="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                    class="rounded p-1 text-fg-faint hover:bg-surface-hover hover:text-fg-muted"
                     :aria-label="t('common.close')"
                     @click="emit('close')"
                 >

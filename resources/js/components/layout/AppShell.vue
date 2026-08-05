@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import AppNav from '@/components/layout/AppNav.vue';
 import LocaleSwitcher from '@/components/layout/LocaleSwitcher.vue';
+import ThemeSwitcher from '@/components/layout/ThemeSwitcher.vue';
 import UserMenu from '@/components/layout/UserMenu.vue';
 import AppDrawer from '@/components/ui/AppDrawer.vue';
 import { useUiStore } from '@/stores/ui';
@@ -26,23 +27,24 @@ watch(
 
 <template>
     <div class="flex min-h-full flex-col">
-        <header class="border-b border-gray-200 bg-white">
+        <header class="border-b border-border bg-surface">
             <div class="mx-auto flex items-center justify-between gap-3 px-4 py-3" :class="maxWidth">
                 <div class="flex min-w-0 items-center gap-6">
                     <RouterLink
                         :to="{ name: 'dashboard' }"
-                        class="truncate text-sm font-semibold text-gray-900"
+                        class="truncate text-sm font-semibold text-fg"
                     >
                         Task Management
                     </RouterLink>
                     <div class="hidden md:block"><AppNav /></div>
                 </div>
                 <div class="flex shrink-0 items-center gap-2">
+                    <ThemeSwitcher />
                     <LocaleSwitcher />
                     <UserMenu />
                     <button
                         type="button"
-                        class="rounded-md p-1.5 text-gray-600 hover:bg-gray-100 md:hidden"
+                        class="rounded-md p-1.5 text-fg-muted hover:bg-surface-hover md:hidden"
                         :aria-label="t('nav.openMenu')"
                         :aria-expanded="menuOpen"
                         @click="menuOpen = true"

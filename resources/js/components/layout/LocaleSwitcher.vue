@@ -24,7 +24,7 @@ function select(code: LocaleCode): void {
 <template>
     <AppDropdown :label="t('locale.label')" menu-class="w-44" trigger-class="px-1.5">
         <template #trigger>
-            <span class="text-xs font-semibold text-gray-700">{{ activeShortName }}</span>
+            <span class="text-xs font-semibold text-fg-muted">{{ activeShortName }}</span>
         </template>
 
         <template #default="{ close }">

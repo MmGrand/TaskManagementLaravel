@@ -76,7 +76,7 @@ async function onSubmit(payload: UserPayload, avatar: File | null): Promise<void
 
 <template>
     <section class="flex max-w-2xl flex-col gap-4">
-        <h1 class="text-xl font-semibold text-gray-900">{{ isSelf ? t('profile.mine') : t('profile.other') }}</h1>
+        <h1 class="text-xl font-semibold text-fg">{{ isSelf ? t('profile.mine') : t('profile.other') }}</h1>
 
         <AppSpinner v-if="loading" />
         <AppAlert v-else-if="loadError">{{ loadError.message }}</AppAlert>

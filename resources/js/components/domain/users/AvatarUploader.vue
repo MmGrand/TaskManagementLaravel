@@ -65,14 +65,14 @@ onBeforeUnmount(revokePreview);
         <img v-else-if="props.user.avatar" :src="props.user.avatar" alt="" class="size-16 rounded-full object-cover" />
         <span
             v-else
-            class="flex size-16 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700"
+            class="flex size-16 items-center justify-center rounded-full bg-indigo-100 text-lg font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
             aria-hidden="true"
         >
             {{ initials(props.user) }}
         </span>
 
         <div class="flex flex-col gap-1">
-            <span class="text-sm font-medium text-gray-900">{{ t('users.avatar') }}</span>
+            <span class="text-sm font-medium text-fg">{{ t('users.avatar') }}</span>
 
             <AppFileInput
                 ref="picker"
@@ -83,7 +83,7 @@ onBeforeUnmount(revokePreview);
                 @select="onFileSelected"
             />
 
-            <p class="text-xs text-gray-500">{{ t('users.avatarHint') }}</p>
+            <p class="text-xs text-fg-subtle">{{ t('users.avatarHint') }}</p>
         </div>
     </div>
 

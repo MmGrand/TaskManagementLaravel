@@ -15,7 +15,7 @@ const model = defineModel<string>({ required: true });
         :placeholder="placeholder"
         :aria-invalid="invalid || undefined"
         :aria-describedby="describedBy"
-        class="block w-full rounded-md border-0 px-3 py-2 text-sm text-gray-900 shadow-sm ring-1 ring-inset placeholder:text-gray-400 focus:ring-2 focus:ring-inset"
-        :class="invalid ? 'ring-red-500 focus:ring-red-600' : 'ring-gray-300 focus:ring-indigo-600'"
+        class="block w-full rounded-md border-0 px-3 py-2 text-sm text-fg shadow-sm ring-1 ring-inset placeholder:text-fg-faint focus:ring-2 focus:ring-inset"
+        :class="invalid ? 'ring-danger' : 'ring-border-strong focus:ring-accent'"
     />
 </template>

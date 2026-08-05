@@ -76,10 +76,10 @@ async function onEnd(event: { newIndex?: number }): Promise<void> {
 </script>
 
 <template>
-    <section class="flex w-80 shrink-0 flex-col rounded-lg bg-gray-100 p-3">
+    <section class="flex w-80 shrink-0 flex-col rounded-lg bg-surface-hover p-3">
         <header class="mb-3 flex items-center justify-between gap-2">
-            <h2 class="text-sm font-semibold text-gray-900">{{ column.label }}</h2>
-            <span class="rounded-full bg-white px-2 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-gray-200">
+            <h2 class="text-sm font-semibold text-fg">{{ column.label }}</h2>
+            <span class="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-fg-muted ring-1 ring-border">
                 {{ column.total }}
             </span>
         </header>

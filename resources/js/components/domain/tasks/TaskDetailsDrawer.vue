@@ -21,7 +21,7 @@ const { t } = useI18n();
     <AppDrawer :open="open" :title="t('tasks.board.detailsTitle')" @close="emit('close')">
         <div v-if="task" class="flex flex-col gap-4">
             <div>
-                <h3 class="text-base font-semibold text-gray-900">{{ task.title }}</h3>
+                <h3 class="text-base font-semibold text-fg">{{ task.title }}</h3>
                 <div class="mt-2 flex flex-wrap items-center gap-2">
                     <TaskStatusBadge :status="task.status" />
                     <TaskPriorityBadge :priority="task.priority" />
@@ -33,7 +33,7 @@ const { t } = useI18n();
 
             <RouterLink
                 :to="{ name: 'task', params: { id: task.id } }"
-                class="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                class="text-sm font-medium text-accent-fg hover:text-accent-hover"
             >
                 {{ t('tasks.task') }}
             </RouterLink>

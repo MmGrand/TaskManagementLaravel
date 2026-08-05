@@ -211,10 +211,10 @@ function optionClass(index: number): string {
     const isSelected = items.value[index]?.value === model.value;
 
     if (index === activeIndex.value) {
-        return isSelected ? 'bg-indigo-600 text-white' : 'bg-indigo-50 text-gray-900';
+        return isSelected ? 'bg-accent text-white' : 'bg-indigo-50 text-fg dark:bg-indigo-500/15';
     }
 
-    return isSelected ? 'font-medium text-indigo-600' : 'text-gray-700';
+    return isSelected ? 'font-medium text-accent-fg' : 'text-fg-muted';
 }
 </script>
 
@@ -236,10 +236,10 @@ function optionClass(index: number): string {
             :aria-invalid="invalid || undefined"
             :aria-describedby="describedBy"
             :disabled="disabled"
-            class="flex w-full items-center justify-between gap-2 rounded-md bg-white px-3 py-2 text-left text-sm shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:outline-none disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-500"
+            class="flex w-full items-center justify-between gap-2 rounded-md bg-surface px-3 py-2 text-left text-sm shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-subtle"
             :class="[
-                invalid ? 'ring-red-500 focus:ring-red-600' : 'ring-gray-300 focus:ring-indigo-600',
-                model === '' ? 'text-gray-400' : 'text-gray-900',
+                invalid ? 'ring-danger' : 'ring-border-strong focus:ring-accent',
+                model === '' ? 'text-fg-faint' : 'text-fg',
             ]"
             v-bind="$attrs"
             @click="toggle"
@@ -247,7 +247,7 @@ function optionClass(index: number): string {
         >
             <span class="truncate">{{ selectedLabel }}</span>
             <span
-                class="shrink-0 text-xs text-gray-400 transition"
+                class="shrink-0 text-xs text-fg-faint transition"
                 :class="open ? 'rotate-180' : ''"
                 aria-hidden="true"
             >
@@ -260,7 +260,7 @@ function optionClass(index: number): string {
             :id="listId"
             ref="list"
             role="listbox"
-            class="absolute left-0 z-20 mt-1 max-h-60 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+            class="absolute left-0 z-20 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-surface py-1 shadow-lg"
         >
             <div
                 v-for="(item, index) in items"

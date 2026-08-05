@@ -4,7 +4,65 @@
 @source '../../storage/framework/views/*.php';
 @source '../js/**/*.{vue,ts}';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-canvas: var(--color-gray-50);
+    --color-surface: #fff;
+    --color-surface-muted: var(--color-gray-50);
+    --color-surface-hover: var(--color-gray-100);
+
+    --color-border: var(--color-gray-200);
+    --color-border-strong: var(--color-gray-300);
+
+    --color-fg: var(--color-gray-900);
+    --color-fg-muted: var(--color-gray-600);
+    --color-fg-subtle: var(--color-gray-500);
+    --color-fg-faint: var(--color-gray-400);
+
+    --color-accent: var(--color-indigo-600);
+    --color-accent-hover: var(--color-indigo-500);
+    --color-accent-fg: var(--color-indigo-600);
+
+    --color-danger: var(--color-red-600);
+    --color-danger-hover: var(--color-red-500);
+    --color-danger-fg: var(--color-red-600);
+}
+
+/*
+ * Токены переопределяются обычным правилом, а не вторым @theme: значения должны
+ * подменяться в рантайме через каскад, поэтому утилиты обязаны компилироваться
+ * в var(--color-*) — по той же причине здесь не используется `@theme inline`.
+ * Правило вне @layer, так что перебивает :root из слоя theme.
+ */
+:root {
+    color-scheme: light;
+}
+
+.dark {
+    color-scheme: dark;
+
+    --color-canvas: var(--color-gray-950);
+    --color-surface: var(--color-gray-900);
+    --color-surface-muted: var(--color-gray-800);
+    --color-surface-hover: var(--color-gray-800);
+
+    --color-border: var(--color-gray-800);
+    --color-border-strong: var(--color-gray-700);
+
+    --color-fg: var(--color-gray-50);
+    --color-fg-muted: var(--color-gray-400);
+    --color-fg-subtle: var(--color-gray-400);
+    --color-fg-faint: var(--color-gray-500);
+
+    --color-accent: var(--color-indigo-500);
+    --color-accent-hover: var(--color-indigo-400);
+    --color-accent-fg: var(--color-indigo-400);
+
+    --color-danger: var(--color-red-500);
+    --color-danger-hover: var(--color-red-400);
+    --color-danger-fg: var(--color-red-400);
 }

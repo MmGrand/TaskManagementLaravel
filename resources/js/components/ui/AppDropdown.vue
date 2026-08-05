@@ -56,13 +56,13 @@ defineExpose({ close });
             :aria-label="label"
             :aria-expanded="open"
             aria-haspopup="menu"
-            class="flex items-center gap-2 rounded-md p-1 hover:bg-gray-100"
+            class="flex items-center gap-2 rounded-md p-1 hover:bg-surface-hover"
             :class="triggerClass"
             @click="open = !open"
         >
             <slot name="trigger" />
             <span
-                class="inline-block text-xs text-gray-400 transition"
+                class="inline-block text-xs text-fg-faint transition"
                 :class="open ? 'rotate-180' : ''"
                 aria-hidden="true"
             >
@@ -73,7 +73,7 @@ defineExpose({ close });
         <div
             v-if="open"
             role="menu"
-            class="absolute right-0 z-20 mt-2 rounded-md border border-gray-200 bg-white py-1 shadow-lg"
+            class="absolute right-0 z-20 mt-2 rounded-md border border-border bg-surface py-1 shadow-lg"
             :class="menuClass"
         >
             <slot :close="close" />

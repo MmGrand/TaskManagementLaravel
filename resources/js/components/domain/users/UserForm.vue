@@ -85,7 +85,7 @@ function onSubmit(): void {
         <AppAlert v-if="error && !error.isValidation">{{ error.message }}</AppAlert>
 
         <AvatarUploader :user="user" @change="avatar = $event" />
-        <p v-if="fieldError('avatar')" class="text-xs text-red-600">{{ fieldError('avatar') }}</p>
+        <p v-if="fieldError('avatar')" class="text-xs text-danger-fg">{{ fieldError('avatar') }}</p>
 
         <div class="grid gap-4 sm:grid-cols-2">
             <AppField v-slot="field" :label="t('auth.firstName')" :error="fieldError('first_name')" required>

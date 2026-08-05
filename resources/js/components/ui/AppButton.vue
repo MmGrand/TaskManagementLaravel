@@ -19,11 +19,11 @@ const props = withDefaults(
 );
 
 const VARIANTS: Record<NonNullable<typeof props.variant>, string> = {
-    primary: 'bg-indigo-600 text-white hover:bg-indigo-500 focus-visible:outline-indigo-600',
+    primary: 'bg-accent text-white hover:bg-accent-hover focus-visible:outline-accent',
     secondary:
-        'bg-white text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:outline-gray-600',
-    danger: 'bg-red-600 text-white hover:bg-red-500 focus-visible:outline-red-600',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus-visible:outline-gray-600',
+        'bg-surface text-fg ring-1 ring-inset ring-border-strong hover:bg-surface-muted focus-visible:outline-fg-muted',
+    danger: 'bg-danger text-white hover:bg-danger-hover focus-visible:outline-danger',
+    ghost: 'text-fg-muted hover:bg-surface-hover focus-visible:outline-fg-muted',
 };
 
 const isDisabled = computed(() => props.disabled || props.loading);

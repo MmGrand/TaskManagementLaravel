@@ -3,6 +3,7 @@ import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppShell from '@/components/layout/AppShell.vue';
 import LocaleSwitcher from '@/components/layout/LocaleSwitcher.vue';
+import ThemeSwitcher from '@/components/layout/ThemeSwitcher.vue';
 import AppToastHost from '@/components/ui/AppToastHost.vue';
 import { useAuthStore } from '@/stores/auth';
 
@@ -34,7 +35,10 @@ watch(
 
     <!-- Экраны вне shell (вход, регистрация, ошибки) своей шапки не имеют. -->
     <template v-else>
-        <div class="absolute top-4 right-4 z-10"><LocaleSwitcher /></div>
+        <div class="absolute top-4 right-4 z-10 flex items-center gap-2">
+            <ThemeSwitcher />
+            <LocaleSwitcher />
+        </div>
         <RouterView />
     </template>
 

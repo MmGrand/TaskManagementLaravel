@@ -78,7 +78,7 @@ onBeforeUnmount(() => {
     >
         <div
             v-if="open"
-            class="fixed inset-0 z-50 flex justify-end overflow-hidden bg-gray-900/40"
+            class="fixed inset-0 z-50 flex justify-end overflow-hidden bg-gray-900/40 dark:bg-gray-950/70"
             @click.self="emit('close')"
             @keydown="onKeydown"
         >
@@ -96,15 +96,15 @@ onBeforeUnmount(() => {
                     aria-modal="true"
                     :aria-labelledby="titleId"
                     tabindex="-1"
-                    class="flex h-full w-full max-w-md flex-col overflow-y-auto bg-white shadow-xl outline-none"
+                    class="flex h-full w-full max-w-md flex-col overflow-y-auto bg-surface shadow-xl outline-none"
                 >
                     <div
-                        class="flex items-center justify-between gap-4 border-b border-gray-200 px-5 py-4"
+                        class="flex items-center justify-between gap-4 border-b border-border px-5 py-4"
                     >
-                        <h2 :id="titleId" class="text-lg font-semibold text-gray-900">{{ title }}</h2>
+                        <h2 :id="titleId" class="text-lg font-semibold text-fg">{{ title }}</h2>
                         <button
                             type="button"
-                            class="-mr-2 flex size-9 shrink-0 items-center justify-center rounded-md text-2xl leading-none text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                            class="-mr-2 flex size-9 shrink-0 items-center justify-center rounded-md text-2xl leading-none text-fg-faint hover:bg-surface-hover hover:text-fg-muted"
                             :aria-label="t('common.close')"
                             @click="emit('close')"
                         >
@@ -114,7 +114,7 @@ onBeforeUnmount(() => {
 
                     <div class="grow px-5 py-4"><slot /></div>
 
-                    <div v-if="$slots.footer" class="border-t border-gray-200 px-5 py-4">
+                    <div v-if="$slots.footer" class="border-t border-border px-5 py-4">
                         <slot name="footer" />
                     </div>
                 </div>

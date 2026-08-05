@@ -48,6 +48,6 @@ defineExpose({ clear });
             {{ buttonLabel }}
         </AppButton>
 
-        <span class="max-w-48 truncate text-sm text-gray-600">{{ fileName ?? emptyLabel }}</span>
+        <span class="max-w-48 truncate text-sm text-fg-muted">{{ fileName ?? emptyLabel }}</span>
     </div>
 </template>
