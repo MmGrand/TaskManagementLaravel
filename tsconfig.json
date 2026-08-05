@@ -16,7 +16,6 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         "types": ["vite/client", "vitest/globals", "node"],
-        "baseUrl": ".",
         "paths": {
             "@/*": ["./resources/js/*"]
         }
