@@ -34,18 +34,18 @@ async function onLogout(): Promise<void> {
             />
             <span
                 v-else
-                class="flex size-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700"
+                class="flex size-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
                 aria-hidden="true"
             >
                 {{ initials(auth.user) }}
             </span>
-            <span class="hidden max-w-32 truncate text-sm font-medium text-gray-900 sm:block">{{ name }}</span>
+            <span class="hidden max-w-32 truncate text-sm font-medium text-fg sm:block">{{ name }}</span>
         </template>
 
         <template #default="{ close }">
-            <div class="border-b border-gray-100 px-3 pt-1 pb-2">
-                <p class="truncate text-sm font-medium text-gray-900">{{ name }}</p>
-                <p class="truncate text-xs text-gray-500">{{ roleName }}</p>
+            <div class="border-b border-border px-3 pt-1 pb-2">
+                <p class="truncate text-sm font-medium text-fg">{{ name }}</p>
+                <p class="truncate text-xs text-fg-subtle">{{ roleName }}</p>
             </div>
 
             <AppMenuItem :to="{ name: 'profile' }" @click="close">{{ t('routes.profile') }}</AppMenuItem>

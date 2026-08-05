@@ -46,15 +46,15 @@ const query = useListQuery<Record<string, string>>({}, load);
 
 <template>
     <section class="flex flex-col gap-4">
-        <h1 class="text-xl font-semibold text-gray-900">{{ t('users.title') }}</h1>
+        <h1 class="text-xl font-semibold text-fg">{{ t('users.title') }}</h1>
 
         <AppErrorState v-if="loadError" :error="loadError" @retry="load" />
         <AppSpinner v-else-if="loading" />
         <AppEmptyState v-else-if="users.length === 0" :title="t('users.emptyTitle')" />
 
-        <div v-else class="relative overflow-x-auto rounded-lg ring-1 ring-gray-200">
-            <table class="min-w-full divide-y divide-gray-200 bg-white text-sm">
-                <thead class="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase">
+        <div v-else class="relative overflow-x-auto rounded-lg ring-1 ring-border">
+            <table class="min-w-full divide-y divide-border bg-surface text-sm">
+                <thead class="bg-surface-muted text-left text-xs font-semibold text-fg-muted uppercase">
                     <tr>
                         <th scope="col" class="px-4 py-3">{{ t('users.user') }}</th>
                         <th scope="col" class="px-4 py-3">{{ t('common.email') }}</th>
@@ -64,7 +64,7 @@ const query = useListQuery<Record<string, string>>({}, load);
                         <th scope="col" class="px-4 py-3"><span class="sr-only">{{ t('common.actions') }}</span></th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-border">
                     <tr v-for="user in users" :key="user.id">
                         <td class="px-4 py-3">
                             <div class="flex items-center gap-2">
@@ -76,28 +76,28 @@ const query = useListQuery<Record<string, string>>({}, load);
                                 />
                                 <span
                                     v-else
-                                    class="flex size-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700"
+                                    class="flex size-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-semibold text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-300"
                                     aria-hidden="true"
                                 >
                                     {{ initials(user) }}
                                 </span>
-                                <span class="font-medium text-gray-900">{{ fullName(user) }}</span>
+                                <span class="font-medium text-fg">{{ fullName(user) }}</span>
                             </div>
                         </td>
-                        <td class="px-4 py-3 text-gray-600">{{ user.email }}</td>
-                        <td class="px-4 py-3 text-gray-600">{{ user.phone }}</td>
+                        <td class="px-4 py-3 text-fg-muted">{{ user.email }}</td>
+                        <td class="px-4 py-3 text-fg-muted">{{ user.phone }}</td>
                         <td class="px-4 py-3">
                             <AppBadge v-if="user.role" tone="indigo">
                                 {{ enumLabel('role', user.role.slug) }}
                             </AppBadge>
-                            <span v-else class="text-gray-400">—</span>
+                            <span v-else class="text-fg-faint">—</span>
                         </td>
                         <td class="px-4 py-3"><UserStatusBadge :status="user.status" /></td>
                         <td class="px-4 py-3 text-right">
                             <RouterLink
                                 v-if="permissions.canUpdateUser(user)"
                                 :to="{ name: 'profile', query: { id: String(user.id) } }"
-                                class="text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                                class="text-sm font-semibold text-accent-fg hover:text-accent-hover"
                             >
                                 {{ t('common.edit') }}
                             </RouterLink>

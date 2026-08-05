@@ -39,7 +39,7 @@ watch(
     <form class="flex flex-col gap-4" novalidate @submit.prevent="emit('submit', buildAssigneeTaskPayload(status))">
         <AppAlert v-if="error && !error.isValidation">{{ error.message }}</AppAlert>
 
-        <p class="text-sm text-gray-600">{{ t('tasks.statusOnlyNotice') }}</p>
+        <p class="text-sm text-fg-muted">{{ t('tasks.statusOnlyNotice') }}</p>
 
         <AppField v-slot="field" :label="t('common.status')" :error="error?.errors.status?.[0] ?? null" required>
             <AppSelect v-bind="field" v-model="status" :options="statusOptions" />

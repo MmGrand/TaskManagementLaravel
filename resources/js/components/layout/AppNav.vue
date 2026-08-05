@@ -36,8 +36,8 @@ const visibleItems = computed(() => ITEMS.filter((item) => !item.permission || c
             v-for="item in visibleItems"
             :key="item.name"
             :to="{ name: item.name }"
-            class="rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-            active-class="bg-gray-100 text-gray-900"
+            class="rounded-md px-3 py-2 text-sm font-medium text-fg-muted hover:bg-surface-hover hover:text-fg"
+            active-class="bg-surface-hover text-fg"
         >
             {{ t(item.labelKey) }}
         </RouterLink>

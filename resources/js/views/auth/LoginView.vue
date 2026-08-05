@@ -37,7 +37,7 @@ async function onSubmit(): Promise<void> {
 <template>
     <main class="flex min-h-full items-center justify-center px-4 py-12">
         <div class="w-full max-w-sm">
-            <h1 class="text-center text-2xl font-semibold text-gray-900">{{ t('auth.loginTitle') }}</h1>
+            <h1 class="text-center text-2xl font-semibold text-fg">{{ t('auth.loginTitle') }}</h1>
 
             <form class="mt-8 flex flex-col gap-4" novalidate @submit.prevent="onSubmit">
                 <AppAlert v-if="auth.sessionEndedMessage" variant="warning">
@@ -77,9 +77,9 @@ async function onSubmit(): Promise<void> {
                 </AppButton>
             </form>
 
-            <p class="mt-6 text-center text-sm text-gray-600">
+            <p class="mt-6 text-center text-sm text-fg-muted">
                 {{ t('auth.noAccount') }}
-                <RouterLink :to="{ name: 'register' }" class="font-semibold text-indigo-600 hover:text-indigo-500">
+                <RouterLink :to="{ name: 'register' }" class="font-semibold text-accent-fg hover:text-accent-hover">
                     {{ t('auth.signUp') }}
                 </RouterLink>
             </p>

@@ -81,7 +81,7 @@ onMounted(() => {
 <template>
     <section class="flex flex-col gap-4">
         <header class="flex flex-wrap items-center justify-between gap-3">
-            <h1 class="text-xl font-semibold text-gray-900">
+            <h1 class="text-xl font-semibold text-fg">
                 {{ t('dashboard.greeting', { name: fullName(auth.user) }) }}
             </h1>
         </header>
@@ -122,12 +122,12 @@ onMounted(() => {
                     />
                 </div>
 
-                <div class="rounded-lg bg-white p-4 ring-1 ring-gray-200">
+                <div class="rounded-lg bg-surface p-4 ring-1 ring-border">
                     <div class="flex items-center justify-between gap-3">
-                        <h2 class="text-sm font-semibold text-gray-900">{{ t('dashboard.myTasks') }}</h2>
+                        <h2 class="text-sm font-semibold text-fg">{{ t('dashboard.myTasks') }}</h2>
                         <RouterLink
                             :to="{ name: 'tasks', query: { assigned_to: String(auth.user?.id ?? '') } }"
-                            class="text-sm font-semibold text-indigo-600 hover:text-indigo-500"
+                            class="text-sm font-semibold text-accent-fg hover:text-accent-hover"
                         >
                             {{ t('dashboard.allMyTasks') }}
                         </RouterLink>
@@ -140,8 +140,8 @@ onMounted(() => {
                     />
 
                     <div v-else class="mt-3 overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 text-sm">
-                            <thead class="text-left text-xs font-semibold text-gray-600 uppercase">
+                        <table class="min-w-full divide-y divide-border text-sm">
+                            <thead class="text-left text-xs font-semibold text-fg-muted uppercase">
                                 <tr>
                                     <th scope="col" class="py-2 pr-4">{{ t('tasks.task') }}</th>
                                     <th scope="col" class="py-2 pr-4">{{ t('tasks.project') }}</th>
@@ -150,21 +150,21 @@ onMounted(() => {
                                     <th scope="col" class="py-2 pr-4">{{ t('tasks.dueDate') }}</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-border">
                                 <tr v-for="task in myTasks" :key="task.id">
                                     <td class="py-2 pr-4">
                                         <RouterLink
                                             :to="{ name: 'task', params: { id: task.id } }"
-                                            class="font-medium text-indigo-600 hover:text-indigo-500"
+                                            class="font-medium text-accent-fg hover:text-accent-hover"
                                         >
                                             {{ task.title }}
                                         </RouterLink>
                                     </td>
-                                    <td class="py-2 pr-4 text-gray-600">{{ task.project?.name ?? '—' }}</td>
+                                    <td class="py-2 pr-4 text-fg-muted">{{ task.project?.name ?? '—' }}</td>
                                     <td class="py-2 pr-4"><TaskStatusBadge :status="task.status" /></td>
                                     <td class="py-2 pr-4"><TaskPriorityBadge :priority="task.priority" /></td>
                                     <td class="py-2 pr-4">
-                                        <span class="text-gray-600">{{ formatDate(task.due_date) }}</span>
+                                        <span class="text-fg-muted">{{ formatDate(task.due_date) }}</span>
                                         <AppBadge v-if="isTaskOverdue(task)" tone="red" class="ml-2">
                                             {{ t('tasks.overdue') }}
                                         </AppBadge>

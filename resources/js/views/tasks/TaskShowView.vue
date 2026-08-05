@@ -71,7 +71,7 @@ async function onSubmit(payload: ManageableTaskPayload | AssigneeTaskPayload): P
         <template v-else-if="task">
             <header class="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                    <h1 class="text-xl font-semibold text-gray-900">{{ task.title }}</h1>
+                    <h1 class="text-xl font-semibold text-fg">{{ task.title }}</h1>
                     <div class="mt-2 flex flex-wrap items-center gap-2">
                         <TaskStatusBadge :status="task.status" />
                         <TaskPriorityBadge :priority="task.priority" />
