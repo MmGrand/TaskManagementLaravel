@@ -53,8 +53,6 @@ class TaskPolicy
 
     private function isRelatedTo(User $user, Task $task): bool
     {
-        return $task->created_by === $user->id
-            || $task->assigned_to === $user->id
-            || ($user->isManager() && $task->project->created_by === $user->id);
+        return $task->assigned_to === $user->id || $task->isManageableBy($user);
     }
 }
