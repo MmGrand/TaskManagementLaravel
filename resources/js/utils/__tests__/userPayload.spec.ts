@@ -10,6 +10,7 @@ function values(overrides: Partial<UserFormValues> = {}): UserFormValues {
         phone: '+70000000000',
         status: 'active',
         role_id: '2',
+        current_password: '',
         ...overrides,
     };
 }
@@ -101,5 +102,17 @@ describe('validateAvatar', () => {
 
     it('accepts a valid image', () => {
         expect(validateAvatar(new File(['x'], 'a.png', { type: 'image/png' }))).toBeNull();
+    });
+});
+
+describe('buildUserPayload current_password', () => {
+    it('omits the key while the field is empty', () => {
+        expect('current_password' in buildUserPayload(values(), false)).toBe(false);
+    });
+
+    it('sends the password as typed, without trimming', () => {
+        const payload = buildUserPayload(values({ current_password: ' secret ' }), false);
+
+        expect(payload.current_password).toBe(' secret ');
     });
 });

@@ -5,6 +5,7 @@ use App\Enums\UserStatus;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 test('an admin can block a user', function () {
@@ -219,3 +220,94 @@ test('an out of range user page size fails validation', function (int $perPage) 
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['per_page']);
 })->with([0, 101]);
+
+test('a user can change their own password with the current one', function () {
+    $user = User::factory()->user()->create(['password' => 'old-password']);
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}/password", [
+        'current_password' => 'old-password',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertNoContent();
+
+    expect(Hash::check('new-password', $user->fresh()->password))->toBeTrue();
+});
+
+test('changing a password fails without the correct current one', function () {
+    $user = User::factory()->user()->create(['password' => 'old-password']);
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}/password", [
+        'current_password' => 'not-my-password',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertUnprocessable()->assertJsonValidationErrors(['current_password']);
+
+    expect(Hash::check('old-password', $user->fresh()->password))->toBeTrue();
+});
+
+test('changing a password fails when the confirmation does not match', function () {
+    $user = User::factory()->user()->create(['password' => 'old-password']);
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}/password", [
+        'current_password' => 'old-password',
+        'password' => 'new-password',
+        'password_confirmation' => 'other-password',
+    ])->assertUnprocessable()->assertJsonValidationErrors(['password']);
+});
+
+test('changing a password revokes every token but the one in use', function () {
+    $user = User::factory()->user()->create(['password' => 'old-password']);
+    $current = $user->createToken('api');
+    $stale = $user->createToken('api');
+
+    $this->withToken($current->plainTextToken)->putJson("/api/users/{$user->id}/password", [
+        'current_password' => 'old-password',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertNoContent();
+
+    $this->assertDatabaseMissing('personal_access_tokens', ['id' => $stale->accessToken->getKey()]);
+    $this->assertDatabaseHas('personal_access_tokens', ['id' => $current->accessToken->getKey()]);
+});
+
+test('nobody else may change a password, not even an admin', function () {
+    $admin = User::factory()->admin()->create();
+    $victim = User::factory()->user()->create(['password' => 'old-password']);
+
+    $this->actingAs($admin)->putJson("/api/users/{$victim->id}/password", [
+        'current_password' => 'password',
+        'password' => 'new-password',
+        'password_confirmation' => 'new-password',
+    ])->assertForbidden();
+});
+
+test('changing an email requires the current password', function () {
+    $user = User::factory()->user()->create(['password' => 'my-password']);
+
+    $payload = [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => 'moved@example.com',
+        'phone' => $user->phone,
+    ];
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}", $payload)
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['current_password']);
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}", [
+        ...$payload,
+        'current_password' => 'my-password',
+    ])->assertOk()->assertJsonPath('data.email', 'moved@example.com');
+});
+
+test('keeping the same email needs no password', function () {
+    $user = User::factory()->user()->create();
+
+    $this->actingAs($user)->putJson("/api/users/{$user->id}", [
+        'first_name' => 'Обновлённое',
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => $user->phone,
+    ])->assertOk()->assertJsonPath('data.first_name', 'Обновлённое');
+});

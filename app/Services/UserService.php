@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Repositories\Contracts\UserRepository;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
@@ -37,5 +38,14 @@ class UserService
         }
 
         return $user;
+    }
+
+    public function updatePassword(User $user, string $password, ?int $keptTokenId = null): void
+    {
+        $this->users->update($user, ['password' => $password]);
+
+        $user->tokens()
+            ->when($keptTokenId !== null, fn (Builder $tokens) => $tokens->whereKeyNot($keptTokenId))
+            ->delete();
     }
 }

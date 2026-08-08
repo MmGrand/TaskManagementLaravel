@@ -8,6 +8,7 @@ export interface UserFormValues {
     phone: string;
     status: UserStatus;
     role_id: string;
+    current_password: string;
 }
 
 /** Присутствуют всегда; `status` и `role_id` — только если вызывающему разрешено их менять. */
@@ -18,6 +19,14 @@ export interface UserPayload {
     phone: string;
     status?: UserStatus;
     role_id?: number;
+    current_password?: string;
+}
+
+/** Тело для PUT /api/users/{user}/password. */
+export interface PasswordPayload {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
 }
 
 /**
@@ -43,6 +52,11 @@ export function buildUserPayload(values: UserFormValues, canManageUsers: boolean
         if (values.role_id !== '') {
             payload.role_id = Number(values.role_id);
         }
+    }
+
+    // Сервер требует его только при смене email, поэтому пустое поле не отправляется.
+    if (values.current_password !== '') {
+        payload.current_password = values.current_password;
     }
 
     return payload;

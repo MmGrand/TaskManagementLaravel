@@ -1,7 +1,7 @@
 import { http } from '@/api/http';
 import type { Envelope, Page, PaginatedEnvelope } from '@/types/api';
 import type { User } from '@/types/models';
-import { toFormData, type UserPayload } from '@/utils/userPayload';
+import { toFormData, type PasswordPayload, type UserPayload } from '@/utils/userPayload';
 
 export async function list(page = 1): Promise<Page<User>> {
     const { data } = await http.get<PaginatedEnvelope<User>>('/users', { params: { page } });
@@ -34,4 +34,8 @@ export async function updateWithAvatar(id: number, payload: UserPayload, avatar:
 /** Выбирает нужный метод и форму тела запроса под текущее состояние формы. */
 export function save(id: number, payload: UserPayload, avatar: File | null): Promise<User> {
     return avatar === null ? update(id, payload) : updateWithAvatar(id, payload, avatar);
+}
+
+export async function changePassword(id: number, payload: PasswordPayload): Promise<void> {
+    await http.put(`/users/${id}/password`, payload);
 }
