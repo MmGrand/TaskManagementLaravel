@@ -67,8 +67,10 @@ class TaskService
     public function move(Task $task, User $actor, array $attributes): Task
     {
         return DB::transaction(function () use ($task, $actor, $attributes): Task {
-            $after = $this->neighbour($actor, $attributes['after_task_id'] ?? null);
-            $before = $this->neighbour($actor, $attributes['before_task_id'] ?? null);
+            $after = $this->neighbour($actor, 'after_task_id', $attributes['after_task_id'] ?? null);
+            $before = $this->neighbour($actor, 'before_task_id', $attributes['before_task_id'] ?? null);
+
+            $this->assertNeighboursAreOrdered($after, $before);
 
             $columnFields = array_intersect_key(
                 $attributes,
@@ -87,15 +89,24 @@ class TaskService
         $this->tasks->delete($task);
     }
 
-    private function neighbour(User $actor, ?int $id): ?Task
+    private function neighbour(User $actor, string $field, ?int $id): ?Task
     {
         if ($id === null) {
             return null;
         }
 
-        return $this->tasks->findVisibleTo($actor, $id)
+        return $this->tasks->findVisibleTo($actor, $id, lockForUpdate: true)
             ?? throw ValidationException::withMessages([
-                'after_task_id' => 'Соседняя задача недоступна.',
+                $field => 'Соседняя задача недоступна.',
             ]);
+    }
+
+    private function assertNeighboursAreOrdered(?Task $after, ?Task $before): void
+    {
+        if ($after !== null && $before !== null && $after->position >= $before->position) {
+            throw ValidationException::withMessages([
+                'after_task_id' => 'Порядок задач на доске устарел. Обновите страницу.',
+            ]);
+        }
     }
 }

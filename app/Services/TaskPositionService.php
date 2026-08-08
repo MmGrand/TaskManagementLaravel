@@ -22,13 +22,13 @@ class TaskPositionService
             return ($after?->position ?? $this->tasks->maxPosition()) + self::STEP;
         }
 
-        if ($after === null || $after->position >= $before->position) {
+        if ($after === null) {
             return $before->position - self::STEP;
         }
 
         $candidate = intdiv($after->position + $before->position, 2);
 
-        if ($candidate > $after->position) {
+        if ($candidate > $after->position && $candidate < $before->position) {
             return $candidate;
         }
 

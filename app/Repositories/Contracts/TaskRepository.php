@@ -27,7 +27,7 @@ interface TaskRepository
 
     public function shiftPositionsFrom(int $position, int $step): void;
 
-    public function findVisibleTo(User $viewer, int $id): ?Task;
+    public function findVisibleTo(User $viewer, int $id, bool $lockForUpdate = false): ?Task;
 
     public function countVisibleTo(User $viewer): int;
 
