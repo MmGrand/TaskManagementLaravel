@@ -26,8 +26,8 @@ class TaskResource extends JsonResource
             'due_date' => $this->due_date?->toDateString(),
             'position' => $this->position,
             'project' => ProjectResource::make($this->whenLoaded('project')),
-            'assigned_user' => UserResource::make($this->whenLoaded('assignedUser')),
-            'created_by_user' => UserResource::make($this->whenLoaded('createdBy')),
+            'assigned_user' => UserSummaryResource::make($this->whenLoaded('assignedUser')),
+            'created_by_user' => UserSummaryResource::make($this->whenLoaded('createdBy')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

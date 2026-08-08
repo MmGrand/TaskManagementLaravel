@@ -6,7 +6,7 @@ use App\Http\Resources\Concerns\ExposesAvatarUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class UserSummaryResource extends JsonResource
 {
     use ExposesAvatarUrl;
 
@@ -21,14 +21,7 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
-            'email' => $this->email,
-            'status' => $this->status,
             'avatar' => $this->avatarUrl(),
-            'phone' => $this->phone,
-            'role_id' => $this->role_id,
-            'role' => RoleResource::make($this->whenLoaded('role')),
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
         ];
     }
 }

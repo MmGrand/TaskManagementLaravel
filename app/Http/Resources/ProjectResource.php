@@ -20,7 +20,7 @@ class ProjectResource extends JsonResource
             'description' => $this->description,
             'status' => $this->status,
             'created_by' => $this->created_by,
-            'creator' => UserResource::make($this->whenLoaded('creator')),
+            'creator' => UserSummaryResource::make($this->whenLoaded('creator')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];
