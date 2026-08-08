@@ -7,8 +7,10 @@ use App\Mail\TaskStatusChangedMail;
 use App\Models\Task;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Support\Facades\Mail;
 
+#[DeleteWhenMissingModels]
 class TaskStatusChanged implements ShouldQueue
 {
     use Queueable;

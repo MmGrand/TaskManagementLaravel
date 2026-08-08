@@ -8,9 +8,11 @@ use App\Models\Project;
 use App\Models\User;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
 
+#[DeleteWhenMissingModels]
 class ProjectStatusChanged implements ShouldQueue
 {
     use Queueable;
