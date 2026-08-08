@@ -9,6 +9,6 @@ class RolePolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission(Permission::UsersUpdate);
+        return $user->hasPermission(Permission::RolesViewAny);
     }
 }

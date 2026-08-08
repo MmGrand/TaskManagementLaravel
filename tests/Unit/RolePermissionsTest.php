@@ -34,3 +34,12 @@ test('only the active status grants access', function () {
         ->and(UserStatus::Inactive->allowsAccess())->toBeFalse()
         ->and(UserStatus::Blocked->allowsAccess())->toBeFalse();
 });
+
+test('listing roles is an administrator only permission', function () {
+    expect(RoleSlug::Manager->defaultPermissions())
+        ->not->toContain(Permission::RolesViewAny->value)
+        ->and(RoleSlug::User->defaultPermissions())
+        ->not->toContain(Permission::RolesViewAny->value)
+        ->and(RoleSlug::Admin->defaultPermissions())
+        ->toBe(['*']);
+});
