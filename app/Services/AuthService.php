@@ -45,13 +45,13 @@ class AuthService
      */
     public function login(array $credentials): array
     {
-        if (! Auth::attempt($credentials)) {
+        if (! Auth::validate($credentials)) {
             throw ValidationException::withMessages([
                 'email' => ['Email or password is incorrect.'],
             ]);
         }
 
-        $user = Auth::user();
+        $user = Auth::getLastAttempted();
 
         if (! $user->status->allowsAccess()) {
             throw ValidationException::withMessages([

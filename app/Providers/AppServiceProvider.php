@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,7 +30,14 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('viewStatistics', fn (User $user) => $user->hasPermission(Permission::StatisticsView));
 
-        RateLimiter::for('auth', fn (Request $request) => Limit::perMinute(5)->by($request->ip()));
+        Password::defaults(fn () => $this->app->isProduction()
+            ? Password::min(8)->letters()->numbers()
+            : Password::min(8));
+
+        RateLimiter::for('auth', fn (Request $request) => [
+            Limit::perMinute(5)->by($request->ip().'|'.$request->string('email')),
+            Limit::perMinute(20)->by($request->ip()),
+        ]);
 
         RateLimiter::for('api', fn (Request $request) => Limit::perMinute(60)->by($request->user()?->id ?: $request->ip()));
     }
