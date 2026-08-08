@@ -185,3 +185,19 @@ test('updating a profile fails validation with an invalid email', function () {
 
     $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
 });
+
+test('blocking a user revokes their tokens', function () {
+    $admin = User::factory()->admin()->create();
+    $victim = User::factory()->user()->create();
+    $victim->createToken('api');
+
+    $this->actingAs($admin)->putJson("/api/users/{$victim->id}", [
+        'first_name' => $victim->first_name,
+        'last_name' => $victim->last_name,
+        'email' => $victim->email,
+        'phone' => $victim->phone,
+        'status' => UserStatus::Blocked->value,
+    ])->assertOk();
+
+    expect($victim->tokens()->count())->toBe(0);
+});

@@ -30,6 +30,12 @@ class UserService
             $attributes['avatar'] = $avatar->store('avatars', 'public');
         }
 
-        return $this->users->update($user, $attributes);
+        $user = $this->users->update($user, $attributes);
+
+        if ($user->wasChanged('status') && ! $user->status->allowsAccess()) {
+            $user->tokens()->delete();
+        }
+
+        return $user;
     }
 }
