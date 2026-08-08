@@ -6,6 +6,20 @@ use Illuminate\Database\Eloquent\Builder;
 
 class TaskFilter extends QueryFilter
 {
+    /**
+     * @var array<int, string>
+     */
+    protected array $allowed = [
+        'status',
+        'priority',
+        'project_id',
+        'assigned_to',
+        'due_date_from',
+        'due_date_to',
+        'created_from',
+        'created_to',
+    ];
+
     public function apply(Builder $builder): Builder
     {
         parent::apply($builder);
