@@ -105,3 +105,30 @@ test('the creator can delete their task', function () {
     $response->assertNoContent();
     $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
 });
+
+test('the owning manager can delete a task created by someone else in their project', function () {
+    $manager = User::factory()->manager()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => User::factory()->manager()->create()->id,
+        'assigned_to' => User::factory()->user()->create()->id,
+    ]);
+
+    $this->actingAs($manager)->deleteJson("/api/tasks/{$task->id}")->assertNoContent();
+
+    $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+});
+
+test('an unrelated manager still cannot delete the task', function () {
+    $stranger = User::factory()->manager()->create();
+    $owner = User::factory()->manager()->create();
+    $project = Project::factory()->create(['created_by' => $owner->id]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $owner->id,
+        'assigned_to' => User::factory()->user()->create()->id,
+    ]);
+
+    $this->actingAs($stranger)->deleteJson("/api/tasks/{$task->id}")->assertForbidden();
+});

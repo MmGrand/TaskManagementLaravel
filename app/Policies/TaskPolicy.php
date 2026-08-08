@@ -48,7 +48,7 @@ class TaskPolicy
     public function delete(User $user, Task $task): bool
     {
         return $user->hasPermission(Permission::TasksDelete)
-            && $task->created_by === $user->id;
+            && $task->isManageableBy($user);
     }
 
     private function isRelatedTo(User $user, Task $task): bool
