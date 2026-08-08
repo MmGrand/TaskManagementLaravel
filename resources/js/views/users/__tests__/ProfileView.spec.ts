@@ -163,3 +163,59 @@ describe('failures', () => {
         expect(wrapper.find('form').exists()).toBe(false);
     });
 });
+
+describe('changing the password', () => {
+    it('sends the typed passwords and reports success', async () => {
+        vi.mocked(usersApi).show.mockResolvedValue(makeUser({ id: 1, role: makeRole('user') }));
+        const { wrapper } = await mountAs('user', 1);
+        vi.mocked(usersApi).changePassword.mockResolvedValue();
+
+        const form = wrapper.findAll('form')[1]!;
+        const fields = form.findAll('input[type="password"]');
+
+        await fields[0]!.setValue('old-one');
+        await fields[1]!.setValue('new-one');
+        await fields[2]!.setValue('new-one');
+        await form.trigger('submit');
+        await flushPromises();
+
+        expect(usersApi.changePassword).toHaveBeenCalledWith(1, {
+            current_password: 'old-one',
+            password: 'new-one',
+            password_confirmation: 'new-one',
+        });
+    });
+
+    it('is not offered when an admin edits someone else', async () => {
+        routeQuery.id = '9';
+        vi.mocked(usersApi).show.mockResolvedValue(makeUser({ id: 9, role: makeRole('user') }));
+
+        const { wrapper } = await mountAs('admin', 1);
+
+        expect(wrapper.findAll('form')).toHaveLength(1);
+    });
+});
+
+describe('changing the email', () => {
+    it('asks for the current password only once the email differs', async () => {
+        vi.mocked(usersApi).show.mockResolvedValue(
+            makeUser({ id: 1, email: 'old@example.com', role: makeRole('user') }),
+        );
+        const { wrapper } = await mountAs('user', 1);
+        vi.mocked(usersApi).save.mockResolvedValue(makeUser({ id: 1 }));
+
+        const form = wrapper.findAll('form')[0]!;
+
+        expect(form.find('input[type="password"]').exists()).toBe(false);
+
+        await form.find('input[type="email"]').setValue('new@example.com');
+
+        expect(form.find('input[type="password"]').exists()).toBe(true);
+
+        await form.find('input[type="password"]').setValue('my-secret');
+        await form.trigger('submit');
+        await flushPromises();
+
+        expect(vi.mocked(usersApi).save.mock.calls[0]![1].current_password).toBe('my-secret');
+    });
+});

@@ -31,6 +31,9 @@ class UpdateRequest extends FormRequest
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($this->route('user')->id)],
+            'current_password' => $this->changesEmail()
+                ? ['required', 'current_password:sanctum']
+                : ['nullable'],
             'avatar' => 'nullable|image|max:2048',
             'phone' => 'required|string|max:20',
             'status' => $managesUsers
@@ -40,5 +43,12 @@ class UpdateRequest extends FormRequest
                 ? ['sometimes', 'integer', 'exists:roles,id']
                 : ['prohibited'],
         ];
+    }
+
+    private function changesEmail(): bool
+    {
+        $email = $this->input('email');
+
+        return is_string($email) && $email !== $this->route('user')->email;
     }
 }

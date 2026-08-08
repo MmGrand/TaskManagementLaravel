@@ -20,5 +20,7 @@ enum Permission: string
     case UsersView = 'users.view';
     case UsersUpdate = 'users.update';
 
+    case RolesViewAny = 'roles.viewAny';
+
     case StatisticsView = 'statistics.view';
 }

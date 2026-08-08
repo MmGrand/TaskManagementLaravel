@@ -86,6 +86,7 @@ const ru = {
         firstName: 'Имя',
         lastName: 'Фамилия',
         password: 'Пароль',
+        currentPassword: 'Текущий пароль',
         passwordConfirmation: 'Подтверждение пароля',
         passwordHint: 'Минимум 8 символов',
         signIn: 'Войти',
@@ -183,10 +184,14 @@ const ru = {
         avatarChoose: 'Выбрать файл',
         avatarNoFile: 'Файл не выбран',
         rolesUnavailable: 'Список ролей недоступен.',
+        emailPasswordHint: 'Смена email требует подтверждения текущим паролем.',
         rolePlaceholder: 'Без роли',
     },
 
     profile: {
+        changePassword: 'Смена пароля',
+        newPassword: 'Новый пароль',
+        passwordChanged: 'Пароль изменён.',
         mine: 'Мой профиль',
         other: 'Пользователь',
         saved: 'Данные сохранены.',

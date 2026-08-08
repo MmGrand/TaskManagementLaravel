@@ -30,4 +30,12 @@ class UserPolicy
     {
         return $user->id === $model->id || $user->hasPermission(Permission::UsersUpdate);
     }
+
+    /**
+     * Determine whether the user can change the password of the model.
+     */
+    public function updatePassword(User $user, User $model): bool
+    {
+        return $user->id === $model->id;
+    }
 }

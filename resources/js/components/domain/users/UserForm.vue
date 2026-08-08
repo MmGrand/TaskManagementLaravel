@@ -43,7 +43,10 @@ const form = reactive<UserFormValues>({
     phone: '',
     status: 'active',
     role_id: '',
+    current_password: '',
 });
+
+const changesEmail = computed(() => form.email.trim() !== props.user.email);
 
 watch(
     () => props.user,
@@ -54,6 +57,7 @@ watch(
         form.phone = user.phone;
         form.status = user.status;
         form.role_id = user.role_id === null ? '' : String(user.role_id);
+        form.current_password = '';
     },
     { immediate: true },
 );
@@ -125,6 +129,23 @@ function onSubmit(): void {
                 </AppField>
             </template>
         </div>
+
+        <AppField
+            v-if="changesEmail"
+            v-slot="field"
+            :label="t('auth.currentPassword')"
+            :error="fieldError('current_password')"
+            :hint="t('users.emailPasswordHint')"
+            required
+        >
+            <AppInput
+                v-bind="field"
+                v-model="form.current_password"
+                type="password"
+                autocomplete="current-password"
+                required
+            />
+        </AppField>
 
         <div class="flex justify-end">
             <AppButton type="submit" :loading="pending">{{ t('common.save') }}</AppButton>

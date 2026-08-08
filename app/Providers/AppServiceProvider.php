@@ -14,6 +14,13 @@ use Illuminate\Validation\Rules\Password;
 class AppServiceProvider extends ServiceProvider
 {
     /**
+     * Abilities the administrator bypass does not cover: they belong to the account owner alone.
+     *
+     * @var array<int, string>
+     */
+    private const PERSONAL_ABILITIES = ['updatePassword'];
+
+    /**
      * Register any application services.
      */
     public function register(): void
@@ -26,7 +33,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(fn (User $user) => $user->isAdmin() ? true : null);
+        Gate::before(fn (User $user, string $ability) => $user->isAdmin()
+            && ! in_array($ability, self::PERSONAL_ABILITIES, true) ? true : null);
 
         Gate::define('viewStatistics', fn (User $user) => $user->hasPermission(Permission::StatisticsView));
 

@@ -79,6 +79,7 @@ const en: MessageSchema = {
         firstName: 'First name',
         lastName: 'Last name',
         password: 'Password',
+        currentPassword: 'Current password',
         passwordConfirmation: 'Confirm password',
         passwordHint: 'At least 8 characters',
         signIn: 'Sign in',
@@ -176,10 +177,14 @@ const en: MessageSchema = {
         avatarChoose: 'Choose file',
         avatarNoFile: 'No file chosen',
         rolesUnavailable: 'The list of roles is unavailable.',
+        emailPasswordHint: 'Changing the email requires your current password.',
         rolePlaceholder: 'No role',
     },
 
     profile: {
+        changePassword: 'Change password',
+        newPassword: 'New password',
+        passwordChanged: 'Password changed.',
         mine: 'My profile',
         other: 'User',
         saved: 'Changes saved.',

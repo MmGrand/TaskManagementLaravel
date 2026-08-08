@@ -35,9 +35,12 @@ class Task extends Model
 
     public function isManageableBy(User $user): bool
     {
-        return $user->isAdmin()
-            || $this->created_by === $user->id
-            || ($user->isManager() && $this->project->created_by === $user->id);
+        if ($user->isAdmin() || $this->created_by === $user->id) {
+            return true;
+        }
+
+        return $user->isManager()
+            && $this->loadMissing('project')->project->created_by === $user->id;
     }
 
     #[Scope]

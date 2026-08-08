@@ -5,13 +5,14 @@ import { useRoute } from 'vue-router';
 import * as usersApi from '@/api/users';
 import AppAlert from '@/components/ui/AppAlert.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
+import PasswordForm from '@/components/domain/users/PasswordForm.vue';
 import UserForm from '@/components/domain/users/UserForm.vue';
 import { useApiForm } from '@/composables/useApiForm';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import type { ApiError } from '@/types/api';
 import type { User } from '@/types/models';
-import type { UserPayload } from '@/utils/userPayload';
+import type { PasswordPayload, UserPayload } from '@/utils/userPayload';
 
 /**
  * Один экран служит и профилем, и редактором пользователя для админа: `?id=`
@@ -23,9 +24,13 @@ const ui = useUiStore();
 const form = useApiForm();
 const { t } = useI18n();
 
+const passwordForm = useApiForm();
+
 const user = ref<User | null>(null);
 const loading = ref(true);
 const loadError = ref<ApiError | null>(null);
+/** Смена ключа перемонтирует форму, очищая поля после удачной смены пароля. */
+const passwordFormKey = ref(0);
 
 const targetId = computed(() => {
     const raw = route.query.id;
@@ -72,6 +77,25 @@ async function onSubmit(payload: UserPayload, avatar: File | null): Promise<void
         }
     }
 }
+
+async function onChangePassword(payload: PasswordPayload): Promise<void> {
+    const current = user.value;
+
+    if (current === null) {
+        return;
+    }
+
+    const result = await passwordForm.submit(async () => {
+        await usersApi.changePassword(current.id, payload);
+
+        return true;
+    });
+
+    if (result === true) {
+        passwordFormKey.value += 1;
+        ui.success(t('profile.passwordChanged'));
+    }
+}
 </script>
 
 <template>
@@ -88,5 +112,18 @@ async function onSubmit(payload: UserPayload, avatar: File | null): Promise<void
             :error="form.error.value"
             @submit="onSubmit"
         />
+
+        <template v-if="isSelf">
+            <hr class="border-border" />
+
+            <h2 class="text-lg font-semibold text-fg">{{ t('profile.changePassword') }}</h2>
+
+            <PasswordForm
+                :key="passwordFormKey"
+                :pending="passwordForm.pending.value"
+                :error="passwordForm.error.value"
+                @submit="onChangePassword"
+            />
+        </template>
     </section>
 </template>
