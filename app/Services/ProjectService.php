@@ -11,7 +11,10 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProjectService
 {
-    public function __construct(private readonly ProjectRepository $projects) {}
+    public function __construct(
+        private readonly ProjectRepository $projects,
+        private readonly StatisticsCache $statistics,
+    ) {}
 
     public function list(ProjectFilter $filter, User $viewer): LengthAwarePaginator
     {
@@ -23,7 +26,11 @@ class ProjectService
      */
     public function create(User $creator, array $attributes): Project
     {
-        return $this->projects->create([...$attributes, 'created_by' => $creator->id]);
+        $project = $this->projects->create([...$attributes, 'created_by' => $creator->id]);
+
+        $this->statistics->flush();
+
+        return $project;
     }
 
     /**
@@ -45,5 +52,7 @@ class ProjectService
     public function delete(Project $project): void
     {
         $this->projects->delete($project);
+
+        $this->statistics->flush();
     }
 }

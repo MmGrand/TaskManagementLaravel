@@ -17,6 +17,7 @@ class TaskService
     public function __construct(
         private readonly TaskRepository $tasks,
         private readonly TaskPositionService $positions,
+        private readonly StatisticsCache $statistics,
     ) {}
 
     public function list(TaskFilter $filter, User $viewer, ?int $perPage = null): LengthAwarePaginator
@@ -37,6 +38,8 @@ class TaskService
 
         TaskAssigned::dispatch($task);
 
+        $this->statistics->flush();
+
         return $task;
     }
 
@@ -55,6 +58,10 @@ class TaskService
 
         if ($task->wasChanged('status')) {
             TaskStatusChanged::dispatch($task, $originalStatus);
+        }
+
+        if ($task->wasChanged(['status', 'due_date', 'assigned_to', 'project_id'])) {
+            $this->statistics->flush();
         }
 
         return $task;
@@ -86,6 +93,8 @@ class TaskService
     public function delete(Task $task): void
     {
         $this->tasks->delete($task);
+
+        $this->statistics->flush();
     }
 
     private function neighbour(User $actor, string $field, ?int $id): ?Task

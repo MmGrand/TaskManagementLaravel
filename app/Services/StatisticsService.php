@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Repositories\Contracts\ProjectRepository;
 use App\Repositories\Contracts\TaskRepository;
 use App\Repositories\Contracts\UserRepository;
-use Illuminate\Support\Facades\Cache;
 
 class StatisticsService
 {
@@ -14,6 +13,7 @@ class StatisticsService
         private readonly ProjectRepository $projects,
         private readonly TaskRepository $tasks,
         private readonly UserRepository $users,
+        private readonly StatisticsCache $cache,
     ) {}
 
     /**
@@ -21,7 +21,7 @@ class StatisticsService
      */
     public function summary(User $viewer): array
     {
-        return Cache::flexible($this->cacheKey($viewer), [50, 60], function () use ($viewer) {
+        return $this->cache->remember($viewer, function () use ($viewer): array {
             return [
                 'projects_count' => $this->projects->countVisibleTo($viewer),
                 'tasks_count' => $this->tasks->countVisibleTo($viewer),
@@ -39,12 +39,5 @@ class StatisticsService
                     ->all(),
             ];
         });
-    }
-
-    private function cacheKey(User $viewer): string
-    {
-        return $viewer->isAdmin()
-            ? 'statistics.summary.global'
-            : "statistics.summary.user.{$viewer->id}";
     }
 }
