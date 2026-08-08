@@ -115,3 +115,26 @@ test('every notification template renders', function () {
         ->toContain(ProjectStatus::Active->label())
         ->toContain(ProjectStatus::Completed->label());
 });
+
+test('an update that keeps the same assignee sends no assignment mail', function () {
+    Mail::fake();
+
+    $manager = User::factory()->manager()->create();
+    $assignee = User::factory()->user()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+    $task = Task::factory()->withStatus(TaskStatus::Pending)->create([
+        'project_id' => $project->id,
+        'created_by' => $manager->id,
+        'assigned_to' => $assignee->id,
+    ]);
+
+    $this->actingAs($manager)->put("/api/tasks/{$task->id}", [
+        'title' => 'Renamed',
+        'status' => TaskStatus::Pending->value,
+        'priority' => $task->priority->value,
+        'project_id' => (string) $project->id,
+        'assigned_to' => (string) $assignee->id,
+    ], ['Accept' => 'application/json'])->assertOk();
+
+    Mail::assertNotSent(TaskAssignedMail::class);
+});

@@ -46,15 +46,14 @@ class TaskService
     public function update(Task $task, array $attributes): Task
     {
         $originalStatus = $task->status;
-        $originalAssignedTo = $task->assigned_to;
 
         $task = $this->tasks->update($task, $attributes);
 
-        if ($task->assigned_to !== $originalAssignedTo) {
+        if ($task->wasChanged('assigned_to')) {
             TaskAssigned::dispatch($task);
         }
 
-        if ($task->status !== $originalStatus) {
+        if ($task->wasChanged('status')) {
             TaskStatusChanged::dispatch($task, $originalStatus);
         }
 

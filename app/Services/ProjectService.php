@@ -35,7 +35,7 @@ class ProjectService
 
         $project = $this->projects->update($project, $attributes);
 
-        if ($project->status !== $originalStatus) {
+        if ($project->wasChanged('status')) {
             ProjectStatusChanged::dispatch($project, $originalStatus);
         }
 
