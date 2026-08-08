@@ -185,3 +185,37 @@ test('updating a profile fails validation with an invalid email', function () {
 
     $response->assertUnprocessable()->assertJsonValidationErrors(['email']);
 });
+
+test('blocking a user revokes their tokens', function () {
+    $admin = User::factory()->admin()->create();
+    $victim = User::factory()->user()->create();
+    $victim->createToken('api');
+
+    $this->actingAs($admin)->putJson("/api/users/{$victim->id}", [
+        'first_name' => $victim->first_name,
+        'last_name' => $victim->last_name,
+        'email' => $victim->email,
+        'phone' => $victim->phone,
+        'status' => UserStatus::Blocked->value,
+    ])->assertOk();
+
+    expect($victim->tokens()->count())->toBe(0);
+});
+
+test('users are paginated with a client supplied size', function () {
+    $admin = User::factory()->admin()->create();
+    User::factory()->count(3)->user()->create();
+
+    $this->actingAs($admin)->getJson('/api/users?per_page=2')
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('meta.per_page', 2);
+});
+
+test('an out of range user page size fails validation', function (int $perPage) {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->getJson("/api/users?per_page={$perPage}")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['per_page']);
+})->with([0, 101]);

@@ -207,3 +207,15 @@ test('projects can be filtered by status', function () {
         ->assertOk()
         ->assertJsonCount(1, 'data');
 });
+
+test('a query parameter that collides with a filter method name is ignored', function () {
+    taskFor();
+
+    $this->actingAs($this->admin)->getJson('/api/tasks?apply=1&filters=1')
+        ->assertOk()
+        ->assertJsonCount(1, 'data');
+
+    $this->actingAs($this->admin)->getJson('/api/projects?apply=1')
+        ->assertOk()
+        ->assertJsonCount(1, 'data');
+});

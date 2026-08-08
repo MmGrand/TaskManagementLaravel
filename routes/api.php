@@ -6,6 +6,7 @@ use App\Http\Controllers\api\RoleController;
 use App\Http\Controllers\api\StatisticsController;
 use App\Http\Controllers\api\TaskController;
 use App\Http\Controllers\api\UserController;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,7 +19,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return UserResource::make($request->user()->load('role'));
     });
 
     Route::get('/users', [UserController::class, 'index']);

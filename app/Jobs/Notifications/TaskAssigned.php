@@ -6,8 +6,10 @@ use App\Mail\TaskAssignedMail;
 use App\Models\Task;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Queue\Attributes\DeleteWhenMissingModels;
 use Illuminate\Support\Facades\Mail;
 
+#[DeleteWhenMissingModels]
 class TaskAssigned implements ShouldQueue
 {
     use Queueable;

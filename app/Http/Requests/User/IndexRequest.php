@@ -1,11 +1,9 @@
 <?php
 
-namespace App\Http\Requests\Project;
+namespace App\Http\Requests\User;
 
-use App\Enums\ProjectStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class IndexRequest extends FormRequest
 {
@@ -25,7 +23,6 @@ class IndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => ['nullable', Rule::enum(ProjectStatus::class)],
             'per_page' => 'nullable|integer|min:1|max:100',
         ];
     }

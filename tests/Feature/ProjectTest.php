@@ -67,3 +67,21 @@ test('the author can delete their project', function () {
     $response->assertNoContent();
     $this->assertDatabaseMissing('projects', ['id' => $project->id]);
 });
+
+test('projects are paginated with a client supplied size', function () {
+    $manager = User::factory()->manager()->create();
+    Project::factory()->count(3)->create(['created_by' => $manager->id]);
+
+    $this->actingAs($manager)->getJson('/api/projects?per_page=2')
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('meta.per_page', 2);
+});
+
+test('an out of range project page size fails validation', function (int $perPage) {
+    $manager = User::factory()->manager()->create();
+
+    $this->actingAs($manager)->getJson("/api/projects?per_page={$perPage}")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['per_page']);
+})->with([0, 101]);

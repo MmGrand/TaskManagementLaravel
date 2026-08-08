@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue';
 import { defineStore } from 'pinia';
 import * as authApi from '@/api/auth';
-import * as usersApi from '@/api/users';
 import { setSessionEndedHandler } from '@/api/http';
 import type { ApiError } from '@/types/api';
 import type { User } from '@/types/models';
@@ -82,11 +81,8 @@ export const useAuthStore = defineStore('auth', () => {
      * Восстанавливает сессию при холодном старте.
      *
      * Закэшированный пользователь приходит из login/register, где роль
-     * загружается сразу, поэтому его безопасно рендерить немедленно. Затем он
-     * обновляется через `users.show(id)`, так как только этот эндпоинт
-     * возвращает пользователя и с ролью, и с рабочей ссылкой на аватар —
-     * `GET /api/user` отдаёт сырую модель и используется только для получения
-     * id, когда кэш пуст.
+     * загружается сразу, поэтому его безопасно рендерить немедленно, а затем
+     * обновить ответом `GET /api/user`.
      */
     async function bootstrap(): Promise<void> {
         if (bootstrapped.value) {
@@ -100,9 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
         }
 
         try {
-            const id = user.value?.id ?? (await authApi.fetchCurrentUserId());
-
-            setUser(await usersApi.show(id));
+            setUser(await authApi.fetchCurrentUser());
         } catch (error) {
             const apiError = error as ApiError;
 

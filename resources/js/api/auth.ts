@@ -1,4 +1,5 @@
 import { http } from '@/api/http';
+import type { Envelope } from '@/types/api';
 import type { User } from '@/types/models';
 
 export interface Credentials {
@@ -46,13 +47,8 @@ export async function logout(): Promise<void> {
     await http.post('/logout');
 }
 
-/**
- * Возвращает сырую Eloquent-модель — без обёртки `data`, без связи с ролью, а
- * аватар — это путь в хранилище, а не URL. Используется только для получения
- * id текущего пользователя; авторитетный объект приходит из `users.show(id)`.
- */
-export async function fetchCurrentUserId(): Promise<number> {
-    const { data } = await http.get<{ id: number }>('/user');
+export async function fetchCurrentUser(): Promise<User> {
+    const { data } = await http.get<Envelope<User>>('/user');
 
-    return data.id;
+    return data.data;
 }

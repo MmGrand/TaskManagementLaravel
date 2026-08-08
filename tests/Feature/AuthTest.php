@@ -96,3 +96,13 @@ test('a user can logout', function () {
 
     $response->assertNoContent();
 });
+
+test('the current user endpoint returns the enveloped user with their role', function () {
+    $user = User::factory()->manager()->create();
+
+    $this->actingAs($user)->getJson('/api/user')
+        ->assertOk()
+        ->assertJsonPath('data.id', $user->id)
+        ->assertJsonPath('data.role.slug', 'manager')
+        ->assertJsonMissingPath('data.password');
+});

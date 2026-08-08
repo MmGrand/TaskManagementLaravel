@@ -183,3 +183,21 @@ test('an admin can update a project they did not create', function () {
         'name' => 'Renamed by admin',
     ])->assertOk();
 });
+
+test('the assignee sees no contact details of the people on a task', function () {
+    $manager = User::factory()->manager()->create();
+    $assignee = User::factory()->user()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+    Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $manager->id,
+        'assigned_to' => $assignee->id,
+    ]);
+
+    $response = $this->actingAs($assignee)->getJson('/api/tasks')->assertOk();
+
+    expect($response->json('data.0.assigned_user'))->toHaveKeys(['id', 'first_name', 'last_name', 'avatar']);
+    expect($response->json('data.0.assigned_user'))->not->toHaveKey('email');
+    expect($response->json('data.0.created_by_user'))->not->toHaveKey('phone');
+    expect($response->json('data.0.project.creator'))->not->toHaveKey('email');
+});

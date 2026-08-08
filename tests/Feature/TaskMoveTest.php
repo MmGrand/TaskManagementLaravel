@@ -184,3 +184,45 @@ test('a neighbour the mover cannot see is rejected', function () {
         'after_task_id' => $hidden->id,
     ])->assertUnprocessable()->assertJsonValidationErrors(['after_task_id']);
 });
+
+test('a neighbour the mover cannot see is reported on its own field', function () {
+    $task = movableTask();
+    $hidden = Task::factory()->create([
+        'project_id' => Project::factory()->create()->id,
+        'created_by' => User::factory()->user()->create()->id,
+        'assigned_to' => User::factory()->user()->create()->id,
+    ]);
+
+    $this->actingAs($this->assignee)->patchJson("/api/tasks/{$task->id}/move", [
+        'before_task_id' => $hidden->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['before_task_id']);
+});
+
+test('neighbours named in a stale order are rejected instead of misplacing the card', function () {
+    $first = movableTask(['position' => 1000]);
+    $last = movableTask(['position' => 3000]);
+    $moving = movableTask(['position' => 9000]);
+
+    $this->actingAs($this->admin)->patchJson("/api/tasks/{$moving->id}/move", [
+        'after_task_id' => $last->id,
+        'before_task_id' => $first->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['after_task_id']);
+
+    expect($moving->refresh()->position)->toBe(9000);
+});
+
+test('an exhausted gap below zero is rebalanced without disturbing the order', function () {
+    $first = movableTask(['position' => -1001]);
+    $second = movableTask(['position' => -1000]);
+    $moving = movableTask(['position' => 9000]);
+
+    $this->actingAs($this->admin)->patchJson("/api/tasks/{$moving->id}/move", [
+        'after_task_id' => $first->id,
+        'before_task_id' => $second->id,
+    ])->assertOk();
+
+    expect($moving->refresh()->position)
+        ->toBeGreaterThan($first->refresh()->position)
+        ->toBeLessThan($second->refresh()->position);
+    expect(rankedIds($this->admin))->toBe([$first->id, $moving->id, $second->id]);
+});

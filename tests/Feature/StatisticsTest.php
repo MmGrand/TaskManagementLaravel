@@ -103,3 +103,42 @@ test('the summary of one manager is not served from the cache of another', funct
         ->assertOk()
         ->assertJsonPath('tasks_count', 3);
 });
+
+test('the summary reflects a task created right after it was read', function () {
+    $manager = User::factory()->manager()->create();
+    $assignee = User::factory()->user()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+
+    $this->actingAs($manager)->getJson('/api/statistics')
+        ->assertOk()
+        ->assertJsonPath('tasks_count', 0);
+
+    $this->actingAs($manager)->postJson('/api/tasks', [
+        'title' => 'Fresh',
+        'status' => TaskStatus::Pending->value,
+        'priority' => 'medium',
+        'project_id' => $project->id,
+        'assigned_to' => $assignee->id,
+    ])->assertCreated();
+
+    $this->actingAs($manager)->getJson('/api/statistics')
+        ->assertOk()
+        ->assertJsonPath('tasks_count', 1)
+        ->assertJsonPath('tasks_by_status.pending', 1);
+});
+
+test('the summary reflects a deleted task', function () {
+    $manager = User::factory()->manager()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $manager->id,
+        'assigned_to' => User::factory()->user()->create()->id,
+    ]);
+
+    $this->actingAs($manager)->getJson('/api/statistics')->assertJsonPath('tasks_count', 1);
+
+    $this->actingAs($manager)->deleteJson("/api/tasks/{$task->id}")->assertNoContent();
+
+    $this->actingAs($manager)->getJson('/api/statistics')->assertJsonPath('tasks_count', 0);
+});

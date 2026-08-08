@@ -7,6 +7,7 @@ use App\Filters\TaskFilter;
 use App\Models\Task;
 use App\Models\User;
 use App\Repositories\Contracts\TaskRepository as TaskRepositoryContract;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskRepository implements TaskRepositoryContract
@@ -50,9 +51,12 @@ class TaskRepository implements TaskRepositoryContract
             ->increment('position', $step));
     }
 
-    public function findVisibleTo(User $viewer, int $id): ?Task
+    public function findVisibleTo(User $viewer, int $id, bool $lockForUpdate = false): ?Task
     {
-        return Task::query()->visibleTo($viewer)->find($id);
+        return Task::query()
+            ->visibleTo($viewer)
+            ->when($lockForUpdate, fn (Builder $tasks) => $tasks->lockForUpdate())
+            ->find($id);
     }
 
     public function countVisibleTo(User $viewer): int

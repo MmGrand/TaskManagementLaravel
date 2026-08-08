@@ -17,6 +17,7 @@ class TaskService
     public function __construct(
         private readonly TaskRepository $tasks,
         private readonly TaskPositionService $positions,
+        private readonly StatisticsCache $statistics,
     ) {}
 
     public function list(TaskFilter $filter, User $viewer, ?int $perPage = null): LengthAwarePaginator
@@ -37,6 +38,8 @@ class TaskService
 
         TaskAssigned::dispatch($task);
 
+        $this->statistics->flush();
+
         return $task;
     }
 
@@ -46,16 +49,19 @@ class TaskService
     public function update(Task $task, array $attributes): Task
     {
         $originalStatus = $task->status;
-        $originalAssignedTo = $task->assigned_to;
 
         $task = $this->tasks->update($task, $attributes);
 
-        if ($task->assigned_to !== $originalAssignedTo) {
+        if ($task->wasChanged('assigned_to')) {
             TaskAssigned::dispatch($task);
         }
 
-        if ($task->status !== $originalStatus) {
+        if ($task->wasChanged('status')) {
             TaskStatusChanged::dispatch($task, $originalStatus);
+        }
+
+        if ($task->wasChanged(['status', 'due_date', 'assigned_to', 'project_id'])) {
+            $this->statistics->flush();
         }
 
         return $task;
@@ -67,8 +73,10 @@ class TaskService
     public function move(Task $task, User $actor, array $attributes): Task
     {
         return DB::transaction(function () use ($task, $actor, $attributes): Task {
-            $after = $this->neighbour($actor, $attributes['after_task_id'] ?? null);
-            $before = $this->neighbour($actor, $attributes['before_task_id'] ?? null);
+            $after = $this->neighbour($actor, 'after_task_id', $attributes['after_task_id'] ?? null);
+            $before = $this->neighbour($actor, 'before_task_id', $attributes['before_task_id'] ?? null);
+
+            $this->assertNeighboursAreOrdered($after, $before);
 
             $columnFields = array_intersect_key(
                 $attributes,
@@ -85,17 +93,28 @@ class TaskService
     public function delete(Task $task): void
     {
         $this->tasks->delete($task);
+
+        $this->statistics->flush();
     }
 
-    private function neighbour(User $actor, ?int $id): ?Task
+    private function neighbour(User $actor, string $field, ?int $id): ?Task
     {
         if ($id === null) {
             return null;
         }
 
-        return $this->tasks->findVisibleTo($actor, $id)
+        return $this->tasks->findVisibleTo($actor, $id, lockForUpdate: true)
             ?? throw ValidationException::withMessages([
-                'after_task_id' => 'Соседняя задача недоступна.',
+                $field => 'Соседняя задача недоступна.',
             ]);
+    }
+
+    private function assertNeighboursAreOrdered(?Task $after, ?Task $before): void
+    {
+        if ($after !== null && $before !== null && $after->position >= $before->position) {
+            throw ValidationException::withMessages([
+                'after_task_id' => 'Порядок задач на доске устарел. Обновите страницу.',
+            ]);
+        }
     }
 }

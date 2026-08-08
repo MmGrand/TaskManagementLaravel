@@ -10,6 +10,11 @@ abstract class QueryFilter
 {
     protected Builder $builder;
 
+    /**
+     * @var array<int, string>
+     */
+    protected array $allowed = [];
+
     public function __construct(protected Request $request) {}
 
     public function apply(Builder $builder): Builder
@@ -17,18 +22,20 @@ abstract class QueryFilter
         $this->builder = $builder;
 
         foreach ($this->filters() as $name => $value) {
-            $method = Str::camel($name);
-
-            if (method_exists($this, $method) && filled($value)) {
-                $this->{$method}($value);
-            }
+            $this->{Str::camel($name)}($value);
         }
 
         return $this->builder;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     protected function filters(): array
     {
-        return $this->request->all();
+        return array_filter(
+            $this->request->only($this->allowed),
+            static fn (mixed $value): bool => filled($value),
+        );
     }
 }
