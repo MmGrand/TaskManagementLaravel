@@ -201,3 +201,21 @@ test('blocking a user revokes their tokens', function () {
 
     expect($victim->tokens()->count())->toBe(0);
 });
+
+test('users are paginated with a client supplied size', function () {
+    $admin = User::factory()->admin()->create();
+    User::factory()->count(3)->user()->create();
+
+    $this->actingAs($admin)->getJson('/api/users?per_page=2')
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('meta.per_page', 2);
+});
+
+test('an out of range user page size fails validation', function (int $perPage) {
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($admin)->getJson("/api/users?per_page={$perPage}")
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['per_page']);
+})->with([0, 101]);

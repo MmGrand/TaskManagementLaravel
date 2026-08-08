@@ -12,9 +12,9 @@ class UserService
 {
     public function __construct(private readonly UserRepository $users) {}
 
-    public function list(): LengthAwarePaginator
+    public function list(?int $perPage = null): LengthAwarePaginator
     {
-        return $this->users->paginate();
+        return $this->users->paginate($perPage ?? 15);
     }
 
     /**

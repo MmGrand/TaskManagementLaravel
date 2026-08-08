@@ -17,6 +17,7 @@ class ProjectRepository implements ProjectRepositoryContract
             ->visibleTo($viewer)
             ->filter($filter)
             ->latest()
+            ->orderByDesc('id')
             ->paginate($perPage)
             ->withQueryString();
     }

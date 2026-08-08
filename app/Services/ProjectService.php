@@ -16,9 +16,9 @@ class ProjectService
         private readonly StatisticsCache $statistics,
     ) {}
 
-    public function list(ProjectFilter $filter, User $viewer): LengthAwarePaginator
+    public function list(ProjectFilter $filter, User $viewer, ?int $perPage = null): LengthAwarePaginator
     {
-        return $this->projects->paginate($filter, $viewer);
+        return $this->projects->paginate($filter, $viewer, $perPage ?? 15);
     }
 
     /**

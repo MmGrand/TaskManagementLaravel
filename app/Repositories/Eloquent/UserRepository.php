@@ -12,7 +12,7 @@ class UserRepository implements UserRepositoryContract
 {
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
-        return User::with('role')->paginate($perPage);
+        return User::with('role')->orderBy('id')->paginate($perPage);
     }
 
     public function create(array $attributes): User
@@ -35,6 +35,7 @@ class UserRepository implements UserRepositoryContract
             ->withCount(['createdTasks' => $visibleTasks])
             ->whereHas('createdTasks', $visibleTasks)
             ->orderByDesc('created_tasks_count')
+            ->orderBy('id')
             ->limit($limit)
             ->get();
     }
