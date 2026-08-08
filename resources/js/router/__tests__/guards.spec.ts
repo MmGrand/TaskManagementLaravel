@@ -3,7 +3,6 @@ import { createPinia, setActivePinia } from 'pinia';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import type { Router } from 'vue-router';
 import * as authApi from '@/api/auth';
-import * as usersApi from '@/api/users';
 import { registerGuards } from '@/router/guards';
 import { routes } from '@/router/routes';
 import { useAuthStore } from '@/stores/auth';
@@ -15,7 +14,6 @@ vi.mock('@/api/http', () => ({
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/auth');
-vi.mock('@/api/users');
 
 function buildRouter(): Router {
     const router = createRouter({ history: createMemoryHistory(), routes });
@@ -44,7 +42,7 @@ describe('auth guard', () => {
     it('lets an authenticated visitor through', async () => {
         writeToken('tok');
         writeUser(makeUser());
-        vi.mocked(usersApi).show.mockResolvedValue(makeUser());
+        vi.mocked(authApi).fetchCurrentUser.mockResolvedValue(makeUser());
 
         const router = buildRouter();
         await router.push('/');
@@ -55,7 +53,7 @@ describe('auth guard', () => {
     it('redirects an authenticated visitor away from the login screen', async () => {
         writeToken('tok');
         writeUser(makeUser());
-        vi.mocked(usersApi).show.mockResolvedValue(makeUser());
+        vi.mocked(authApi).fetchCurrentUser.mockResolvedValue(makeUser());
 
         const router = buildRouter();
         await router.push('/login');
@@ -66,7 +64,7 @@ describe('auth guard', () => {
     it('sends a visitor lacking the route permission to the forbidden page', async () => {
         writeToken('tok');
         writeUser(makeUser({ role: makeRole('user') }));
-        vi.mocked(usersApi).show.mockResolvedValue(makeUser({ role: makeRole('user') }));
+        vi.mocked(authApi).fetchCurrentUser.mockResolvedValue(makeUser({ role: makeRole('user') }));
 
         const router = createRouter({
             history: createMemoryHistory(),
@@ -90,13 +88,13 @@ describe('auth guard', () => {
     it('bootstraps the session only once across navigations', async () => {
         writeToken('tok');
         writeUser(makeUser());
-        vi.mocked(usersApi).show.mockResolvedValue(makeUser());
+        vi.mocked(authApi).fetchCurrentUser.mockResolvedValue(makeUser());
 
         const router = buildRouter();
         await router.push('/');
         await router.push('/403');
 
-        expect(vi.mocked(usersApi).show).toHaveBeenCalledOnce();
+        expect(vi.mocked(authApi).fetchCurrentUser).toHaveBeenCalledOnce();
     });
 
     it('falls back to the not-found route for unknown paths', async () => {
@@ -109,7 +107,7 @@ describe('auth guard', () => {
 
     it('keeps a bootstrap failure from blocking navigation', async () => {
         writeToken('tok');
-        vi.mocked(authApi).fetchCurrentUserId.mockRejectedValue({ isUnauthenticated: true, message: 'Не авторизован.' });
+        vi.mocked(authApi).fetchCurrentUser.mockRejectedValue({ isUnauthenticated: true, message: 'Не авторизован.' });
 
         const router = buildRouter();
         await router.push('/');

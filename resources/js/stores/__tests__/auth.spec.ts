@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import * as authApi from '@/api/auth';
-import * as usersApi from '@/api/users';
 import { useAuthStore } from '@/stores/auth';
 import { makeRole, makeUser } from '@/tests/fixtures';
 import { readToken, readUser, writeToken, writeUser } from '@/utils/tokenStorage';
@@ -11,10 +10,8 @@ vi.mock('@/api/http', () => ({
     setSessionEndedHandler: vi.fn(),
 }));
 vi.mock('@/api/auth');
-vi.mock('@/api/users');
 
 const mockedAuthApi = vi.mocked(authApi);
-const mockedUsersApi = vi.mocked(usersApi);
 
 beforeEach(() => {
     vi.resetAllMocks();
@@ -68,41 +65,37 @@ describe('bootstrap', () => {
         const auth = useAuthStore();
         await auth.bootstrap();
 
-        expect(mockedAuthApi.fetchCurrentUserId).not.toHaveBeenCalled();
-        expect(mockedUsersApi.show).not.toHaveBeenCalled();
+        expect(mockedAuthApi.fetchCurrentUser).not.toHaveBeenCalled();
         expect(auth.bootstrapped).toBe(true);
     });
 
-    it('refreshes the cached user through users.show without hitting GET /user', async () => {
+    it('refreshes the cached user through GET /user', async () => {
         writeToken('tok');
         writeUser(makeUser({ id: 9, first_name: 'Старое' }));
-        mockedUsersApi.show.mockResolvedValue(makeUser({ id: 9, first_name: 'Новое' }));
+        mockedAuthApi.fetchCurrentUser.mockResolvedValue(makeUser({ id: 9, first_name: 'Новое' }));
 
         const auth = useAuthStore();
         await auth.bootstrap();
 
-        expect(mockedAuthApi.fetchCurrentUserId).not.toHaveBeenCalled();
-        expect(mockedUsersApi.show).toHaveBeenCalledWith(9);
+        expect(mockedAuthApi.fetchCurrentUser).toHaveBeenCalledOnce();
         expect(auth.user?.first_name).toBe('Новое');
     });
 
-    it('recovers the id via GET /user when the cache is empty', async () => {
+    it('loads the user through GET /user when the cache is empty', async () => {
         writeToken('tok');
-        mockedAuthApi.fetchCurrentUserId.mockResolvedValue(4);
-        mockedUsersApi.show.mockResolvedValue(makeUser({ id: 4 }));
+        mockedAuthApi.fetchCurrentUser.mockResolvedValue(makeUser({ id: 4 }));
 
         const auth = useAuthStore();
         await auth.bootstrap();
 
-        expect(mockedAuthApi.fetchCurrentUserId).toHaveBeenCalledOnce();
-        expect(mockedUsersApi.show).toHaveBeenCalledWith(4);
+        expect(mockedAuthApi.fetchCurrentUser).toHaveBeenCalledOnce();
         expect(auth.user?.id).toBe(4);
     });
 
     it('drops the session on a 401 and keeps the message for the login screen', async () => {
         writeToken('stale');
         writeUser(makeUser({ id: 3 }));
-        mockedUsersApi.show.mockRejectedValue({ isUnauthenticated: true, message: 'Не авторизован.' });
+        mockedAuthApi.fetchCurrentUser.mockRejectedValue({ isUnauthenticated: true, message: 'Не авторизован.' });
 
         const auth = useAuthStore();
         await auth.bootstrap();
@@ -114,7 +107,7 @@ describe('bootstrap', () => {
     it('drops the session when the account was disabled', async () => {
         writeToken('tok');
         writeUser(makeUser({ id: 3 }));
-        mockedUsersApi.show.mockRejectedValue({
+        mockedAuthApi.fetchCurrentUser.mockRejectedValue({
             isAccountDisabled: true,
             message: 'Аккаунт недоступен: Заблокирован.',
         });
@@ -129,7 +122,7 @@ describe('bootstrap', () => {
     it('keeps the cached session when the refresh fails for another reason', async () => {
         writeToken('tok');
         writeUser(makeUser({ id: 3 }));
-        mockedUsersApi.show.mockRejectedValue({ isNetwork: true, message: 'Сервер недоступен.' });
+        mockedAuthApi.fetchCurrentUser.mockRejectedValue({ isNetwork: true, message: 'Сервер недоступен.' });
 
         const auth = useAuthStore();
         await auth.bootstrap();
@@ -140,14 +133,13 @@ describe('bootstrap', () => {
 
     it('runs at most once', async () => {
         writeToken('tok');
-        mockedAuthApi.fetchCurrentUserId.mockResolvedValue(1);
-        mockedUsersApi.show.mockResolvedValue(makeUser());
+        mockedAuthApi.fetchCurrentUser.mockResolvedValue(makeUser());
 
         const auth = useAuthStore();
         await auth.bootstrap();
         await auth.bootstrap();
 
-        expect(mockedUsersApi.show).toHaveBeenCalledOnce();
+        expect(mockedAuthApi.fetchCurrentUser).toHaveBeenCalledOnce();
     });
 });
 

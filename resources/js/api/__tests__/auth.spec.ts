@@ -51,9 +51,11 @@ describe('auth api', () => {
         expect(mockedHttp.post).toHaveBeenCalledWith('/logout');
     });
 
-    it('reads the id off the raw model returned by GET /user', async () => {
-        mockedHttp.get.mockResolvedValue({ data: { id: 7, avatar: 'avatars/raw-path.jpg' } });
+    it('unwraps the enveloped user returned by GET /user', async () => {
+        const user = { id: 7, avatar: '/storage/avatars/7.jpg' };
+        mockedHttp.get.mockResolvedValue({ data: { data: user } });
 
-        await expect(authApi.fetchCurrentUserId()).resolves.toBe(7);
+        await expect(authApi.fetchCurrentUser()).resolves.toBe(user);
+        expect(mockedHttp.get).toHaveBeenCalledWith('/user');
     });
 });
