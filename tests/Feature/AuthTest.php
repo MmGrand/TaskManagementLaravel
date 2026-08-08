@@ -2,6 +2,7 @@
 
 use App\Enums\RoleSlug;
 use App\Enums\UserStatus;
+use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 
@@ -105,4 +106,21 @@ test('the current user endpoint returns the enveloped user with their role', fun
         ->assertJsonPath('data.id', $user->id)
         ->assertJsonPath('data.role.slug', 'manager')
         ->assertJsonMissingPath('data.password');
+});
+
+test('a user without a role is told why the account is unusable', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user)->getJson('/api/user')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Аккаунт недоступен: роль не назначена.');
+});
+
+test('a user whose role was switched off is told why', function () {
+    $role = Role::factory()->create(['is_active' => false]);
+    $user = User::factory()->create(['role_id' => $role->id]);
+
+    $this->actingAs($user)->getJson('/api/user')
+        ->assertForbidden()
+        ->assertJsonPath('message', 'Аккаунт недоступен: роль отключена.');
 });
