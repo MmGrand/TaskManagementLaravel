@@ -33,8 +33,8 @@ const projects = useOptionsList(
 );
 
 const assignees = useOptionsList(
-    (page) => usersApi.list(page),
-    (user) => ({ value: String(user.id), label: `${fullName(user)} (${user.email})` }),
+    (page) => usersApi.listAssignable(page),
+    (user) => ({ value: String(user.id), label: fullName(user) }),
 );
 
 const form = reactive<TaskFormValues>({

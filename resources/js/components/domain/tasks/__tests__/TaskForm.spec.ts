@@ -18,7 +18,7 @@ vi.mock('@/api/users');
 beforeEach(() => {
     vi.resetAllMocks();
     vi.mocked(projectsApi).list.mockResolvedValue(makePage([makeProject({ id: 3, name: 'Альфа' })]));
-    vi.mocked(usersApi).list.mockResolvedValue(makePage([makeUser({ id: 7 })]));
+    vi.mocked(usersApi).listAssignable.mockResolvedValue(makePage([makeUser({ id: 7 })]));
 });
 
 async function mountForm(props: Record<string, unknown> = {}) {
@@ -33,7 +33,8 @@ describe('TaskForm (manageable caller)', () => {
         await mountForm();
 
         expect(projectsApi.list).toHaveBeenCalled();
-        expect(usersApi.list).toHaveBeenCalled();
+        expect(usersApi.listAssignable).toHaveBeenCalled();
+        expect(usersApi.list).not.toHaveBeenCalled();
     });
 
     it('emits the complete payload even when only the status changed', async () => {
@@ -88,7 +89,7 @@ describe('TaskForm (manageable caller)', () => {
     });
 
     it('survives a 403 from the users endpoint', async () => {
-        vi.mocked(usersApi).list.mockRejectedValue({ status: 403, message: 'Действие запрещено.' });
+        vi.mocked(usersApi).listAssignable.mockRejectedValue({ status: 403, message: 'Действие запрещено.' });
 
         const wrapper = await mountForm();
 

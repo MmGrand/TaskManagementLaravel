@@ -15,6 +15,12 @@ class UserPolicy
         return $user->hasPermission(Permission::UsersViewAny);
     }
 
+    public function viewAssignable(User $user): bool
+    {
+        return $user->hasPermission(Permission::UsersViewAssignable)
+            || $user->hasPermission(Permission::UsersViewAny);
+    }
+
     /**
      * Determine whether the user can view the model.
      */

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\User\IndexRequest;
 use App\Http\Requests\User\UpdatePasswordRequest;
 use App\Http\Requests\User\UpdateRequest;
+use App\Http\Resources\AssignableUserResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\UserService;
@@ -21,6 +22,13 @@ class UserController extends Controller
         $this->authorize('viewAny', User::class);
 
         return UserResource::collection($this->users->list($request->integer('per_page') ?: null));
+    }
+
+    public function assignable(IndexRequest $request)
+    {
+        $this->authorize('viewAssignable', User::class);
+
+        return AssignableUserResource::collection($this->users->assignable($request->integer('per_page') ?: null));
     }
 
     public function show(User $user)

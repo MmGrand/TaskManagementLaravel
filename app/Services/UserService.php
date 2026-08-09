@@ -18,6 +18,11 @@ class UserService
         return $this->users->paginate($perPage ?? 15);
     }
 
+    public function assignable(?int $perPage = null): LengthAwarePaginator
+    {
+        return $this->users->paginateAssignable($perPage ?? 15);
+    }
+
     /**
      * @param  array<string, mixed>  $attributes
      */

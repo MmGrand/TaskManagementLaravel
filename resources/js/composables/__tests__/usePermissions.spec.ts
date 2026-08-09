@@ -136,6 +136,19 @@ describe('user policy mirror', () => {
         expect(permissions.canUpdateUser(makeUser({ id: 3 }))).toBe(false);
     });
 
+    it('denies a manager the directory but keeps the assignee list', () => {
+        const manager = signInAs('manager', 5);
+
+        expect(manager.canViewUser(makeUser({ id: 6 }))).toBe(false);
+        expect(manager.can('users.viewAny')).toBe(false);
+        expect(manager.canViewAssignableUsers.value).toBe(true);
+    });
+
+    it('lets the full directory stand in for the assignee list', () => {
+        expect(signInAs('admin').canViewAssignableUsers.value).toBe(true);
+        expect(signInAs('user').canViewAssignableUsers.value).toBe(false);
+    });
+
     it('exposes whether status and role_id may be sent at all', () => {
         expect(signInAs('admin').canManageUsers.value).toBe(true);
         expect(signInAs('manager').canManageUsers.value).toBe(false);

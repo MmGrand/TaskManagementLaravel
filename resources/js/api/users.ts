@@ -1,10 +1,18 @@
 import { http } from '@/api/http';
 import type { Envelope, Page, PaginatedEnvelope } from '@/types/api';
-import type { User } from '@/types/models';
+import type { AssignableUser, User } from '@/types/models';
 import { toFormData, type PasswordPayload, type UserPayload } from '@/utils/userPayload';
 
 export async function list(page = 1): Promise<Page<User>> {
     const { data } = await http.get<PaginatedEnvelope<User>>('/users', { params: { page } });
+
+    return { items: data.data, meta: data.meta };
+}
+
+export async function listAssignable(page = 1): Promise<Page<AssignableUser>> {
+    const { data } = await http.get<PaginatedEnvelope<AssignableUser>>('/users/assignable', {
+        params: { page },
+    });
 
     return { items: data.data, meta: data.meta };
 }

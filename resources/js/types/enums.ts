@@ -36,6 +36,7 @@ export const PERMISSIONS = [
     'tasks.delete',
     'users.viewAny',
     'users.view',
+    'users.viewAssignable',
     'users.update',
     'statistics.view',
 ] as const;

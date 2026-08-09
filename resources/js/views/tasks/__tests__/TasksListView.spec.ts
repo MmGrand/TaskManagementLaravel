@@ -70,7 +70,7 @@ beforeEach(() => {
     }
     vi.mocked(tasksApi).list.mockResolvedValue(makePage([]));
     vi.mocked(projectsApi).list.mockResolvedValue(makePage([]));
-    vi.mocked(usersApi).list.mockResolvedValue(makePage([]));
+    vi.mocked(usersApi).listAssignable.mockResolvedValue(makePage([]));
 });
 
 describe('listing', () => {
@@ -193,7 +193,7 @@ describe('the board view', () => {
             .list.mock.calls.map(([filters]) => filters?.status);
 
         expect(statuses).toEqual(['pending', 'in_progress', 'completed']);
-        expect(vi.mocked(usersApi).list).not.toHaveBeenCalled();
+        expect(vi.mocked(usersApi).listAssignable).not.toHaveBeenCalled();
     });
 
     it('lets the column own the grouped dimension instead of the filter', async () => {

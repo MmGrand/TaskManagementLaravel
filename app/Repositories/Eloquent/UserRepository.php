@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Enums\UserStatus;
 use App\Models\User;
 use App\Repositories\Contracts\UserRepository as UserRepositoryContract;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,6 +14,14 @@ class UserRepository implements UserRepositoryContract
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return User::with('role')->orderBy('id')->paginate($perPage);
+    }
+
+    public function paginateAssignable(int $perPage = 15): LengthAwarePaginator
+    {
+        return User::query()
+            ->where('status', UserStatus::Active)
+            ->orderBy('id')
+            ->paginate($perPage);
     }
 
     public function create(array $attributes): User

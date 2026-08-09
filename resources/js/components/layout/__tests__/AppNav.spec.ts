@@ -41,8 +41,12 @@ describe('AppNav', () => {
         expect(text).toContain('Пользователи');
     });
 
-    it('shows users to a manager, who has users.viewAny', () => {
-        expect(mountNavAs('manager').text()).toContain('Пользователи');
+    it('hides users from a manager, who only lists assignees', () => {
+        const text = mountNavAs('manager').text();
+
+        expect(text).toContain('Проекты');
+        expect(text).toContain('Задачи');
+        expect(text).not.toContain('Пользователи');
     });
 
     it('hides users from a plain user, who would get a 403', () => {
