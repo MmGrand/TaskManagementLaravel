@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import * as usersApi from '@/api/users';
 import AppAlert from '@/components/ui/AppAlert.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import PasswordForm from '@/components/domain/users/PasswordForm.vue';
 import UserForm from '@/components/domain/users/UserForm.vue';
+import UserSummary from '@/components/domain/users/UserSummary.vue';
 import { useApiForm } from '@/composables/useApiForm';
+import { usePermissions } from '@/composables/usePermissions';
 import { useAuthStore } from '@/stores/auth';
 import { useUiStore } from '@/stores/ui';
 import type { ApiError } from '@/types/api';
@@ -19,9 +21,11 @@ import type { PasswordPayload, UserPayload } from '@/utils/userPayload';
  * выбирает другого пользователя, а разрешён ли доступ — решает политика на бэкенде.
  */
 const route = useRoute();
+const router = useRouter();
 const auth = useAuthStore();
 const ui = useUiStore();
 const form = useApiForm();
+const permissions = usePermissions();
 const { t } = useI18n();
 
 const passwordForm = useApiForm();
@@ -40,6 +44,8 @@ const targetId = computed(() => {
 
 const isSelf = computed(() => user.value !== null && user.value.id === auth.user?.id);
 
+const canEdit = computed(() => user.value !== null && permissions.canUpdateUser(user.value));
+
 onMounted(async () => {
     const id = targetId.value;
 
@@ -52,7 +58,15 @@ onMounted(async () => {
     try {
         user.value = await usersApi.show(id);
     } catch (caught) {
-        loadError.value = caught as ApiError;
+        const error = caught as ApiError;
+
+        if (error.isForbidden && !error.isAccountDisabled) {
+            await router.replace({ name: 'forbidden' });
+
+            return;
+        }
+
+        loadError.value = error;
     } finally {
         loading.value = false;
     }
@@ -105,13 +119,16 @@ async function onChangePassword(payload: PasswordPayload): Promise<void> {
         <AppSpinner v-if="loading" />
         <AppAlert v-else-if="loadError">{{ loadError.message }}</AppAlert>
 
-        <UserForm
-            v-else-if="user"
-            :user="user"
-            :pending="form.pending.value"
-            :error="form.error.value"
-            @submit="onSubmit"
-        />
+        <template v-else-if="user">
+            <UserForm
+                v-if="canEdit"
+                :user="user"
+                :pending="form.pending.value"
+                :error="form.error.value"
+                @submit="onSubmit"
+            />
+            <UserSummary v-else :user="user" />
+        </template>
 
         <template v-if="isSelf">
             <hr class="border-border" />

@@ -10,10 +10,11 @@ import { makeRole, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
 const routeQuery: Record<string, string> = {};
+const routerReplace = vi.fn();
 
 vi.mock('vue-router', () => ({
     useRoute: () => ({ query: routeQuery }),
-    useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+    useRouter: () => ({ push: vi.fn(), replace: routerReplace }),
 }));
 vi.mock('@/api/http', () => ({
     http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
@@ -153,13 +154,37 @@ describe('an admin editing someone else', () => {
     });
 });
 
+describe('someone the viewer may read but not edit', () => {
+    it('renders a read-only summary instead of the form', async () => {
+        routeQuery.id = '9';
+        vi.mocked(usersApi).show.mockResolvedValue(
+            makeUser({ id: 9, email: 'other@example.com', role: makeRole('user') }),
+        );
+
+        const { wrapper } = await mountAs('manager', 2);
+
+        expect(wrapper.find('form').exists()).toBe(false);
+        expect(wrapper.text()).toContain('other@example.com');
+    });
+});
+
 describe('failures', () => {
-    it('shows a load error instead of an empty form', async () => {
+    it('sends a forbidden profile to the 403 screen', async () => {
+        routeQuery.id = '9';
         vi.mocked(usersApi).show.mockRejectedValue({ message: 'Действие запрещено.', isForbidden: true });
 
         const { wrapper } = await mountAs('manager', 2);
 
-        expect(wrapper.text()).toContain('Действие запрещено.');
+        expect(routerReplace).toHaveBeenCalledWith({ name: 'forbidden' });
+        expect(wrapper.find('form').exists()).toBe(false);
+    });
+
+    it('shows a load error instead of an empty form', async () => {
+        vi.mocked(usersApi).show.mockRejectedValue({ message: 'Не удалось загрузить.', isForbidden: false });
+
+        const { wrapper } = await mountAs('manager', 2);
+
+        expect(wrapper.text()).toContain('Не удалось загрузить.');
         expect(wrapper.find('form').exists()).toBe(false);
     });
 });
