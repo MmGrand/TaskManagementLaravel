@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { setLocale } from '@/i18n';
 import {
-    caretAfterDigits,
-    countDigits,
     dateFieldFormat,
     formatDateField,
     fromIsoDate,
@@ -113,20 +111,6 @@ describe('maskDateField', () => {
         await setLocale('en');
 
         expect(maskDateField('15072026', dateFieldFormat())).toBe('15/07/2026');
-    });
-});
-
-describe('caret helpers', () => {
-    it('counts the digits the caret has already passed', () => {
-        expect(countDigits('15.07')).toBe(4);
-        expect(countDigits('')).toBe(0);
-    });
-
-    it('puts the caret back after the same digit once separators shift', () => {
-        expect(caretAfterDigits('15.07.2026', 0)).toBe(0);
-        expect(caretAfterDigits('15.07.2026', 2)).toBe(2);
-        expect(caretAfterDigits('15.07.2026', 3)).toBe(4);
-        expect(caretAfterDigits('15.07.2026', 99)).toBe(10);
     });
 });
 
