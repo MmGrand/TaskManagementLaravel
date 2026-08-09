@@ -11,6 +11,11 @@ interface UserRepository
     public function paginate(int $perPage = 15): LengthAwarePaginator;
 
     /**
+     * Users who may be picked as a task assignee.
+     */
+    public function paginateAssignable(int $perPage = 15): LengthAwarePaginator;
+
+    /**
      * @param  array<string, mixed>  $attributes
      */
     public function create(array $attributes): User;

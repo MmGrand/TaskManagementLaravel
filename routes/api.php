@@ -23,6 +23,7 @@ Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function ()
     });
 
     Route::get('/users', [UserController::class, 'index']);
+    Route::get('/users/assignable', [UserController::class, 'assignable']);
     Route::get('/users/{user}', [UserController::class, 'show']);
 
     Route::match(['put', 'post'], '/users/{user}', [UserController::class, 'update']);
