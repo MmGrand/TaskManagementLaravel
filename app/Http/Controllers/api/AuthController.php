@@ -4,6 +4,7 @@ namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Rules\PhoneNumber;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class AuthController extends Controller
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', 'max:20', new PhoneNumber],
             'password' => ['required', 'string', 'confirmed', Password::defaults()],
         ]);
 

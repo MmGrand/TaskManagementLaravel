@@ -198,17 +198,34 @@ describe('changing the password', () => {
         const form = wrapper.findAll('form')[1]!;
         const fields = form.findAll('input[type="password"]');
 
-        await fields[0]!.setValue('old-one');
-        await fields[1]!.setValue('new-one');
-        await fields[2]!.setValue('new-one');
+        await fields[0]!.setValue('old-password');
+        await fields[1]!.setValue('new-password');
+        await fields[2]!.setValue('new-password');
         await form.trigger('submit');
         await flushPromises();
 
         expect(usersApi.changePassword).toHaveBeenCalledWith(1, {
-            current_password: 'old-one',
-            password: 'new-one',
-            password_confirmation: 'new-one',
+            current_password: 'old-password',
+            password: 'new-password',
+            password_confirmation: 'new-password',
         });
+    });
+
+    it('does not reach the server while the confirmation differs', async () => {
+        vi.mocked(usersApi).show.mockResolvedValue(makeUser({ id: 1, role: makeRole('user') }));
+        const { wrapper } = await mountAs('user', 1);
+
+        const form = wrapper.findAll('form')[1]!;
+        const fields = form.findAll('input[type="password"]');
+
+        await fields[0]!.setValue('old-password');
+        await fields[1]!.setValue('new-password');
+        await fields[2]!.setValue('new-passwerd');
+        await form.trigger('submit');
+        await flushPromises();
+
+        expect(usersApi.changePassword).not.toHaveBeenCalled();
+        expect(form.text()).toContain('Пароли не совпадают.');
     });
 
     it('is not offered when an admin edits someone else', async () => {

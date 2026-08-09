@@ -6,7 +6,7 @@ import AppBadge from '@/components/ui/AppBadge.vue';
 import UserStatusBadge from '@/components/domain/users/UserStatusBadge.vue';
 import { useEnumLabel } from '@/composables/useEnumLabel';
 import type { User } from '@/types/models';
-import { fullName } from '@/utils/format';
+import { formatPhone, fullName } from '@/utils/format';
 
 const props = defineProps<{ user: User }>();
 
@@ -31,7 +31,7 @@ const name = computed(() => fullName(props.user));
 
             <div class="flex flex-col gap-1">
                 <dt class="text-xs font-semibold text-fg-muted uppercase">{{ t('common.phone') }}</dt>
-                <dd class="text-fg">{{ user.phone }}</dd>
+                <dd class="text-fg">{{ formatPhone(user.phone) }}</dd>
             </div>
 
             <div class="flex flex-col items-start gap-1">

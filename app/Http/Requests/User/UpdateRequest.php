@@ -4,6 +4,7 @@ namespace App\Http\Requests\User;
 
 use App\Enums\Permission;
 use App\Enums\UserStatus;
+use App\Rules\PhoneNumber;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -35,7 +36,7 @@ class UpdateRequest extends FormRequest
                 ? ['required', 'current_password:sanctum']
                 : ['nullable'],
             'avatar' => 'nullable|image|max:2048',
-            'phone' => 'required|string|max:20',
+            'phone' => ['required', 'string', 'max:20', new PhoneNumber],
             'status' => $managesUsers
                 ? ['sometimes', Rule::enum(UserStatus::class)]
                 : ['prohibited'],

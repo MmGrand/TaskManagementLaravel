@@ -34,6 +34,28 @@ test('registration fails validation with missing fields', function () {
         ->assertJsonValidationErrors(['first_name', 'last_name', 'email', 'phone', 'password']);
 });
 
+test('registration rejects a phone that is not in international format', function (string $phone) {
+    $this->seed(RoleSeeder::class);
+
+    $response = $this->postJson('/api/register', [
+        'first_name' => 'Ivan',
+        'last_name' => 'Petrov',
+        'email' => 'ivan@example.com',
+        'phone' => $phone,
+        'password' => 'password',
+        'password_confirmation' => 'password',
+    ]);
+
+    $response->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+})->with([
+    'without the plus' => '79991234567',
+    'with separators' => '+7 999 123-45-67',
+    'with letters' => '+7999МОЙНОМЕР',
+    'too short' => '+7999999',
+    'too long' => '+7999912345678901',
+    'zero country code' => '+09991234567',
+]);
+
 test('a user can login with correct credentials', function () {
     $user = User::factory()->user()->create();
 

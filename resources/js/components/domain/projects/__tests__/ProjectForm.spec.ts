@@ -68,6 +68,15 @@ describe('ProjectForm', () => {
         });
     });
 
+    it('does not submit an empty name and says so', async () => {
+        const wrapper = mount(ProjectForm);
+
+        await wrapper.find('form').trigger('submit');
+
+        expect(wrapper.emitted('submit')).toBeUndefined();
+        expect(wrapper.text()).toContain('Заполните это поле.');
+    });
+
     it('renders the server field error next to the name input', () => {
         const wrapper = mount(ProjectForm, {
             props: { error: validationError({ name: ['Название обязательно.'] }) },

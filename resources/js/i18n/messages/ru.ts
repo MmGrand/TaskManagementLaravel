@@ -30,6 +30,7 @@ const ru = {
         description: 'Описание',
         email: 'Email',
         phone: 'Телефон',
+        phonePlaceholder: '+7 999 123 45 67',
         creator: 'Создатель',
         createdAt: 'Создан',
         noDescription: 'Описание не заполнено.',
@@ -234,7 +235,14 @@ const ru = {
         retryIn: 'Слишком много попыток. Повторите через {n} с.',
     },
 
+    /** Клиентские сообщения, зеркалящие правила FormRequest — см. utils/validation.ts. */
     validation: {
+        required: 'Заполните это поле.',
+        email: 'Введите адрес целиком: имя, знак собаки и домен с точкой.',
+        phone: 'Введите номер в международном формате: от {min} до {max} цифр.',
+        maxLength: 'Не длиннее {max} символов.',
+        minLength: 'Не короче {min} символов.',
+        passwordMismatch: 'Пароли не совпадают.',
         avatarImage: 'Аватар должен быть изображением.',
         avatarSize: 'Размер аватара не должен превышать 2 МБ.',
     },

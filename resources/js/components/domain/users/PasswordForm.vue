@@ -5,7 +5,9 @@ import AppAlert from '@/components/ui/AppAlert.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import AppField from '@/components/ui/AppField.vue';
 import AppInput from '@/components/ui/AppInput.vue';
+import { useFormValidation } from '@/composables/useFormValidation';
 import type { ApiError } from '@/types/api';
+import { minLength, PASSWORD_MIN_LENGTH, required, sameAs } from '@/utils/validation';
 import type { PasswordPayload } from '@/utils/userPayload';
 
 const props = defineProps<{ pending?: boolean; error?: ApiError | null }>();
@@ -19,11 +21,21 @@ const form = reactive<PasswordPayload>({
     password_confirmation: '',
 });
 
+const validation = useFormValidation(form, {
+    current_password: [required()],
+    password: [required(), minLength(PASSWORD_MIN_LENGTH)],
+    password_confirmation: [required(), sameAs(() => form.password, 'validation.passwordMismatch')],
+});
+
 function fieldError(field: string): string | null {
-    return props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
 }
 
 function onSubmit(): void {
+    if (!validation.validate()) {
+        return;
+    }
+
     emit('submit', { ...form });
 }
 </script>
@@ -39,6 +51,7 @@ function onSubmit(): void {
                 type="password"
                 autocomplete="current-password"
                 required
+                @blur="validation.touch('current_password')"
             />
         </AppField>
 
@@ -56,16 +69,23 @@ function onSubmit(): void {
                     type="password"
                     autocomplete="new-password"
                     required
+                    @blur="validation.touch('password')"
                 />
             </AppField>
 
-            <AppField v-slot="field" :label="t('auth.passwordConfirmation')" required>
+            <AppField
+                v-slot="field"
+                :label="t('auth.passwordConfirmation')"
+                :error="fieldError('password_confirmation')"
+                required
+            >
                 <AppInput
                     v-bind="field"
                     v-model="form.password_confirmation"
                     type="password"
                     autocomplete="new-password"
                     required
+                    @blur="validation.touch('password_confirmation')"
                 />
             </AppField>
         </div>
