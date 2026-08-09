@@ -39,13 +39,20 @@ test('a plain user cannot change their own status', function () {
     $response->assertUnprocessable()->assertJsonValidationErrors(['status']);
 });
 
-test('a manager can list users', function () {
+test('an admin can list users', function () {
+    $admin = User::factory()->admin()->create();
+    User::factory()->user()->create();
+
+    $response = $this->actingAs($admin)->getJson('/api/users');
+
+    $response->assertOk()->assertJsonStructure(['data']);
+});
+
+test('a manager cannot list users', function () {
     $manager = User::factory()->manager()->create();
     User::factory()->user()->create();
 
-    $response = $this->actingAs($manager)->getJson('/api/users');
-
-    $response->assertOk()->assertJsonStructure(['data']);
+    $this->actingAs($manager)->getJson('/api/users')->assertForbidden();
 });
 
 test('a plain user cannot list users', function () {
@@ -54,6 +61,55 @@ test('a plain user cannot list users', function () {
     $response = $this->actingAs($user)->getJson('/api/users');
 
     $response->assertForbidden();
+});
+
+test('a manager cannot read someone else\'s profile', function () {
+    $manager = User::factory()->manager()->create();
+    $other = User::factory()->user()->create();
+
+    $this->actingAs($manager)->getJson("/api/users/{$other->id}")->assertForbidden();
+});
+
+test('a manager can read their own profile', function () {
+    $manager = User::factory()->manager()->create();
+
+    $this->actingAs($manager)->getJson("/api/users/{$manager->id}")
+        ->assertOk()
+        ->assertJsonPath('data.id', $manager->id);
+});
+
+test('a manager can list assignable users without their contacts', function () {
+    $manager = User::factory()->manager()->create();
+    $assignee = User::factory()->user()->create();
+
+    $response = $this->actingAs($manager)->getJson('/api/users/assignable');
+
+    $response->assertOk()
+        ->assertJsonPath('data.0.id', $manager->id)
+        ->assertJsonFragment(['id' => $assignee->id])
+        ->assertJsonMissing(['email' => $assignee->email])
+        ->assertJsonMissingPath('data.0.phone')
+        ->assertJsonMissingPath('data.0.status')
+        ->assertJsonMissingPath('data.0.role_id');
+});
+
+test('assignable users exclude everyone who cannot sign in', function () {
+    $admin = User::factory()->admin()->create();
+    $blocked = User::factory()->user()->create(['status' => UserStatus::Blocked]);
+    $inactive = User::factory()->user()->create(['status' => UserStatus::Inactive]);
+
+    $response = $this->actingAs($admin)->getJson('/api/users/assignable');
+
+    $response->assertOk()
+        ->assertJsonFragment(['id' => $admin->id])
+        ->assertJsonMissing(['id' => $blocked->id])
+        ->assertJsonMissing(['id' => $inactive->id]);
+});
+
+test('a plain user cannot list assignable users', function () {
+    $user = User::factory()->user()->create();
+
+    $this->actingAs($user)->getJson('/api/users/assignable')->assertForbidden();
 });
 
 test('a user can update their own profile', function () {

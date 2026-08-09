@@ -19,8 +19,7 @@ export const MANAGER_PERMISSIONS: Permission[] = [
     'tasks.create',
     'tasks.update',
     'tasks.delete',
-    'users.viewAny',
-    'users.view',
+    'users.viewAssignable',
     'statistics.view',
 ];
 
