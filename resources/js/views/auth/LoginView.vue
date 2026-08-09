@@ -7,8 +7,10 @@ import AppButton from '@/components/ui/AppButton.vue';
 import AppField from '@/components/ui/AppField.vue';
 import AppInput from '@/components/ui/AppInput.vue';
 import { useApiForm } from '@/composables/useApiForm';
+import { useFormValidation } from '@/composables/useFormValidation';
 import { useRetryAfter } from '@/composables/useRetryAfter';
 import { useAuthStore } from '@/stores/auth';
+import { email, required } from '@/utils/validation';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -19,7 +21,20 @@ const { t } = useI18n();
 
 const credentials = reactive({ email: '', password: '' });
 
+const validation = useFormValidation(credentials, {
+    email: [required(), email()],
+    password: [required()],
+});
+
+function fieldError(field: string): string | null {
+    return validation.fieldError(field) ?? form.fieldError(field);
+}
+
 async function onSubmit(): Promise<void> {
+    if (!validation.validate()) {
+        return;
+    }
+
     const result = await form.submit(async () => {
         await auth.login({ email: credentials.email.trim(), password: credentials.password });
 
@@ -47,23 +62,25 @@ async function onSubmit(): Promise<void> {
                 <AppAlert v-if="throttle.isWaiting.value" variant="warning">{{ throttle.message.value }}</AppAlert>
                 <AppAlert v-else-if="form.generalMessage()">{{ form.generalMessage() }}</AppAlert>
 
-                <AppField v-slot="field" :label="t('common.email')" :error="form.fieldError('email')" required>
+                <AppField v-slot="field" :label="t('common.email')" :error="fieldError('email')" required>
                     <AppInput
                         v-bind="field"
                         v-model="credentials.email"
                         type="email"
                         autocomplete="email"
                         required
+                        @blur="validation.touch('email')"
                     />
                 </AppField>
 
-                <AppField v-slot="field" :label="t('auth.password')" :error="form.fieldError('password')" required>
+                <AppField v-slot="field" :label="t('auth.password')" :error="fieldError('password')" required>
                     <AppInput
                         v-bind="field"
                         v-model="credentials.password"
                         type="password"
                         autocomplete="current-password"
                         required
+                        @blur="validation.touch('password')"
                     />
                 </AppField>
 

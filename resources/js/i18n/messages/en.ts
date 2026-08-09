@@ -23,6 +23,7 @@ const en: MessageSchema = {
         description: 'Description',
         email: 'Email',
         phone: 'Phone',
+        phonePlaceholder: '+1 234 567 8900',
         creator: 'Created by',
         createdAt: 'Created',
         noDescription: 'No description provided.',
@@ -226,6 +227,12 @@ const en: MessageSchema = {
     },
 
     validation: {
+        required: 'This field is required.',
+        email: 'Enter the whole address: a name, an at sign and a domain with a dot.',
+        phone: 'Enter the number in international format: {min} to {max} digits.',
+        maxLength: 'Must not exceed {max} characters.',
+        minLength: 'Must be at least {min} characters.',
+        passwordMismatch: 'The passwords do not match.',
         avatarImage: 'The avatar must be an image.',
         avatarSize: 'The avatar must not exceed 2 MB.',
     },

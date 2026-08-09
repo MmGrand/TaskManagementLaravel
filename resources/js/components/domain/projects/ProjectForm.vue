@@ -8,6 +8,8 @@ import AppInput from '@/components/ui/AppInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AppTextarea from '@/components/ui/AppTextarea.vue';
 import { useEnumLabel } from '@/composables/useEnumLabel';
+import { useFormValidation } from '@/composables/useFormValidation';
+import { maxLength, required } from '@/utils/validation';
 import { PROJECT_STATUSES } from '@/types/enums';
 import type { ProjectStatus } from '@/types/enums';
 import type { ApiError } from '@/types/api';
@@ -29,21 +31,28 @@ const statusOptions = enumOptions('projectStatus', PROJECT_STATUSES);
 
 const form = reactive({ name: '', description: '', status: 'active' as ProjectStatus });
 
+const validation = useFormValidation(form, { name: [required(), maxLength(255)] });
+
 watch(
     () => props.project,
     (project) => {
         form.name = project?.name ?? '';
         form.description = project?.description ?? '';
         form.status = project?.status ?? 'active';
+        validation.reset();
     },
     { immediate: true },
 );
 
 function fieldError(field: string): string | null {
-    return props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
 }
 
 function onSubmit(): void {
+    if (!validation.validate()) {
+        return;
+    }
+
     emit('submit', {
         name: form.name.trim(),
         // Колонка nullable; пустое textarea означает "без описания".
@@ -58,7 +67,7 @@ function onSubmit(): void {
         <AppAlert v-if="error && !error.isValidation">{{ error.message }}</AppAlert>
 
         <AppField v-slot="field" :label="t('common.name')" :error="fieldError('name')" required>
-            <AppInput v-bind="field" v-model="form.name" required />
+            <AppInput v-bind="field" v-model="form.name" required @blur="validation.touch('name')" />
         </AppField>
 
         <AppField v-slot="field" :label="t('common.description')" :error="fieldError('description')">

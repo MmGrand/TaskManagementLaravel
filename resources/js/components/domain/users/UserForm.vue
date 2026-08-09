@@ -6,13 +6,17 @@ import AppAlert from '@/components/ui/AppAlert.vue';
 import AppButton from '@/components/ui/AppButton.vue';
 import AppField from '@/components/ui/AppField.vue';
 import AppInput from '@/components/ui/AppInput.vue';
+import AppPhoneInput from '@/components/ui/AppPhoneInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AvatarUploader from '@/components/domain/users/AvatarUploader.vue';
 import { useEnumLabel } from '@/composables/useEnumLabel';
+import { useFormValidation } from '@/composables/useFormValidation';
 import { usePermissions } from '@/composables/usePermissions';
 import { USER_STATUSES } from '@/types/enums';
 import type { ApiError } from '@/types/api';
 import type { Role, User } from '@/types/models';
+import { maskPhone } from '@/utils/phone';
+import { email, maxLength, phone, required } from '@/utils/validation';
 import { buildUserPayload, type UserFormValues, type UserPayload } from '@/utils/userPayload';
 
 const props = defineProps<{ user: User; pending?: boolean; error?: ApiError | null }>();
@@ -48,16 +52,24 @@ const form = reactive<UserFormValues>({
 
 const changesEmail = computed(() => form.email.trim() !== props.user.email);
 
+const validation = useFormValidation(form, {
+    first_name: [required(), maxLength(255)],
+    last_name: [required(), maxLength(255)],
+    email: [required(), email(), maxLength(255)],
+    phone: [required(), phone()],
+});
+
 watch(
     () => props.user,
     (user) => {
         form.first_name = user.first_name;
         form.last_name = user.last_name;
         form.email = user.email;
-        form.phone = user.phone;
+        form.phone = maskPhone(user.phone);
         form.status = user.status;
         form.role_id = user.role_id === null ? '' : String(user.role_id);
         form.current_password = '';
+        validation.reset();
     },
     { immediate: true },
 );
@@ -76,10 +88,14 @@ onMounted(async () => {
 });
 
 function fieldError(field: string): string | null {
-    return props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
 }
 
 function onSubmit(): void {
+    if (!validation.validate()) {
+        return;
+    }
+
     emit('submit', buildUserPayload(form, canManageUsers.value), avatar.value);
 }
 </script>
@@ -93,19 +109,38 @@ function onSubmit(): void {
 
         <div class="grid gap-4 sm:grid-cols-2">
             <AppField v-slot="field" :label="t('auth.firstName')" :error="fieldError('first_name')" required>
-                <AppInput v-bind="field" v-model="form.first_name" autocomplete="given-name" required />
+                <AppInput
+                    v-bind="field"
+                    v-model="form.first_name"
+                    autocomplete="given-name"
+                    required
+                    @blur="validation.touch('first_name')"
+                />
             </AppField>
 
             <AppField v-slot="field" :label="t('auth.lastName')" :error="fieldError('last_name')" required>
-                <AppInput v-bind="field" v-model="form.last_name" autocomplete="family-name" required />
+                <AppInput
+                    v-bind="field"
+                    v-model="form.last_name"
+                    autocomplete="family-name"
+                    required
+                    @blur="validation.touch('last_name')"
+                />
             </AppField>
 
             <AppField v-slot="field" :label="t('common.email')" :error="fieldError('email')" required>
-                <AppInput v-bind="field" v-model="form.email" type="email" autocomplete="email" required />
+                <AppInput
+                    v-bind="field"
+                    v-model="form.email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    @blur="validation.touch('email')"
+                />
             </AppField>
 
             <AppField v-slot="field" :label="t('common.phone')" :error="fieldError('phone')" required>
-                <AppInput v-bind="field" v-model="form.phone" type="tel" autocomplete="tel" required />
+                <AppPhoneInput v-bind="field" v-model="form.phone" required @blur="validation.touch('phone')" />
             </AppField>
 
             <template v-if="canManageUsers">

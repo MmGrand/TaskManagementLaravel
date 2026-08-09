@@ -11,11 +11,13 @@ import AppInput from '@/components/ui/AppInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import AppTextarea from '@/components/ui/AppTextarea.vue';
 import { useEnumLabel } from '@/composables/useEnumLabel';
+import { useFormValidation } from '@/composables/useFormValidation';
 import { useOptionsList } from '@/composables/useOptionsList';
 import { TASK_PRIORITIES, TASK_STATUSES } from '@/types/enums';
 import type { ApiError } from '@/types/api';
 import type { Task } from '@/types/models';
 import { fullName } from '@/utils/format';
+import { maxLength, required } from '@/utils/validation';
 import { buildManageableTaskPayload, type ManageableTaskPayload, type TaskFormValues } from '@/utils/taskPayload';
 
 const props = defineProps<{ task?: Task | null; pending?: boolean; error?: ApiError | null }>();
@@ -47,6 +49,12 @@ const form = reactive<TaskFormValues>({
     due_date: '',
 });
 
+const validation = useFormValidation(form, {
+    title: [required(), maxLength(255)],
+    project_id: [required()],
+    assigned_to: [required()],
+});
+
 watch(
     () => props.task,
     (task) => {
@@ -57,6 +65,7 @@ watch(
         form.project_id = task ? String(task.project_id) : '';
         form.assigned_to = task ? String(task.assigned_to) : '';
         form.due_date = task?.due_date ?? '';
+        validation.reset();
     },
     { immediate: true },
 );
@@ -67,14 +76,14 @@ onMounted(() => {
 });
 
 function fieldError(field: string): string | null {
-    return props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
 }
 
-/**
- * Всегда передаёт все поля. PUT — это полная замена, и каждое поле здесь
- * `required`, поэтому отправка только изменённого будет отклонена.
- */
 function onSubmit(): void {
+    if (!validation.validate()) {
+        return;
+    }
+
     emit('submit', buildManageableTaskPayload(form));
 }
 </script>
@@ -84,7 +93,7 @@ function onSubmit(): void {
         <AppAlert v-if="error && !error.isValidation">{{ error.message }}</AppAlert>
 
         <AppField v-slot="field" :label="t('common.name')" :error="fieldError('title')" required>
-            <AppInput v-bind="field" v-model="form.title" required />
+            <AppInput v-bind="field" v-model="form.title" required @blur="validation.touch('title')" />
         </AppField>
 
         <AppField v-slot="field" :label="t('common.description')" :error="fieldError('description')">
@@ -113,6 +122,7 @@ function onSubmit(): void {
                     :options="projects.options.value"
                     :disabled="projects.loading.value"
                     :placeholder="t('tasks.projectPlaceholder')"
+                    @blur="validation.touch('project_id')"
                 />
             </AppField>
 
@@ -129,6 +139,7 @@ function onSubmit(): void {
                     :options="assignees.options.value"
                     :disabled="assignees.loading.value"
                     :placeholder="t('tasks.assigneePlaceholder')"
+                    @blur="validation.touch('assigned_to')"
                 />
             </AppField>
         </div>
