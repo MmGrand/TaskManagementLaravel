@@ -1,5 +1,6 @@
 import { i18n } from '@/i18n';
 import type { UserStatus } from '@/types/enums';
+import { normalizePhone } from '@/utils/phone';
 
 export interface UserFormValues {
     first_name: string;
@@ -11,7 +12,6 @@ export interface UserFormValues {
     current_password: string;
 }
 
-/** Присутствуют всегда; `status` и `role_id` — только если вызывающему разрешено их менять. */
 export interface UserPayload {
     first_name: string;
     last_name: string;
@@ -28,22 +28,12 @@ export interface PasswordPayload {
     password: string;
     password_confirmation: string;
 }
-
-/**
- * Собирает тело для PUT|POST /api/users/{user}.
- *
- * `status` и `role_id` объявлены `prohibited` для всех без `users.update`, а
- * Laravel отклоняет запрещённое поле при любом наличии ключа — отправки
- * `undefined` или `''` недостаточно, поэтому ключи полностью опускаются.
- *
- * @see app/Http/Requests/User/UpdateRequest.php
- */
 export function buildUserPayload(values: UserFormValues, canManageUsers: boolean): UserPayload {
     const payload: UserPayload = {
         first_name: values.first_name.trim(),
         last_name: values.last_name.trim(),
         email: values.email.trim(),
-        phone: values.phone.trim(),
+        phone: normalizePhone(values.phone),
     };
 
     if (canManageUsers) {
@@ -54,7 +44,6 @@ export function buildUserPayload(values: UserFormValues, canManageUsers: boolean
         }
     }
 
-    // Сервер требует его только при смене email, поэтому пустое поле не отправляется.
     if (values.current_password !== '') {
         payload.current_password = values.current_password;
     }
@@ -62,10 +51,6 @@ export function buildUserPayload(values: UserFormValues, canManageUsers: boolean
     return payload;
 }
 
-/**
- * PHP не разбирает multipart-тело в PUT, поэтому маршрут также принимает
- * POST. Всё приводится к строке, так как FormData не хранит типы.
- */
 export function toFormData(payload: UserPayload, avatar: File): FormData {
     const data = new FormData();
 
@@ -81,8 +66,6 @@ export function toFormData(payload: UserPayload, avatar: File): FormData {
 }
 
 export const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
-
-/** Отражает `nullable|image|max:2048`, чтобы пользователь узнал об этом до загрузки. */
 export function validateAvatar(file: File): string | null {
     if (!file.type.startsWith('image/')) {
         return i18n.global.t('validation.avatarImage');

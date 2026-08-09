@@ -13,7 +13,7 @@ import { useListQuery } from '@/composables/useListQuery';
 import { usePermissions } from '@/composables/usePermissions';
 import type { ApiError, PageMeta } from '@/types/api';
 import type { User } from '@/types/models';
-import { fullName, initials } from '@/utils/format';
+import { formatPhone, fullName, initials } from '@/utils/format';
 
 const permissions = usePermissions();
 const { t } = useI18n();
@@ -85,7 +85,7 @@ const query = useListQuery<Record<string, string>>({}, load);
                             </div>
                         </td>
                         <td class="px-4 py-3 text-fg-muted">{{ user.email }}</td>
-                        <td class="px-4 py-3 text-fg-muted">{{ user.phone }}</td>
+                        <td class="px-4 py-3 text-fg-muted">{{ formatPhone(user.phone) }}</td>
                         <td class="px-4 py-3">
                             <AppBadge v-if="user.role" tone="indigo">
                                 {{ enumLabel('role', user.role.slug) }}

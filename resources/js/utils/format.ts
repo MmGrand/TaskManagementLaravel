@@ -1,14 +1,7 @@
 import { intlLocale } from '@/i18n/locale-state';
 import type { User } from '@/types/models';
+import { maskPhone } from '@/utils/phone';
 
-/**
- * `2026-07-15` / ISO timestamp -> `15.07.2026` (ru) или `15/07/2026` (en).
- * Некорректный ввод возвращается как есть.
- *
- * Чтение реактивного `intlLocale` регистрирует зависимость на любой глубине
- * вызова, поэтому шаблоны и computed'ы, вызывающие эту функцию,
- * перерисовываются при смене языка сами — сигнатуру менять не пришлось.
- */
 export function formatDate(value: string | null | undefined): string {
     if (!value) {
         return '—';
@@ -25,7 +18,6 @@ export function formatDate(value: string | null | undefined): string {
     );
 }
 
-/** ISO timestamp -> `15.07.2026, 10:30`. */
 export function formatDateTime(value: string | null | undefined): string {
     if (!value) {
         return '—';
@@ -44,6 +36,14 @@ export function formatDateTime(value: string | null | undefined): string {
         hour: '2-digit',
         minute: '2-digit',
     }).format(date);
+}
+
+export function formatPhone(value: string | null | undefined): string {
+    if (!value) {
+        return '—';
+    }
+
+    return maskPhone(value) || value;
 }
 
 export function fullName(user: Pick<User, 'first_name' | 'last_name'> | null | undefined): string {
