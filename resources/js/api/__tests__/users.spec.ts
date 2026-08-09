@@ -33,4 +33,15 @@ describe('users api', () => {
         expect(page.items).toHaveLength(1);
         expect(page.meta).toBe(meta);
     });
+
+    it('reads assignees from their own endpoint', async () => {
+        const meta = makeMeta({ total: 1, last_page: 1 });
+        mockedHttp.get.mockResolvedValue({ data: { data: [makeUser()], links: {}, meta } });
+
+        const page = await usersApi.listAssignable(2);
+
+        expect(mockedHttp.get).toHaveBeenCalledWith('/users/assignable', { params: { page: 2 } });
+        expect(page.items).toHaveLength(1);
+        expect(page.meta).toBe(meta);
+    });
 });

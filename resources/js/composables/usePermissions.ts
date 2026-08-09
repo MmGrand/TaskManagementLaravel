@@ -65,6 +65,11 @@ export function usePermissions() {
         return isAdmin.value || (can('tasks.delete') && isMe(task.created_by));
     }
 
+    /** UserPolicy::viewAssignable — полный справочник тоже даёт список исполнителей. */
+    const canViewAssignableUsers = computed(
+        () => isAdmin.value || can('users.viewAssignable') || can('users.viewAny'),
+    );
+
     /** UserPolicy::view — себе самому доступ разрешён всегда. */
     function canViewUser(user: User): boolean {
         return isAdmin.value || isMe(user.id) || can('users.view');
@@ -83,6 +88,7 @@ export function usePermissions() {
         isAdmin,
         isManager,
         canManageUsers,
+        canViewAssignableUsers,
         can,
         isMe,
         canUpdateProject,

@@ -77,7 +77,7 @@ const viewOptions = computed(() => [
     { value: 'board', label: t('tasks.board.viewBoard') },
 ]);
 
-const canGroupByAssignee = computed(() => permissions.can('users.viewAny'));
+const canGroupByAssignee = permissions.canViewAssignableUsers;
 
 const groupByOptions = computed(() => [
     { value: 'status', label: t('tasks.board.groupByStatus') },
@@ -93,7 +93,7 @@ const projectOptions = useOptionsList(
 );
 
 const assigneeOptions = useOptionsList(
-    (page) => usersApi.list(page),
+    (page) => usersApi.listAssignable(page),
     (user) => ({ value: String(user.id), label: fullName(user) }),
 );
 

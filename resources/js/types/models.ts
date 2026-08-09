@@ -37,6 +37,13 @@ export interface User {
     updated_at: string;
 }
 
+export interface AssignableUser {
+    id: number;
+    first_name: string;
+    last_name: string;
+    avatar: string | null;
+}
+
 export interface Project {
     id: number;
     name: string;
