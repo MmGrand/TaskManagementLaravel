@@ -25,6 +25,21 @@ test('an admin can block a user', function () {
     expect($user->fresh()->status)->toBe(UserStatus::Blocked);
 });
 
+test('updating a profile rejects a phone that is not in international format', function () {
+    $user = User::factory()->user()->create();
+
+    $response = $this->actingAs($user)->putJson("/api/users/{$user->id}", [
+        'first_name' => $user->first_name,
+        'last_name' => $user->last_name,
+        'email' => $user->email,
+        'phone' => '8 (999) 123-45-67',
+    ]);
+
+    $response->assertUnprocessable()->assertJsonValidationErrors(['phone']);
+
+    expect($user->fresh()->phone)->toBe($user->phone);
+});
+
 test('a plain user cannot change their own status', function () {
     $user = User::factory()->user()->create();
 
