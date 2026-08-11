@@ -6,19 +6,22 @@ use App\Filters\ProjectFilter;
 use App\Jobs\Notifications\ProjectStatusChanged;
 use App\Models\Project;
 use App\Models\User;
-use App\Repositories\Contracts\ProjectRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProjectService
 {
-    public function __construct(
-        private readonly ProjectRepository $projects,
-        private readonly StatisticsCache $statistics,
-    ) {}
+    public function __construct(private readonly StatisticsCache $statistics) {}
 
     public function list(ProjectFilter $filter, User $viewer, ?int $perPage = null): LengthAwarePaginator
     {
-        return $this->projects->paginate($filter, $viewer, $perPage ?? 15);
+        return Project::query()
+            ->with('creator')
+            ->visibleTo($viewer)
+            ->filter($filter)
+            ->latest()
+            ->orderByDesc('id')
+            ->paginate($perPage ?? 15)
+            ->withQueryString();
     }
 
     /**
@@ -26,7 +29,7 @@ class ProjectService
      */
     public function create(User $creator, array $attributes): Project
     {
-        $project = $this->projects->create([...$attributes, 'created_by' => $creator->id]);
+        $project = Project::create([...$attributes, 'created_by' => $creator->id]);
 
         $this->statistics->flush();
 
@@ -40,7 +43,7 @@ class ProjectService
     {
         $originalStatus = $project->status;
 
-        $project = $this->projects->update($project, $attributes);
+        $project->update($attributes);
 
         if ($project->wasChanged('status')) {
             ProjectStatusChanged::dispatch($project, $originalStatus);
@@ -51,7 +54,7 @@ class ProjectService
 
     public function delete(Project $project): void
     {
-        $this->projects->delete($project);
+        $project->delete();
 
         $this->statistics->flush();
     }
