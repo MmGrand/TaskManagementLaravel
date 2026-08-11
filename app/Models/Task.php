@@ -63,6 +63,14 @@ class Task extends Model
         });
     }
 
+    #[Scope]
+    protected function overdue(Builder $query): Builder
+    {
+        return $query
+            ->whereDate('due_date', '<', today())
+            ->whereNot('status', TaskStatus::Completed);
+    }
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

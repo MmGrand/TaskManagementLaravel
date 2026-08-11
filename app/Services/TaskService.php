@@ -7,7 +7,6 @@ use App\Jobs\Notifications\TaskAssigned;
 use App\Jobs\Notifications\TaskStatusChanged;
 use App\Models\Task;
 use App\Models\User;
-use App\Repositories\Contracts\TaskRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -15,14 +14,18 @@ use Illuminate\Validation\ValidationException;
 class TaskService
 {
     public function __construct(
-        private readonly TaskRepository $tasks,
         private readonly TaskPositionService $positions,
         private readonly StatisticsCache $statistics,
     ) {}
 
     public function list(TaskFilter $filter, User $viewer, ?int $perPage = null): LengthAwarePaginator
     {
-        return $this->tasks->paginate($filter, $viewer, $perPage ?? 15);
+        return Task::query()
+            ->with(['project', 'assignedUser', 'createdBy'])
+            ->visibleTo($viewer)
+            ->filter($filter)
+            ->paginate($perPage ?? 15)
+            ->withQueryString();
     }
 
     /**
@@ -30,7 +33,7 @@ class TaskService
      */
     public function create(User $creator, array $attributes): Task
     {
-        $task = $this->tasks->create([
+        $task = Task::create([
             ...$attributes,
             'created_by' => $creator->id,
             'position' => $this->positions->next(),
@@ -50,7 +53,7 @@ class TaskService
     {
         $originalStatus = $task->status;
 
-        $task = $this->tasks->update($task, $attributes);
+        $task->update($attributes);
 
         if ($task->wasChanged('assigned_to')) {
             TaskAssigned::dispatch($task);
@@ -92,7 +95,7 @@ class TaskService
 
     public function delete(Task $task): void
     {
-        $this->tasks->delete($task);
+        $task->delete();
 
         $this->statistics->flush();
     }
@@ -103,7 +106,7 @@ class TaskService
             return null;
         }
 
-        return $this->tasks->findVisibleTo($actor, $id, lockForUpdate: true)
+        return Task::query()->visibleTo($actor)->lockForUpdate()->find($id)
             ?? throw ValidationException::withMessages([
                 $field => 'Соседняя задача недоступна.',
             ]);
