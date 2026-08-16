@@ -6,12 +6,6 @@ use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Translation\PotentiallyTranslatedString;
 
-/**
- * Телефон в формате E.164: код страны не начинается с нуля, всего 8–15 цифр.
- * Клиент приводит номер к этому виду сам.
- *
- * @see resources/js/utils/phone.ts
- */
 class PhoneNumber implements ValidationRule
 {
     private const PATTERN = '/^\+[1-9]\d{7,14}$/';
