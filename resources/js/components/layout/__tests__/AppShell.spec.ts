@@ -42,6 +42,12 @@ beforeEach(() => {
 });
 
 describe('AppShell', () => {
+    it('shows the app name as a link back to the dashboard', () => {
+        const wrapper = mountShell();
+
+        expect(wrapper.text()).toContain('Task Management');
+    });
+
     it('keeps the mobile menu closed until the burger is used', () => {
         const wrapper = mountShell();
 

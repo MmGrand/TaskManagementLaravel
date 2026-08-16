@@ -100,6 +100,7 @@ const en: MessageSchema = {
         myTasks: 'My tasks',
         allMyTasks: 'All my tasks',
         noTasksAssigned: 'Nothing has been assigned to you yet',
+        statsStale: 'Numbers refresh about once a minute and may lag slightly behind the latest changes.',
     },
 
     tasks: {

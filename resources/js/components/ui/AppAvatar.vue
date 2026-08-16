@@ -3,8 +3,10 @@ import { computed } from 'vue';
 import type { User } from '@/types/models';
 import { fullName, initials } from '@/utils/format';
 
+type AvatarUser = Pick<User, 'first_name' | 'last_name' | 'avatar'>;
+
 const props = withDefaults(
-    defineProps<{ user?: User | null; size?: 'sm' | 'md' }>(),
+    defineProps<{ user?: AvatarUser | null; size?: 'sm' | 'md' }>(),
     { user: null, size: 'sm' },
 );
 

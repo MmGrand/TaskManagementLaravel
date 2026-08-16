@@ -78,4 +78,18 @@ describe('useOptionsList', () => {
         expect(list.failed.value).toBe(true);
         expect(list.options.value).toEqual([]);
     });
+
+    it('keeps the underlying error so callers can tell a 403 apart from a real failure', async () => {
+        const list = useOptionsList(
+            vi
+                .fn<(page: number) => Promise<Page<Item>>>()
+                .mockRejectedValue({ status: 500, message: 'Внутренняя ошибка сервера.', isForbidden: false }),
+            toOption,
+        );
+
+        await list.load();
+
+        expect(list.failed.value).toBe(true);
+        expect(list.error.value).toMatchObject({ isForbidden: false, message: 'Внутренняя ошибка сервера.' });
+    });
 });

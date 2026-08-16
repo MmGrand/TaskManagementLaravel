@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { FIELD_BASE_CLASS, FIELD_RING_INVALID, FIELD_RING_VALID } from '@/components/ui/fieldStyle';
+
 withDefaults(
     defineProps<{
         id?: string;
@@ -25,7 +27,6 @@ const model = defineModel<string>({ required: true });
         :required="required"
         :aria-invalid="invalid || undefined"
         :aria-describedby="describedBy"
-        class="block w-full rounded-md border-0 bg-surface px-3 py-2 text-sm text-fg shadow-sm ring-1 ring-inset placeholder:text-fg-faint focus:ring-2 focus:ring-inset"
-        :class="invalid ? 'ring-danger' : 'ring-border-strong focus:ring-accent'"
+        :class="[FIELD_BASE_CLASS, invalid ? FIELD_RING_INVALID : FIELD_RING_VALID]"
     />
 </template>

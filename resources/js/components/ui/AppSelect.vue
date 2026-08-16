@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, useId, watch } from 'vue';
+import { FIELD_RING_INVALID, FIELD_RING_VALID } from '@/components/ui/fieldStyle';
 
 export interface SelectOption {
     value: string;
@@ -238,7 +239,7 @@ function optionClass(index: number): string {
             :disabled="disabled"
             class="flex w-full items-center justify-between gap-2 rounded-md bg-surface px-3 py-2 text-left text-sm shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset focus:outline-none disabled:cursor-not-allowed disabled:bg-surface-muted disabled:text-fg-subtle"
             :class="[
-                invalid ? 'ring-danger' : 'ring-border-strong focus:ring-accent',
+                invalid ? FIELD_RING_INVALID : FIELD_RING_VALID,
                 model === '' ? 'text-fg-faint' : 'text-fg',
             ]"
             v-bind="$attrs"

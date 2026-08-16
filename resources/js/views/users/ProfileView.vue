@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import * as usersApi from '@/api/users';
-import AppAlert from '@/components/ui/AppAlert.vue';
+import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import PasswordForm from '@/components/domain/users/PasswordForm.vue';
 import UserForm from '@/components/domain/users/UserForm.vue';
@@ -125,7 +125,7 @@ async function onChangePassword(payload: PasswordPayload): Promise<void> {
         <h1 class="text-xl font-semibold text-fg">{{ isSelf ? t('profile.mine') : t('profile.other') }}</h1>
 
         <AppSpinner v-if="loading" />
-        <AppAlert v-else-if="loadError">{{ loadError.message }}</AppAlert>
+        <AppErrorState v-else-if="loadError" :error="loadError" @retry="load" />
 
         <template v-else-if="user">
             <UserForm

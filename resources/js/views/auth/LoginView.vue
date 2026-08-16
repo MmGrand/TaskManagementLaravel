@@ -30,6 +30,11 @@ function fieldError(field: string): string | null {
     return validation.fieldError(field) ?? form.fieldError(field);
 }
 
+/** `redirect` приходит из query — внешней ссылкой без проверки его нельзя пускать в router. */
+function isSafeRedirect(value: unknown): value is string {
+    return typeof value === 'string' && value.startsWith('/') && !value.startsWith('//');
+}
+
 async function onSubmit(): Promise<void> {
     if (!validation.validate()) {
         return;
@@ -44,7 +49,7 @@ async function onSubmit(): Promise<void> {
     if (result === true) {
         const redirect = route.query.redirect;
 
-        await router.replace(typeof redirect === 'string' ? redirect : { name: 'dashboard' });
+        await router.replace(isSafeRedirect(redirect) ? redirect : { name: 'dashboard' });
     }
 }
 </script>

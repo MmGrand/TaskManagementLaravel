@@ -3,7 +3,7 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import * as projectsApi from '@/api/projects';
-import AppAlert from '@/components/ui/AppAlert.vue';
+import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import ProjectStatusBadge from '@/components/domain/projects/ProjectStatusBadge.vue';
 import type { ApiError } from '@/types/api';
@@ -40,7 +40,7 @@ onMounted(load);
 <template>
     <section class="flex flex-col gap-4">
         <AppSpinner v-if="loading" />
-        <AppAlert v-else-if="error">{{ error.message }}</AppAlert>
+        <AppErrorState v-else-if="error" :error="error" @retry="load" />
 
         <template v-else-if="project">
             <header class="flex flex-wrap items-center justify-between gap-3">

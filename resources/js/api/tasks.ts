@@ -2,6 +2,7 @@ import { http } from '@/api/http';
 import type { Envelope, Page, PaginatedEnvelope } from '@/types/api';
 import type { Task } from '@/types/models';
 import type { TaskPriority, TaskStatus } from '@/types/enums';
+import { buildListQuery } from '@/utils/listQuery';
 import type { AssigneeTaskPayload, ManageableTaskPayload } from '@/utils/taskPayload';
 
 export type TaskSortField = 'created_at' | 'due_date' | 'position';
@@ -45,26 +46,8 @@ const FILTER_KEYS = [
     'per_page',
 ] as const;
 
-/**
- * Пустые значения опускаются, а не отправляются как `''`: `project_id=''`
- * споткнётся о правило `integer|exists` и превратит очищенный фильтр в 422.
- */
 function toQuery(filters: TaskFilters): Record<string, string | number> {
-    const params: Record<string, string | number> = {};
-
-    for (const key of FILTER_KEYS) {
-        const value = filters[key];
-
-        if (value !== undefined && value !== '') {
-            params[key] = value;
-        }
-    }
-
-    if (filters.page && filters.page > 1) {
-        params.page = filters.page;
-    }
-
-    return params;
+    return buildListQuery(filters, FILTER_KEYS);
 }
 
 export async function list(filters: TaskFilters = {}): Promise<Page<Task>> {

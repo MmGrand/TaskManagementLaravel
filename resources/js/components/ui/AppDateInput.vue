@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { FIELD_RING_INVALID, FIELD_RING_VALID_WITHIN } from '@/components/ui/fieldStyle';
 import { caretAfterDigits, countDigits } from '@/utils/caret';
 import {
     dateFieldFormat,
@@ -170,7 +171,7 @@ function dayClass(date: Date): string {
     <div ref="root" class="relative" @keydown="onKeydown">
         <div
             class="flex items-center rounded-md bg-surface shadow-sm ring-1 ring-inset focus-within:ring-2"
-            :class="invalid ? 'ring-danger' : 'ring-border-strong focus-within:ring-accent'"
+            :class="invalid ? FIELD_RING_INVALID : FIELD_RING_VALID_WITHIN"
         >
             <input
                 :id="id"

@@ -3,9 +3,9 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import * as tasksApi from '@/api/tasks';
-import AppAlert from '@/components/ui/AppAlert.vue';
 import AppBadge from '@/components/ui/AppBadge.vue';
 import AppButton from '@/components/ui/AppButton.vue';
+import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppModal from '@/components/ui/AppModal.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import TaskForm from '@/components/domain/tasks/TaskForm.vue';
@@ -74,7 +74,7 @@ async function onSubmit(payload: ManageableTaskPayload | AssigneeTaskPayload): P
 <template>
     <section class="flex flex-col gap-4">
         <AppSpinner v-if="loading" />
-        <AppAlert v-else-if="loadError">{{ loadError.message }}</AppAlert>
+        <AppErrorState v-else-if="loadError" :error="loadError" @retry="load" />
 
         <template v-else-if="task">
             <header class="flex flex-wrap items-start justify-between gap-3">
