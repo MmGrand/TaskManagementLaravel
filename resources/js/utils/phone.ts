@@ -29,7 +29,9 @@ function splitCountryCode(digits: string): { code: string; groups: number[] } {
 }
 
 export function phoneDigits(value: string): string {
-    return value.replace(/\D/g, '').slice(0, PHONE_MAX_DIGITS);
+    const digits = value.replace(/\D/g, '').slice(0, PHONE_MAX_DIGITS);
+
+    return digits.startsWith('8') ? `7${digits.slice(1)}` : digits;
 }
 
 export function maskPhone(value: string): string {

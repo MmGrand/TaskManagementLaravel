@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import * as projectsApi from '@/api/projects';
@@ -19,7 +19,11 @@ const error = ref<ApiError | null>(null);
 
 const projectId = computed(() => Number(route.params.id));
 
-onMounted(async () => {
+async function load(): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    project.value = null;
+
     try {
         project.value = await projectsApi.show(projectId.value);
     } catch (caught) {
@@ -27,7 +31,10 @@ onMounted(async () => {
     } finally {
         loading.value = false;
     }
-});
+}
+
+watch(projectId, load);
+onMounted(load);
 </script>
 
 <template>

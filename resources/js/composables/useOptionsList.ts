@@ -22,7 +22,11 @@ export function useOptionsList<T>(
     const truncated = ref(false);
     const failed = ref(false);
 
+    let loadToken = 0;
+
     async function load(): Promise<void> {
+        const token = ++loadToken;
+
         loading.value = true;
         failed.value = false;
         truncated.value = false;
@@ -41,15 +45,23 @@ export function useOptionsList<T>(
                 currentPage += 1;
             } while (currentPage <= lastPage && currentPage <= MAX_PAGES);
 
+            if (token !== loadToken) {
+                return;
+            }
+
             truncated.value = lastPage > MAX_PAGES;
             options.value = collected;
         } catch {
             // 403 здесь — норма: обычный пользователь не может получить список
             // пользователей. Вызывающий код покажет пустое/отключённое состояние, а не ошибку.
-            failed.value = true;
-            options.value = [];
+            if (token === loadToken) {
+                failed.value = true;
+                options.value = [];
+            }
         } finally {
-            loading.value = false;
+            if (token === loadToken) {
+                loading.value = false;
+            }
         }
     }
 

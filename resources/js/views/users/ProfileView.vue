@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import * as usersApi from '@/api/users';
@@ -46,14 +46,19 @@ const isSelf = computed(() => user.value !== null && user.value.id === auth.user
 
 const canEdit = computed(() => user.value !== null && permissions.canUpdateUser(user.value));
 
-onMounted(async () => {
+async function load(): Promise<void> {
     const id = targetId.value;
+
+    user.value = null;
+    loadError.value = null;
 
     if (id === null) {
         loading.value = false;
 
         return;
     }
+
+    loading.value = true;
 
     try {
         user.value = await usersApi.show(id);
@@ -70,7 +75,10 @@ onMounted(async () => {
     } finally {
         loading.value = false;
     }
-});
+}
+
+watch(targetId, load);
+onMounted(load);
 
 async function onSubmit(payload: UserPayload, avatar: File | null): Promise<void> {
     const current = user.value;

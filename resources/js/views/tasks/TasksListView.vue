@@ -148,19 +148,31 @@ function columnSpecs(): BoardColumnSpec[] {
 
 const board = useTaskBoard({ groupBy, columnSpecs, filters: boardFilters });
 
+let loadToken = 0;
+
 async function loadTable(): Promise<void> {
+    const token = ++loadToken;
+
     loading.value = true;
     loadError.value = null;
 
     try {
         const page = await tasksApi.list({ ...apiFilters.value, page: query.page.value });
 
+        if (token !== loadToken) {
+            return;
+        }
+
         tasks.value = page.items;
         meta.value = page.meta;
     } catch (error) {
-        loadError.value = error as ApiError;
+        if (token === loadToken) {
+            loadError.value = error as ApiError;
+        }
     } finally {
-        loading.value = false;
+        if (token === loadToken) {
+            loading.value = false;
+        }
     }
 }
 

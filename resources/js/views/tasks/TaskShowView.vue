@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import * as tasksApi from '@/api/tasks';
@@ -36,7 +36,12 @@ const formOpen = ref(false);
 
 const isManageable = computed(() => (task.value === null ? false : isTaskManageableBy(task.value, auth.user)));
 
-onMounted(async () => {
+async function load(): Promise<void> {
+    loading.value = true;
+    loadError.value = null;
+    task.value = null;
+    formOpen.value = false;
+
     try {
         task.value = await tasksApi.show(Number(route.params.id));
     } catch (caught) {
@@ -44,7 +49,10 @@ onMounted(async () => {
     } finally {
         loading.value = false;
     }
-});
+}
+
+watch(() => route.params.id, load);
+onMounted(load);
 
 async function onSubmit(payload: ManageableTaskPayload | AssigneeTaskPayload): Promise<void> {
     const current = task.value;

@@ -25,7 +25,7 @@ describe('AppPhoneInput', () => {
 
         await type(wrapper, '8 (999) абв 12-34');
 
-        expect(wrapper.find('input').element.value).toBe('+8 999 123 4');
+        expect(wrapper.find('input').element.value).toBe('+7 999 123 4');
     });
 
     it('formats a stored number on mount', () => {

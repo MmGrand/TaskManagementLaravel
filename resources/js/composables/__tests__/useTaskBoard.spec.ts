@@ -233,6 +233,27 @@ describe('move', () => {
 
         expect(instance.dragging.value).toBe(false);
     });
+
+    it('ignores a second move started while the first has not resolved yet', async () => {
+        const instance = await loadedBoard();
+        const task = instance.columns.value[0]!.tasks[0]!;
+
+        let release = (): void => {};
+        mockedApi.move.mockReturnValue(
+            new Promise((resolve) => {
+                release = () => resolve(makeTask({ id: 1, status: 'in_progress' }));
+            }),
+        );
+
+        const first = instance.move({ task, columnKey: 'in_progress', after_task_id: null, before_task_id: null });
+        const second = instance.move({ task, columnKey: 'completed', after_task_id: null, before_task_id: null });
+
+        release();
+        await first;
+        await second;
+
+        expect(mockedApi.move).toHaveBeenCalledTimes(1);
+    });
 });
 
 describe('local mutations', () => {
