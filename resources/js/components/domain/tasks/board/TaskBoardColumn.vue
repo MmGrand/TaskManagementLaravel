@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick } from 'vue';
+import { computed, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { VueDraggable } from 'vue-draggable-plus';
 import AppButton from '@/components/ui/AppButton.vue';
@@ -41,6 +41,13 @@ const { t } = useI18n();
 function canDrag(task: Task): boolean {
     return permissions.canUpdateTask(task);
 }
+
+const tasks = computed<Task[]>({
+    get: () => props.column.tasks,
+    set: (value) => {
+        props.column.tasks = value;
+    },
+});
 
 function onMove(event: { to: HTMLElement; from: HTMLElement; dragged: HTMLElement }): boolean {
     if (event.to === event.from) {
@@ -88,7 +95,7 @@ async function onEnd(event: { newIndex?: number }): Promise<void> {
 
         <template v-else>
             <VueDraggable
-                v-model="column.tasks"
+                v-model="tasks"
                 :group="{ name: 'tasks' }"
                 :data-column-key="column.key"
                 :disabled="dragDisabled"

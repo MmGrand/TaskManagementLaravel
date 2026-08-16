@@ -7,7 +7,7 @@ import AppField from '@/components/ui/AppField.vue';
 import AppInput from '@/components/ui/AppInput.vue';
 import { useFormValidation } from '@/composables/useFormValidation';
 import type { ApiError } from '@/types/api';
-import { minLength, PASSWORD_MIN_LENGTH, required, sameAs } from '@/utils/validation';
+import { minLength, passwordComplexity, PASSWORD_MIN_LENGTH, required, sameAs } from '@/utils/validation';
 import type { PasswordPayload } from '@/utils/userPayload';
 
 const props = defineProps<{ pending?: boolean; error?: ApiError | null }>();
@@ -23,12 +23,12 @@ const form = reactive<PasswordPayload>({
 
 const validation = useFormValidation(form, {
     current_password: [required()],
-    password: [required(), minLength(PASSWORD_MIN_LENGTH)],
+    password: [required(), minLength(PASSWORD_MIN_LENGTH), passwordComplexity()],
     password_confirmation: [required(), sameAs(() => form.password, 'validation.passwordMismatch')],
 });
 
 function fieldError(field: string): string | null {
-    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field, props.error?.errors[field]?.[0] ?? null);
 }
 
 function onSubmit(): void {

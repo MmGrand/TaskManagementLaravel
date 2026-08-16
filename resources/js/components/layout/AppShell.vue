@@ -8,6 +8,7 @@ import ThemeSwitcher from '@/components/layout/ThemeSwitcher.vue';
 import UserMenu from '@/components/layout/UserMenu.vue';
 import AppDrawer from '@/components/ui/AppDrawer.vue';
 import { useUiStore } from '@/stores/ui';
+import { APP_NAME } from '@/utils/appName';
 
 const ui = useUiStore();
 const route = useRoute();
@@ -34,7 +35,7 @@ watch(
                         :to="{ name: 'dashboard' }"
                         class="truncate text-sm font-semibold text-fg"
                     >
-                        Task Management
+                        {{ APP_NAME }}
                     </RouterLink>
                     <div class="hidden md:block"><AppNav /></div>
                 </div>

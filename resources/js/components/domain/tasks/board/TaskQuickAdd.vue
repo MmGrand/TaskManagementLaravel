@@ -5,6 +5,7 @@ import AppButton from '@/components/ui/AppButton.vue';
 import AppInput from '@/components/ui/AppInput.vue';
 import AppSelect from '@/components/ui/AppSelect.vue';
 import type { SelectOption } from '@/components/ui/AppSelect.vue';
+import { maxLength } from '@/utils/validation';
 
 const props = defineProps<{
     pending: boolean;
@@ -22,7 +23,10 @@ const project = ref(props.projectId);
 const input = ref<InstanceType<typeof AppInput> | null>(null);
 
 const needsProject = computed(() => props.projectId === '');
-const canSubmit = computed(() => title.value.trim() !== '' && project.value !== '' && !props.pending);
+const titleError = computed(() => maxLength(255)(title.value));
+const canSubmit = computed(
+    () => title.value.trim() !== '' && project.value !== '' && titleError.value === null && !props.pending,
+);
 
 async function start(): Promise<void> {
     open.value = true;
@@ -56,10 +60,12 @@ function submit(): void {
             <AppInput
                 ref="input"
                 v-model="title"
+                :invalid="titleError !== null"
                 :placeholder="t('tasks.board.quickAddPlaceholder')"
                 :aria-label="t('tasks.board.quickAdd')"
                 @keydown.esc="cancel"
             />
+            <p v-if="titleError" class="text-xs text-danger-fg">{{ titleError }}</p>
 
             <AppSelect
                 v-if="needsProject"

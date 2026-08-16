@@ -23,6 +23,17 @@ export function minLength(min: number): Validator {
     return whenFilled((value) => (value.length < min ? i18n.global.t('validation.minLength', { min }) : null));
 }
 
+const PASSWORD_LETTER = /\p{L}/u;
+const PASSWORD_NUMBER = /\p{N}/u;
+
+export function passwordComplexity(): Validator {
+    return whenFilled((value) =>
+        PASSWORD_LETTER.test(value) && PASSWORD_NUMBER.test(value)
+            ? null
+            : i18n.global.t('validation.passwordComplexity'),
+    );
+}
+
 export function email(): Validator {
     return whenFilled((value) => (EMAIL.test(value.trim()) ? null : i18n.global.t('validation.email')));
 }

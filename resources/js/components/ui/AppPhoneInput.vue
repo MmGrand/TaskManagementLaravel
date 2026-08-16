@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { FIELD_BASE_CLASS, FIELD_RING_INVALID, FIELD_RING_VALID } from '@/components/ui/fieldStyle';
 import { caretAfterDigits, countDigits } from '@/utils/caret';
 import { maskPhone } from '@/utils/phone';
 
@@ -61,8 +62,8 @@ function onInput(event: Event): void {
         :disabled="disabled"
         :aria-invalid="invalid || undefined"
         :aria-describedby="describedBy"
-        class="block w-full rounded-md border-0 bg-surface px-3 py-2 text-sm text-fg shadow-sm ring-1 ring-inset placeholder:text-fg-faint focus:ring-2 focus:ring-inset disabled:cursor-not-allowed disabled:text-fg-subtle"
-        :class="invalid ? 'ring-danger' : 'ring-border-strong focus:ring-accent'"
+        class="disabled:cursor-not-allowed disabled:text-fg-subtle"
+        :class="[FIELD_BASE_CLASS, invalid ? FIELD_RING_INVALID : FIELD_RING_VALID]"
         @input="onInput"
     />
 </template>

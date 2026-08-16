@@ -110,6 +110,12 @@ describe('with statistics.view', () => {
         expect(statisticsApi.summary).toHaveBeenCalledTimes(1);
     });
 
+    it('warns that the numbers may lag behind recent changes', async () => {
+        const wrapper = await mountAs('admin');
+
+        expect(wrapper.text()).toContain('могут немного отставать');
+    });
+
     it('surfaces a load failure', async () => {
         vi.mocked(statisticsApi).summary.mockRejectedValue({ message: 'Действие запрещено.', isForbidden: true });
 

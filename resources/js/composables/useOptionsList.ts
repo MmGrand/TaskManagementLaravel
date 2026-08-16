@@ -1,18 +1,9 @@
 import { ref } from 'vue';
-import type { Page } from '@/types/api';
 import type { SelectOption } from '@/components/ui/AppSelect.vue';
+import type { ApiError, Page } from '@/types/api';
 
-/** 5 страниц по 15 строк — у API нет эндпоинта поиска, и `per_page` игнорируется. */
 const MAX_PAGES = 5;
 
-/**
- * Заполняет select данными с постраничного эндпоинта.
- *
- * Размер страницы захардкожен на бэкенде в 15, и `?search=` не существует,
- * поэтому единственный способ наполнить список — пройти по страницам.
- * Ограничение не даёт большому набору данных вызвать десятки запросов;
- * `truncated` позволяет UI сообщить об этом.
- */
 export function useOptionsList<T>(
     fetchPage: (page: number) => Promise<Page<T>>,
     toOption: (item: T) => SelectOption,
@@ -21,11 +12,17 @@ export function useOptionsList<T>(
     const loading = ref(false);
     const truncated = ref(false);
     const failed = ref(false);
+    const error = ref<ApiError | null>(null);
+
+    let loadToken = 0;
 
     async function load(): Promise<void> {
+        const token = ++loadToken;
+
         loading.value = true;
         failed.value = false;
         truncated.value = false;
+        error.value = null;
 
         const collected: SelectOption[] = [];
 
@@ -41,17 +38,26 @@ export function useOptionsList<T>(
                 currentPage += 1;
             } while (currentPage <= lastPage && currentPage <= MAX_PAGES);
 
+            if (token !== loadToken) {
+                return;
+            }
+
             truncated.value = lastPage > MAX_PAGES;
             options.value = collected;
-        } catch {
-            // 403 здесь — норма: обычный пользователь не может получить список
-            // пользователей. Вызывающий код покажет пустое/отключённое состояние, а не ошибку.
+        } catch (caught) {
+            if (token !== loadToken) {
+                return;
+            }
+
             failed.value = true;
             options.value = [];
+            error.value = caught as ApiError;
         } finally {
-            loading.value = false;
+            if (token === loadToken) {
+                loading.value = false;
+            }
         }
     }
 
-    return { options, loading, truncated, failed, load };
+    return { options, loading, truncated, failed, error, load };
 }

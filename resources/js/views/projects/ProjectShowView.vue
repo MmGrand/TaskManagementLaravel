@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import * as projectsApi from '@/api/projects';
-import AppAlert from '@/components/ui/AppAlert.vue';
+import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import ProjectStatusBadge from '@/components/domain/projects/ProjectStatusBadge.vue';
 import type { ApiError } from '@/types/api';
@@ -11,6 +11,7 @@ import type { Project } from '@/types/models';
 import { formatDateTime, fullName } from '@/utils/format';
 
 const route = useRoute();
+const router = useRouter();
 const { t } = useI18n();
 
 const project = ref<Project | null>(null);
@@ -19,21 +20,36 @@ const error = ref<ApiError | null>(null);
 
 const projectId = computed(() => Number(route.params.id));
 
-onMounted(async () => {
+async function load(): Promise<void> {
+    loading.value = true;
+    error.value = null;
+    project.value = null;
+
     try {
         project.value = await projectsApi.show(projectId.value);
     } catch (caught) {
-        error.value = caught as ApiError;
+        const caughtError = caught as ApiError;
+
+        if (caughtError.isForbidden && !caughtError.isAccountDisabled) {
+            await router.replace({ name: 'forbidden' });
+
+            return;
+        }
+
+        error.value = caughtError;
     } finally {
         loading.value = false;
     }
-});
+}
+
+watch(projectId, load);
+onMounted(load);
 </script>
 
 <template>
     <section class="flex flex-col gap-4">
         <AppSpinner v-if="loading" />
-        <AppAlert v-else-if="error">{{ error.message }}</AppAlert>
+        <AppErrorState v-else-if="error" :error="error" @retry="load" />
 
         <template v-else-if="project">
             <header class="flex flex-wrap items-center justify-between gap-3">

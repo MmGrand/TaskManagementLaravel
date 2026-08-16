@@ -103,6 +103,12 @@ describe('validateAvatar', () => {
     it('accepts a valid image', () => {
         expect(validateAvatar(new File(['x'], 'a.png', { type: 'image/png' }))).toBeNull();
     });
+
+    it('rejects an image format the server does not accept', () => {
+        const file = new File(['x'], 'a.heic', { type: 'image/heic' });
+
+        expect(validateAvatar(file)).toBe('Аватар должен быть изображением.');
+    });
 });
 
 describe('buildUserPayload current_password', () => {

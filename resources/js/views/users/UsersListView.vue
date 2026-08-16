@@ -24,19 +24,31 @@ const meta = ref<PageMeta | null>(null);
 const loading = ref(false);
 const loadError = ref<ApiError | null>(null);
 
+let loadToken = 0;
+
 async function load(): Promise<void> {
+    const token = ++loadToken;
+
     loading.value = true;
     loadError.value = null;
 
     try {
         const page = await usersApi.list(query.page.value);
 
+        if (token !== loadToken) {
+            return;
+        }
+
         users.value = page.items;
         meta.value = page.meta;
     } catch (error) {
-        loadError.value = error as ApiError;
+        if (token === loadToken) {
+            loadError.value = error as ApiError;
+        }
     } finally {
-        loading.value = false;
+        if (token === loadToken) {
+            loading.value = false;
+        }
     }
 }
 

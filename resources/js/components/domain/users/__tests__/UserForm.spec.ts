@@ -100,4 +100,21 @@ describe('UserForm', () => {
 
         expect(wrapper.text()).not.toContain('в международном формате');
     });
+
+    it('does not carry the previous user’s chosen avatar into a different user’s save', async () => {
+        const userA = makeUser({ id: 1, role: makeRole('user') });
+        const userB = makeUser({ id: 2, role: makeRole('user') });
+        const wrapper = await mountForm(userA);
+
+        const input = wrapper.find('input[type="file"]');
+        const file = new File(['x'], 'a.png', { type: 'image/png' });
+
+        Object.defineProperty(input.element, 'files', { value: [file], configurable: true });
+        await input.trigger('change');
+
+        await wrapper.setProps({ user: userB });
+        await wrapper.find('form').trigger('submit');
+
+        expect(wrapper.emitted('submit')![0]![1]).toBeNull();
+    });
 });

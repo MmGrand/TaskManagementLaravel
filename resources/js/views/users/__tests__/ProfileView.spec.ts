@@ -1,5 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { reactive } from 'vue';
 import { flushPromises, mount } from '@vue/test-utils';
+import type { VueWrapper } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
 import * as usersApi from '@/api/users';
 import * as rolesApi from '@/api/roles';
@@ -9,7 +11,7 @@ import { comboboxes } from '@/tests/ui';
 import { makeRole, makeUser } from '@/tests/fixtures';
 import type { RoleSlug } from '@/types/enums';
 
-const routeQuery: Record<string, string> = {};
+const routeQuery = reactive<Record<string, string>>({});
 const routerReplace = vi.fn();
 
 vi.mock('vue-router', () => ({
@@ -22,6 +24,11 @@ vi.mock('@/api/http', () => ({
 }));
 vi.mock('@/api/users');
 vi.mock('@/api/roles');
+
+// `routeQuery` реактивный (нужно проверить watch по ?id=), поэтому предыдущий
+// смонтированный экран обязательно размонтируем — иначе его watcher переживёт
+// тест и среагирует на мутацию routeQuery в соседнем.
+let activeWrapper: VueWrapper | null = null;
 
 async function mountAs(slug: RoleSlug, id = 1) {
     const wrapper = mount(ProfileView, {
@@ -36,6 +43,7 @@ async function mountAs(slug: RoleSlug, id = 1) {
         },
     });
 
+    activeWrapper = wrapper;
     await flushPromises();
 
     return { wrapper, auth: useAuthStore() };
@@ -50,6 +58,11 @@ beforeEach(() => {
         delete routeQuery[key];
     }
     vi.mocked(rolesApi).list.mockResolvedValue([makeRole('admin'), makeRole('manager'), makeRole('user')]);
+});
+
+afterEach(() => {
+    activeWrapper?.unmount();
+    activeWrapper = null;
 });
 
 describe('a plain user editing themselves', () => {
@@ -154,6 +167,26 @@ describe('an admin editing someone else', () => {
     });
 });
 
+describe('switching the target user without a remount', () => {
+    it('reloads instead of keeping the previous user when ?id= changes', async () => {
+        routeQuery.id = '9';
+        vi.mocked(usersApi)
+            .show.mockResolvedValueOnce(makeUser({ id: 9, first_name: 'Первый', role: makeRole('user') }))
+            .mockResolvedValueOnce(makeUser({ id: 10, first_name: 'Второй', role: makeRole('user') }));
+
+        const { wrapper } = await mountAs('admin', 1);
+        const firstNameInput = () => wrapper.findAll('input')[1]!.element as HTMLInputElement;
+
+        expect(firstNameInput().value).toBe('Первый');
+
+        routeQuery.id = '10';
+        await flushPromises();
+
+        expect(usersApi.show).toHaveBeenLastCalledWith(10);
+        expect(firstNameInput().value).toBe('Второй');
+    });
+});
+
 describe('someone the viewer may read but not edit', () => {
     it('renders a read-only summary instead of the form', async () => {
         routeQuery.id = '9';
@@ -199,15 +232,15 @@ describe('changing the password', () => {
         const fields = form.findAll('input[type="password"]');
 
         await fields[0]!.setValue('old-password');
-        await fields[1]!.setValue('new-password');
-        await fields[2]!.setValue('new-password');
+        await fields[1]!.setValue('new-password1');
+        await fields[2]!.setValue('new-password1');
         await form.trigger('submit');
         await flushPromises();
 
         expect(usersApi.changePassword).toHaveBeenCalledWith(1, {
             current_password: 'old-password',
-            password: 'new-password',
-            password_confirmation: 'new-password',
+            password: 'new-password1',
+            password_confirmation: 'new-password1',
         });
     });
 
@@ -219,8 +252,8 @@ describe('changing the password', () => {
         const fields = form.findAll('input[type="password"]');
 
         await fields[0]!.setValue('old-password');
-        await fields[1]!.setValue('new-password');
-        await fields[2]!.setValue('new-passwerd');
+        await fields[1]!.setValue('new-password1');
+        await fields[2]!.setValue('new-passwerd1');
         await form.trigger('submit');
         await flushPromises();
 

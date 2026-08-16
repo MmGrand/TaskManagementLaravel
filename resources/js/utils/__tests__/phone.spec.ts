@@ -7,6 +7,11 @@ describe('phoneDigits', () => {
         expect(phoneDigits('телефон')).toBe('');
         expect(phoneDigits('1'.repeat(30))).toHaveLength(15);
     });
+
+    it('treats a leading trunk "8" as the +7 country code', () => {
+        expect(phoneDigits('89991234567')).toBe('79991234567');
+        expect(phoneDigits('8 (999) 123-45-67')).toBe('79991234567');
+    });
 });
 
 describe('maskPhone', () => {
@@ -30,8 +35,11 @@ describe('maskPhone', () => {
     });
 
     it('drops everything that is not a digit, so a pasted number still fits', () => {
-        expect(maskPhone('8 (999) 123-45-67')).toBe('+8 999 123 456 7');
         expect(maskPhone('tel: +7-999-123-45-67')).toBe('+7 999 123 45 67');
+    });
+
+    it('normalizes a trunk-prefixed Russian number to +7', () => {
+        expect(maskPhone('8 (999) 123-45-67')).toBe('+7 999 123 45 67');
     });
 
     it('leaves an empty field empty but keeps a lone plus visible', () => {
@@ -44,6 +52,10 @@ describe('normalizePhone', () => {
     it('strips the grouping down to what the server stores', () => {
         expect(normalizePhone('+7 999 123 45 67')).toBe('+79991234567');
         expect(normalizePhone('')).toBe('');
+    });
+
+    it('stores a trunk-prefixed number under the +7 code, not +8', () => {
+        expect(normalizePhone('89991234567')).toBe('+79991234567');
     });
 });
 

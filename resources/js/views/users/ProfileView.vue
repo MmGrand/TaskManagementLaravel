@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import * as usersApi from '@/api/users';
-import AppAlert from '@/components/ui/AppAlert.vue';
+import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
 import PasswordForm from '@/components/domain/users/PasswordForm.vue';
 import UserForm from '@/components/domain/users/UserForm.vue';
@@ -46,14 +46,19 @@ const isSelf = computed(() => user.value !== null && user.value.id === auth.user
 
 const canEdit = computed(() => user.value !== null && permissions.canUpdateUser(user.value));
 
-onMounted(async () => {
+async function load(): Promise<void> {
     const id = targetId.value;
+
+    user.value = null;
+    loadError.value = null;
 
     if (id === null) {
         loading.value = false;
 
         return;
     }
+
+    loading.value = true;
 
     try {
         user.value = await usersApi.show(id);
@@ -70,7 +75,10 @@ onMounted(async () => {
     } finally {
         loading.value = false;
     }
-});
+}
+
+watch(targetId, load);
+onMounted(load);
 
 async function onSubmit(payload: UserPayload, avatar: File | null): Promise<void> {
     const current = user.value;
@@ -117,7 +125,7 @@ async function onChangePassword(payload: PasswordPayload): Promise<void> {
         <h1 class="text-xl font-semibold text-fg">{{ isSelf ? t('profile.mine') : t('profile.other') }}</h1>
 
         <AppSpinner v-if="loading" />
-        <AppAlert v-else-if="loadError">{{ loadError.message }}</AppAlert>
+        <AppErrorState v-else-if="loadError" :error="loadError" @retry="load" />
 
         <template v-else-if="user">
             <UserForm

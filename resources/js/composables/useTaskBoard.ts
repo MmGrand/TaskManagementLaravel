@@ -170,6 +170,10 @@ export function useTaskBoard(options: TaskBoardOptions) {
     }
 
     async function move(intent: MoveIntent): Promise<void> {
+        if (dragging.value) {
+            return;
+        }
+
         const { task, columnKey } = intent;
         const sourceKey = columnKeyOf(task, options.groupBy.value);
         const patch = sourceKey === columnKey ? {} : columnPatch(options.groupBy.value, columnKey);

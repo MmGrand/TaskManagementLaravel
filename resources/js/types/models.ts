@@ -44,13 +44,20 @@ export interface AssignableUser {
     avatar: string | null;
 }
 
+export interface UserSummary {
+    id: number;
+    first_name: string;
+    last_name: string;
+    avatar: string | null;
+}
+
 export interface Project {
     id: number;
     name: string;
     description: string | null;
     status: ProjectStatus;
     created_by: number;
-    creator?: User;
+    creator?: UserSummary;
     created_at: string;
     updated_at: string;
 }
@@ -68,8 +75,8 @@ export interface Task {
     due_date: string | null;
     position: number;
     project?: Project;
-    assigned_user?: User;
-    created_by_user?: User;
+    assigned_user?: UserSummary;
+    created_by_user?: UserSummary;
     created_at: string;
     updated_at: string;
 }

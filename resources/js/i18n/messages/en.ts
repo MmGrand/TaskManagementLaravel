@@ -82,7 +82,7 @@ const en: MessageSchema = {
         password: 'Password',
         currentPassword: 'Current password',
         passwordConfirmation: 'Confirm password',
-        passwordHint: 'At least 8 characters',
+        passwordHint: 'At least 8 characters, with letters and numbers',
         signIn: 'Sign in',
         signUp: 'Sign up',
         noAccount: 'No account yet?',
@@ -100,6 +100,7 @@ const en: MessageSchema = {
         myTasks: 'My tasks',
         allMyTasks: 'All my tasks',
         noTasksAssigned: 'Nothing has been assigned to you yet',
+        statsStale: 'Numbers refresh about once a minute and may lag slightly behind the latest changes.',
     },
 
     tasks: {
@@ -232,6 +233,7 @@ const en: MessageSchema = {
         phone: 'Enter the number in international format: {min} to {max} digits.',
         maxLength: 'Must not exceed {max} characters.',
         minLength: 'Must be at least {min} characters.',
+        passwordComplexity: 'The password must contain letters and numbers.',
         passwordMismatch: 'The passwords do not match.',
         avatarImage: 'The avatar must be an image.',
         avatarSize: 'The avatar must not exceed 2 MB.',

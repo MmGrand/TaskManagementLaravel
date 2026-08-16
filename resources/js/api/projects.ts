@@ -2,6 +2,7 @@ import { http } from '@/api/http';
 import type { Envelope, Page, PaginatedEnvelope } from '@/types/api';
 import type { Project } from '@/types/models';
 import type { ProjectStatus } from '@/types/enums';
+import { buildListQuery } from '@/utils/listQuery';
 
 export interface ProjectFilters {
     status?: ProjectStatus | '';
@@ -18,19 +19,10 @@ export interface ProjectPayload {
     status: ProjectStatus;
 }
 
-/** Пустые фильтры отбрасываются: бэкенд и так считает `?status=` отсутствующим. */
+const FILTER_KEYS = ['status'] as const;
+
 function toQuery(filters: ProjectFilters): Record<string, string | number> {
-    const params: Record<string, string | number> = {};
-
-    if (filters.status) {
-        params.status = filters.status;
-    }
-
-    if (filters.page && filters.page > 1) {
-        params.page = filters.page;
-    }
-
-    return params;
+    return buildListQuery(filters, FILTER_KEYS);
 }
 
 export async function list(filters: ProjectFilters = {}): Promise<Page<Project>> {

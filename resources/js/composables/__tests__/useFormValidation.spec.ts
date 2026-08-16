@@ -74,4 +74,45 @@ describe('useFormValidation', () => {
 
         expect(validation.fieldError('name')).toBeNull();
     });
+
+    describe('server-side message from a previous submit', () => {
+        it('shows it when the field has no client-side complaint', () => {
+            const { validation } = setup('Имя');
+
+            expect(validation.fieldError('name', 'Уже занято.')).toBe('Уже занято.');
+        });
+
+        it('lets the client-side message take priority over it', () => {
+            const { validation } = setup('слишком длинное');
+            validation.touch('name');
+
+            expect(validation.fieldError('name', 'Уже занято.')).toBe('Не длиннее 5 символов.');
+        });
+
+        it('goes stale once the field is touched again after a submit', () => {
+            const { validation } = setup('Имя');
+
+            validation.validate();
+            expect(validation.fieldError('name', 'Уже занято.')).toBe('Уже занято.');
+
+            validation.touch('name');
+
+            expect(validation.fieldError('name', 'Уже занято.')).toBeNull();
+        });
+
+        it('stays visible if the retry never reached the server (client validation failed)', () => {
+            const { values, validation } = setup('Имя');
+
+            validation.validate();
+            validation.touch('name');
+
+            // Пользователь портит другое поле и снова жмёт submit — до сервера
+            // попытка не доходит, значит отметка "тронуто после отправки" не должна сбрасываться.
+            values.name = '';
+            expect(validation.validate()).toBe(false);
+
+            values.name = 'Имя';
+            expect(validation.fieldError('name', 'Уже занято.')).toBeNull();
+        });
+    });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { setLocale } from '@/i18n';
-import { email, maxLength, minLength, phone, required, sameAs } from '@/utils/validation';
+import { email, maxLength, minLength, passwordComplexity, phone, required, sameAs } from '@/utils/validation';
 
 describe('required', () => {
     it('treats whitespace as an empty field', () => {
@@ -20,6 +20,14 @@ describe('minLength', () => {
     it('measures the password as typed, spaces included', () => {
         expect(minLength(8)('12345678')).toBeNull();
         expect(minLength(8)('1234567')).toBe('Не короче 8 символов.');
+    });
+});
+
+describe('passwordComplexity', () => {
+    it('mirrors the production Password::defaults() rule', () => {
+        expect(passwordComplexity()('secret12')).toBeNull();
+        expect(passwordComplexity()('12345678')).toBe('Пароль должен содержать буквы и цифры.');
+        expect(passwordComplexity()('password')).toBe('Пароль должен содержать буквы и цифры.');
     });
 });
 
@@ -59,6 +67,7 @@ describe('empty values', () => {
         expect(phone()('')).toBeNull();
         expect(minLength(8)('')).toBeNull();
         expect(maxLength(3)('')).toBeNull();
+        expect(passwordComplexity()('')).toBeNull();
     });
 });
 

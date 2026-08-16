@@ -91,6 +91,8 @@ onMounted(() => {
             <AppSpinner v-else-if="loading && statistics === null" />
 
             <template v-else-if="statistics">
+                <p class="text-xs text-fg-subtle">{{ t('dashboard.statsStale') }}</p>
+
                 <div class="grid gap-4 sm:grid-cols-3">
                     <StatCard :label="t('dashboard.projectsCount')" :value="statistics.projects_count" />
                     <StatCard :label="t('dashboard.tasksCount')" :value="statistics.tasks_count" />

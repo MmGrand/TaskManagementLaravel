@@ -42,19 +42,31 @@ const deletePending = ref(false);
 
 const statusOptions = enumOptions('projectStatus', PROJECT_STATUSES);
 
+let loadToken = 0;
+
 async function load(): Promise<void> {
+    const token = ++loadToken;
+
     loading.value = true;
     loadError.value = null;
 
     try {
         const page = await projectsApi.list({ status: query.filters.status, page: query.page.value });
 
+        if (token !== loadToken) {
+            return;
+        }
+
         projects.value = page.items;
         meta.value = page.meta;
     } catch (error) {
-        loadError.value = error as ApiError;
+        if (token === loadToken) {
+            loadError.value = error as ApiError;
+        }
     } finally {
-        loading.value = false;
+        if (token === loadToken) {
+            loading.value = false;
+        }
     }
 }
 

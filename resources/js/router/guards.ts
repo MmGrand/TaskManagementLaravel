@@ -3,9 +3,7 @@ import type { NavigationGuardWithThis, RouteLocationNormalized, Router } from 'v
 import { i18n } from '@/i18n';
 import { activeLocale } from '@/i18n/locale-state';
 import { useAuthStore } from '@/stores/auth';
-
-/** Бренд, не подлежит переводу — совпадает с config('app.name'). */
-const APP_NAME = 'Task Management';
+import { APP_NAME } from '@/utils/appName';
 
 /**
  * Восстанавливает сессию до разрешения первого перехода, а затем применяет

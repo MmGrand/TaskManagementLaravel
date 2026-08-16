@@ -11,7 +11,16 @@ import { useApiForm } from '@/composables/useApiForm';
 import { useFormValidation } from '@/composables/useFormValidation';
 import { useAuthStore } from '@/stores/auth';
 import { normalizePhone } from '@/utils/phone';
-import { email, maxLength, minLength, PASSWORD_MIN_LENGTH, phone, required, sameAs } from '@/utils/validation';
+import {
+    email,
+    maxLength,
+    minLength,
+    passwordComplexity,
+    PASSWORD_MIN_LENGTH,
+    phone,
+    required,
+    sameAs,
+} from '@/utils/validation';
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -32,12 +41,12 @@ const validation = useFormValidation(payload, {
     last_name: [required(), maxLength(255)],
     email: [required(), email(), maxLength(255)],
     phone: [required(), phone()],
-    password: [required(), minLength(PASSWORD_MIN_LENGTH)],
+    password: [required(), minLength(PASSWORD_MIN_LENGTH), passwordComplexity()],
     password_confirmation: [required(), sameAs(() => payload.password, 'validation.passwordMismatch')],
 });
 
 function fieldError(field: string): string | null {
-    return validation.fieldError(field) ?? form.fieldError(field);
+    return validation.fieldError(field, form.fieldError(field));
 }
 
 async function onSubmit(): Promise<void> {

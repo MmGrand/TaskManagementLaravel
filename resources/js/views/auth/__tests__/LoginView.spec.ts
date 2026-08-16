@@ -63,6 +63,16 @@ describe('LoginView', () => {
         expect(replace).toHaveBeenCalledWith('/tasks/5');
     });
 
+    it('falls back to the dashboard for a redirect that points off-site', async () => {
+        routeQuery.redirect = '//evil.example.com';
+        const { wrapper, auth } = mountView();
+        vi.mocked(auth.login).mockResolvedValue(undefined);
+
+        await fillAndSubmit(wrapper);
+
+        expect(replace).toHaveBeenCalledWith({ name: 'dashboard' });
+    });
+
     it('renders the server field error under the email input', async () => {
         const { wrapper, auth } = mountView();
         vi.mocked(auth.login).mockRejectedValue({

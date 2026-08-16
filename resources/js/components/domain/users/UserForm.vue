@@ -69,6 +69,7 @@ watch(
         form.status = user.status;
         form.role_id = user.role_id === null ? '' : String(user.role_id);
         form.current_password = '';
+        avatar.value = null;
         validation.reset();
     },
     { immediate: true },
@@ -88,7 +89,7 @@ onMounted(async () => {
 });
 
 function fieldError(field: string): string | null {
-    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field, props.error?.errors[field]?.[0] ?? null);
 }
 
 function onSubmit(): void {
@@ -104,7 +105,7 @@ function onSubmit(): void {
     <form class="flex flex-col gap-4" novalidate @submit.prevent="onSubmit">
         <AppAlert v-if="error && !error.isValidation">{{ error.message }}</AppAlert>
 
-        <AvatarUploader :user="user" @change="avatar = $event" />
+        <AvatarUploader :key="user.id" :user="user" @change="avatar = $event" />
         <p v-if="fieldError('avatar')" class="text-xs text-danger-fg">{{ fieldError('avatar') }}</p>
 
         <div class="grid gap-4 sm:grid-cols-2">
