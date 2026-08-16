@@ -89,7 +89,7 @@ onMounted(async () => {
 });
 
 function fieldError(field: string): string | null {
-    return validation.fieldError(field) ?? props.error?.errors[field]?.[0] ?? null;
+    return validation.fieldError(field, props.error?.errors[field]?.[0] ?? null);
 }
 
 function onSubmit(): void {

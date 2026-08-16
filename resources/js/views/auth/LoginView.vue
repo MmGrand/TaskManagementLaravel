@@ -27,7 +27,7 @@ const validation = useFormValidation(credentials, {
 });
 
 function fieldError(field: string): string | null {
-    return validation.fieldError(field) ?? form.fieldError(field);
+    return validation.fieldError(field, form.fieldError(field));
 }
 
 /** `redirect` приходит из query — внешней ссылкой без проверки его нельзя пускать в router. */

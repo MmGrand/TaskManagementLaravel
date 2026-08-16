@@ -8,9 +8,11 @@ import TaskShowView from '@/views/tasks/TaskShowView.vue';
 import { makeRole, makeTask, makeUser } from '@/tests/fixtures';
 
 const route = reactive({ params: { id: '1' } });
+const routerReplace = vi.fn();
 
 vi.mock('vue-router', () => ({
     useRoute: () => route,
+    useRouter: () => ({ replace: routerReplace }),
 }));
 vi.mock('@/api/http', () => ({
     http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
@@ -92,5 +94,13 @@ describe('TaskShowView', () => {
 
         expect(wrapper.text()).toContain('Не удалось загрузить.');
         expect(wrapper.text()).not.toContain('Первая задача');
+    });
+
+    it('sends a forbidden task to the 403 screen instead of showing an inline error', async () => {
+        vi.mocked(tasksApi).show.mockRejectedValue({ message: 'Действие запрещено.', isForbidden: true });
+
+        await mountView();
+
+        expect(routerReplace).toHaveBeenCalledWith({ name: 'forbidden' });
     });
 });

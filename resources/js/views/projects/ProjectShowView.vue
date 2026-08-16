@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import * as projectsApi from '@/api/projects';
 import AppErrorState from '@/components/ui/AppErrorState.vue';
 import AppSpinner from '@/components/ui/AppSpinner.vue';
@@ -11,6 +11,7 @@ import type { Project } from '@/types/models';
 import { formatDateTime, fullName } from '@/utils/format';
 
 const route = useRoute();
+const router = useRouter();
 const { t } = useI18n();
 
 const project = ref<Project | null>(null);
@@ -27,7 +28,15 @@ async function load(): Promise<void> {
     try {
         project.value = await projectsApi.show(projectId.value);
     } catch (caught) {
-        error.value = caught as ApiError;
+        const caughtError = caught as ApiError;
+
+        if (caughtError.isForbidden && !caughtError.isAccountDisabled) {
+            await router.replace({ name: 'forbidden' });
+
+            return;
+        }
+
+        error.value = caughtError;
     } finally {
         loading.value = false;
     }

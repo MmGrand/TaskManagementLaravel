@@ -8,9 +8,11 @@ import ProjectShowView from '@/views/projects/ProjectShowView.vue';
 import { makeProject, makeRole, makeUser } from '@/tests/fixtures';
 
 const route = reactive({ params: { id: '1' } });
+const routerReplace = vi.fn();
 
 vi.mock('vue-router', () => ({
     useRoute: () => route,
+    useRouter: () => ({ replace: routerReplace }),
 }));
 vi.mock('@/api/http', () => ({
     http: { get: vi.fn(), post: vi.fn(), put: vi.fn(), patch: vi.fn(), delete: vi.fn() },
@@ -78,5 +80,13 @@ describe('ProjectShowView', () => {
         expect(projectsApi.show).toHaveBeenLastCalledWith(2);
         expect(wrapper.text()).toContain('Второй проект');
         expect(wrapper.text()).not.toContain('Первый проект');
+    });
+
+    it('sends a forbidden project to the 403 screen instead of showing an inline error', async () => {
+        vi.mocked(projectsApi).show.mockRejectedValue({ message: 'Действие запрещено.', isForbidden: true });
+
+        await mountView();
+
+        expect(routerReplace).toHaveBeenCalledWith({ name: 'forbidden' });
     });
 });

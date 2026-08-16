@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import * as tasksApi from '@/api/tasks';
 import AppBadge from '@/components/ui/AppBadge.vue';
 import AppButton from '@/components/ui/AppButton.vue';
@@ -23,6 +23,7 @@ import { isTaskManageableBy, isTaskOverdue } from '@/utils/taskAccess';
 import type { AssigneeTaskPayload, ManageableTaskPayload } from '@/utils/taskPayload';
 
 const route = useRoute();
+const router = useRouter();
 const auth = useAuthStore();
 const ui = useUiStore();
 const permissions = usePermissions();
@@ -45,7 +46,15 @@ async function load(): Promise<void> {
     try {
         task.value = await tasksApi.show(Number(route.params.id));
     } catch (caught) {
-        loadError.value = caught as ApiError;
+        const error = caught as ApiError;
+
+        if (error.isForbidden && !error.isAccountDisabled) {
+            await router.replace({ name: 'forbidden' });
+
+            return;
+        }
+
+        loadError.value = error;
     } finally {
         loading.value = false;
     }

@@ -46,7 +46,7 @@ const validation = useFormValidation(payload, {
 });
 
 function fieldError(field: string): string | null {
-    return validation.fieldError(field) ?? form.fieldError(field);
+    return validation.fieldError(field, form.fieldError(field));
 }
 
 async function onSubmit(): Promise<void> {

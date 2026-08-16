@@ -8,6 +8,7 @@ export function useFormValidation<T extends object>(values: T, rules: Validation
 
     const touched = ref(new Set<string>());
     const submitted = ref(false);
+    const touchedSinceSubmit = ref(new Set<string>());
 
     const failures = computed<Partial<Record<Field, string>>>(() => {
         const found: Partial<Record<Field, string>> = {};
@@ -30,16 +31,31 @@ export function useFormValidation<T extends object>(values: T, rules: Validation
 
     const isValid = computed(() => Object.keys(failures.value).length === 0);
 
-    function fieldError(field: string): string | null {
-        return submitted.value || touched.value.has(field) ? (failures.value[field as Field] ?? null) : null;
+    function fieldError(field: string, serverMessage: string | null = null): string | null {
+        const clientMessage =
+            submitted.value || touched.value.has(field) ? (failures.value[field as Field] ?? null) : null;
+
+        if (clientMessage !== null) {
+            return clientMessage;
+        }
+
+        return touchedSinceSubmit.value.has(field) ? null : serverMessage;
     }
 
     function touch(field: string): void {
         touched.value = new Set([...touched.value, field]);
+
+        if (submitted.value) {
+            touchedSinceSubmit.value = new Set([...touchedSinceSubmit.value, field]);
+        }
     }
 
     function validate(): boolean {
         submitted.value = true;
+
+        if (isValid.value) {
+            touchedSinceSubmit.value = new Set();
+        }
 
         return isValid.value;
     }
@@ -47,6 +63,7 @@ export function useFormValidation<T extends object>(values: T, rules: Validation
     function reset(): void {
         submitted.value = false;
         touched.value = new Set();
+        touchedSinceSubmit.value = new Set();
     }
 
     return { fieldError, touch, validate, reset, isValid };
