@@ -52,6 +52,7 @@ class StatisticsService
     private function topActiveCreators(User $viewer, int $limit = 5): array
     {
         $visibleTasks = fn (Builder $tasks): Builder => $tasks->visibleTo($viewer);
+        $exposesContacts = $viewer->can('viewAny', User::class);
 
         return User::query()
             ->withCount(['createdTasks' => $visibleTasks])
@@ -64,7 +65,7 @@ class StatisticsService
                 'id' => $user->id,
                 'first_name' => $user->first_name,
                 'last_name' => $user->last_name,
-                'email' => $user->email,
+                ...($exposesContacts ? ['email' => $user->email] : []),
                 'tasks_created_count' => $user->created_tasks_count,
             ])
             ->values()

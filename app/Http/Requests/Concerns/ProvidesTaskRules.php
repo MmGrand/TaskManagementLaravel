@@ -4,8 +4,11 @@ namespace App\Http\Requests\Concerns;
 
 use App\Enums\TaskPriority;
 use App\Enums\TaskStatus;
+use App\Enums\UserStatus;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Exists;
 
 trait ProvidesTaskRules
 {
@@ -14,7 +17,7 @@ trait ProvidesTaskRules
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    protected function manageableTaskRules(): array
+    protected function manageableTaskRules(?int $currentAssigneeId = null): array
     {
         return [
             'title' => 'required|string|max:255',
@@ -22,9 +25,22 @@ trait ProvidesTaskRules
             'status' => ['required', Rule::enum(TaskStatus::class)],
             'priority' => ['required', Rule::enum(TaskPriority::class)],
             'project_id' => 'required|exists:projects,id',
-            'assigned_to' => 'required|exists:users,id',
+            'assigned_to' => ['required', 'integer', $this->assignableUserRule($currentAssigneeId)],
             'due_date' => 'nullable|date',
         ];
+    }
+
+    /**
+     * Only users who can sign in may receive a task; the current assignee stays valid
+     * so a task can still be edited after its assignee was blocked.
+     */
+    protected function assignableUserRule(?int $currentAssigneeId): Exists
+    {
+        return Rule::exists('users', 'id')->where(fn (Builder $users) => $users->where(
+            fn (Builder $users) => $users
+                ->where('status', UserStatus::Active->value)
+                ->when($currentAssigneeId, fn (Builder $users, int $id) => $users->orWhere('id', $id)),
+        ));
     }
 
     /**
@@ -44,14 +60,16 @@ trait ProvidesTaskRules
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
-    protected function moveTaskRules(bool $manageable, int $taskId): array
+    protected function moveTaskRules(bool $manageable, int $taskId, ?int $currentAssigneeId = null): array
     {
         $neighbour = ['nullable', 'integer', 'exists:tasks,id', Rule::notIn([$taskId])];
 
         return [
             'status' => ['sometimes', Rule::enum(TaskStatus::class)],
             'priority' => $manageable ? ['sometimes', Rule::enum(TaskPriority::class)] : ['prohibited'],
-            'assigned_to' => $manageable ? ['sometimes', 'integer', 'exists:users,id'] : ['prohibited'],
+            'assigned_to' => $manageable
+                ? ['sometimes', 'integer', $this->assignableUserRule($currentAssigneeId)]
+                : ['prohibited'],
             'after_task_id' => $neighbour,
             'before_task_id' => $neighbour,
         ];

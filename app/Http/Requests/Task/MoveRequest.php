@@ -35,6 +35,6 @@ class MoveRequest extends FormRequest
     {
         $task = $this->route('task');
 
-        return $this->moveTaskRules($task->isManageableBy($this->user()), $task->getKey());
+        return $this->moveTaskRules($task->isManageableBy($this->user()), $task->getKey(), $task->assigned_to);
     }
 }

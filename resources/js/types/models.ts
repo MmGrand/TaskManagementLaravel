@@ -85,7 +85,7 @@ export interface TopActiveUser {
     id: number;
     first_name: string;
     last_name: string;
-    email: string;
+    email?: string;
     tasks_created_count: number;
 }
 

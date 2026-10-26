@@ -132,3 +132,52 @@ test('an unrelated manager still cannot delete the task', function () {
 
     $this->actingAs($stranger)->deleteJson("/api/tasks/{$task->id}")->assertForbidden();
 });
+
+test('a task cannot be assigned to a user who cannot sign in', function () {
+    $manager = User::factory()->manager()->create();
+    $blocked = User::factory()->user()->blocked()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+
+    $this->actingAs($manager)->postJson('/api/tasks', [
+        'title' => 'New Task',
+        'status' => 'pending',
+        'priority' => 'medium',
+        'project_id' => $project->id,
+        'assigned_to' => $blocked->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['assigned_to']);
+});
+
+test('a task keeps its assignee on update after the assignee was blocked', function () {
+    $manager = User::factory()->manager()->create();
+    $assignee = User::factory()->user()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $manager->id,
+        'assigned_to' => $assignee->id,
+    ]);
+    $assignee->update(['status' => 'blocked']);
+
+    $this->actingAs($manager)->putJson("/api/tasks/{$task->id}", [
+        'title' => 'Renamed',
+        'status' => 'pending',
+        'priority' => 'medium',
+        'project_id' => $project->id,
+        'assigned_to' => $assignee->id,
+    ])->assertOk()->assertJsonPath('data.title', 'Renamed');
+});
+
+test('moving a task cannot hand it to a user who cannot sign in', function () {
+    $manager = User::factory()->manager()->create();
+    $blocked = User::factory()->user()->blocked()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+    $task = Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $manager->id,
+        'assigned_to' => $manager->id,
+    ]);
+
+    $this->actingAs($manager)->patchJson("/api/tasks/{$task->id}/move", [
+        'assigned_to' => $blocked->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['assigned_to']);
+});

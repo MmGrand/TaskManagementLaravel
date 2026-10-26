@@ -27,7 +27,7 @@ class UpdateRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'status' => ['nullable', Rule::enum(ProjectStatus::class)],
+            'status' => ['sometimes', 'required', Rule::enum(ProjectStatus::class)],
         ];
     }
 }

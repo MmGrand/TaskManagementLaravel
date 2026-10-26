@@ -142,3 +142,24 @@ test('the summary reflects a deleted task', function () {
 
     $this->actingAs($manager)->getJson('/api/statistics')->assertJsonPath('tasks_count', 0);
 });
+
+test('a manager does not see the emails of the top active users', function () {
+    $admin = User::factory()->admin()->create();
+    $manager = User::factory()->manager()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+
+    Task::factory()->create([
+        'project_id' => $project->id,
+        'created_by' => $admin->id,
+        'assigned_to' => $manager->id,
+    ]);
+
+    $this->actingAs($manager)->getJson('/api/statistics')
+        ->assertOk()
+        ->assertJsonPath('top_active_users.0.id', $admin->id)
+        ->assertJsonMissingPath('top_active_users.0.email');
+
+    $this->actingAs($admin)->getJson('/api/statistics')
+        ->assertOk()
+        ->assertJsonPath('top_active_users.0.email', $admin->email);
+});

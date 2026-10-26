@@ -65,7 +65,7 @@ export function toFormData(payload: UserPayload, avatar: File): FormData {
     return data;
 }
 
-const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/bmp', 'image/gif', 'image/svg+xml', 'image/webp'];
+const ALLOWED_AVATAR_TYPES = ['image/jpeg', 'image/png', 'image/bmp', 'image/gif', 'image/webp'];
 
 export const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 export function validateAvatar(file: File): string | null {

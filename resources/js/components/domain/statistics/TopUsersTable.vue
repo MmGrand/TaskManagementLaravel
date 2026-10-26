@@ -26,7 +26,7 @@ const { t } = useI18n();
                 <tr v-for="user in users" :key="user.id">
                     <td class="py-2">
                         <span class="text-fg">{{ fullName(user) }}</span>
-                        <span class="ml-2 text-xs text-fg-subtle">{{ user.email }}</span>
+                        <span v-if="user.email" class="ml-2 text-xs text-fg-subtle">{{ user.email }}</span>
                     </td>
                     <td class="py-2 text-right font-medium text-fg">{{ user.tasks_created_count }}</td>
                 </tr>

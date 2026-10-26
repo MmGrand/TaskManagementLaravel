@@ -1,4 +1,15 @@
 vendor
 node_modules
 .git
+.env
+.env.*
+!.env.example
 storage/logs/*.log
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/public/*
+public/storage
+public/hot
+database/*.sqlite
+auth.json

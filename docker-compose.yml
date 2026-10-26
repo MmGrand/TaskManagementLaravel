@@ -52,7 +52,7 @@ services:
   mysql:
     image: mysql:8
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     environment:
       MYSQL_DATABASE: task_management
       MYSQL_USER: task_management
@@ -69,7 +69,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
 
 volumes:
   vendor:

@@ -34,7 +34,8 @@ class UserPolicy
      */
     public function update(User $user, User $model): bool
     {
-        return $user->id === $model->id || $user->hasPermission(Permission::UsersUpdate);
+        return $user->id === $model->id
+            || ($user->hasPermission(Permission::UsersUpdate) && ! $model->isAdmin());
     }
 
     /**

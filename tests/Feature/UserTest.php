@@ -382,3 +382,55 @@ test('keeping the same email needs no password', function () {
         'phone' => $user->phone,
     ])->assertOk()->assertJsonPath('data.first_name', 'Обновлённое');
 });
+
+test('a non-admin user manager cannot grant the admin role', function () {
+    $supportRole = Role::factory()->create(['permissions' => ['users.update'], 'is_active' => true]);
+    $support = User::factory()->create(['role_id' => $supportRole->id]);
+    $adminRole = Role::where('slug', RoleSlug::Admin->value)->firstOr(
+        fn () => Role::factory()->admin()->create(),
+    );
+
+    $this->actingAs($support)->putJson("/api/users/{$support->id}", [
+        'first_name' => $support->first_name,
+        'last_name' => $support->last_name,
+        'email' => $support->email,
+        'phone' => $support->phone,
+        'role_id' => $adminRole->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['role_id']);
+
+    expect($support->fresh()->isAdmin())->toBeFalse();
+});
+
+test('a non-admin user manager cannot edit an admin', function () {
+    $supportRole = Role::factory()->create(['permissions' => ['users.update'], 'is_active' => true]);
+    $support = User::factory()->create(['role_id' => $supportRole->id]);
+    $admin = User::factory()->admin()->create();
+
+    $this->actingAs($support)->putJson("/api/users/{$admin->id}", [
+        'first_name' => $admin->first_name,
+        'last_name' => $admin->last_name,
+        'email' => $admin->email,
+        'phone' => $admin->phone,
+        'status' => UserStatus::Blocked->value,
+    ])->assertForbidden();
+
+    expect($admin->fresh()->status)->toBe(UserStatus::Active);
+});
+
+test('an admin cannot change their own role or status', function () {
+    $admin = User::factory()->admin()->create();
+    $userRole = Role::where('slug', RoleSlug::User->value)->firstOr(
+        fn () => Role::factory()->user()->create(),
+    );
+
+    $this->actingAs($admin)->putJson("/api/users/{$admin->id}", [
+        'first_name' => $admin->first_name,
+        'last_name' => $admin->last_name,
+        'email' => $admin->email,
+        'phone' => $admin->phone,
+        'status' => UserStatus::Blocked->value,
+        'role_id' => $userRole->id,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['status', 'role_id']);
+
+    expect($admin->fresh()->isAdmin())->toBeTrue();
+});

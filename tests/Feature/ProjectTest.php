@@ -85,3 +85,18 @@ test('an out of range project page size fails validation', function (int $perPag
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['per_page']);
 })->with([0, 101]);
+
+test('a project status cannot be cleared to null', function () {
+    $manager = User::factory()->manager()->create();
+    $project = Project::factory()->create(['created_by' => $manager->id]);
+
+    $this->actingAs($manager)->postJson('/api/projects', [
+        'name' => 'New Project',
+        'status' => null,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['status']);
+
+    $this->actingAs($manager)->putJson("/api/projects/{$project->id}", [
+        'name' => $project->name,
+        'status' => null,
+    ])->assertUnprocessable()->assertJsonValidationErrors(['status']);
+});

@@ -32,7 +32,7 @@ class UpdateRequest extends FormRequest
     public function rules(): array
     {
         return $this->route('task')->isManageableBy($this->user())
-            ? $this->manageableTaskRules()
+            ? $this->manageableTaskRules($this->route('task')->assigned_to)
             : $this->assigneeTaskRules();
     }
 }
